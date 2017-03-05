@@ -1,0 +1,9 @@
+  vec3 rotX = vec3(0.0);
+  vec3 rotY = vec3(0.0);
+  vec3 rotZ = vec3(0.0);
+  if (wscale.x > 0.0) rotX = row0 / wscale.x;
+  if (wscale.y > 0.0) rotY = row1 / wscale.y;
+  if (wscale.z > 0.0) rotZ = row2 / wscale.z;
+  vec3 pos = invMatrix * mat3(rotX, rotY, rotZ) * position;
+  vec3 wpos = pos * wscale + wtrans;
+  vec4 hpos = projectionMatrix * viewMatrix * vec4(wpos, 1.0);

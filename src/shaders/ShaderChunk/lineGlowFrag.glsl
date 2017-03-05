@@ -1,0 +1,2 @@
+float lineGlowDist = abs(dot(vWorldPosition, normalize(lineGlowPlane.xyz)) - lineGlowPlane.w);
+reflectedLight.indirectSpecular += max(1.0 - lineGlowDist / lineGlowRange, 0.0) * lineGlowPower * lineGlowColor;

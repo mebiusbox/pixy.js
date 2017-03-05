@@ -1,0 +1,1 @@
+material.specularStrength = texture2D(tSpecular, vUv).r * specularStrength;

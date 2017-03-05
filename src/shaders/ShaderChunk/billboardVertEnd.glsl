@@ -1,0 +1,10 @@
+vec3 pos = invMatrix * position;
+vec3 wpos = pos * wscale + wtrans;
+vec4 hpos = projectionMatrix * viewMatrix * vec4(wpos, 1.0);
+//   mat4 matrix = projectionMatrix * modelViewMatrix;
+//   vec4 hpos;
+//   hpos.x = dot(position, vec3(matrix[0].x, matrix[1].x, matrix[2].x)) + matrix[3].x;
+//   hpos.y = dot(position, vec3(matrix[0].y, matrix[1].y, matrix[2].y)) + matrix[3].y;
+//   hpos.z = dot(position, vec3(matrix[0].z, matrix[1].z, matrix[2].z)) + matrix[3].z;
+//   hpos.w = dot(position, vec3(matrix[0].w, matrix[1].w, matrix[2].w)) + matrix[3].w;
+//   hpos = matrix * vec4(position, 1.0);

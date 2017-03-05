@@ -1,0 +1,1 @@
+outgoingLight = heightFogColor * vHeightFogFactor + outgoingLight * (1.0 - vHeightFogFactor);

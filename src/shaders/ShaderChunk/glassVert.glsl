@@ -1,0 +1,1 @@
+vScreenPos.xy = vScreenPos.xy * 0.5 + (0.5 * hpos.w);

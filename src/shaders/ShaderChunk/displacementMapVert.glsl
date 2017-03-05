@@ -1,0 +1,1 @@
+transformed += normal * (texture2D(tDisplacement, uv).x * displacementScale + displacementBias);

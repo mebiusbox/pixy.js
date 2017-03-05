@@ -1,0 +1,1 @@
+material.opacity *= colorRGBA.a;

@@ -1,0 +1,1 @@
+if (material.opacity <= 0.5) discard;

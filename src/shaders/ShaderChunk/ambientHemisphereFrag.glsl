@@ -1,0 +1,1 @@
+reflectedLight.indirectDiffuse += mix(groundColor, ambientColor, (dot(geometry.normal, normalize(skyDirection)) + 1.0) * 0.5) * material.diffuseColor;
