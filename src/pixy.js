@@ -6,4 +6,5 @@ export { Shader } from './shaders/Shader.js';
 export * from './utils.js';
 export { Solar } from './solarCalculations.js';
 export { Ocean } from './objects/ocean.js';
+export { HeightField } from './utils/heightField.js';
 // export * from { './constants.js' };
