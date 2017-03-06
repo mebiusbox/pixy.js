@@ -471,7 +471,7 @@
 
 	var specularFragPars = "uniform float specularStrength;";
 
-	var specularMapFrag = "  material.specularStrength = texture2D(tSpecular, vUv).r * specularStrength;";
+	var specularMapFrag = "  material.specularRoughness = texture2D(tSpecular, vUv).r * specularStrength;";
 
 	var specularMapFragPars = "uniform sampler2D tSpecular;\r\nuniform float specularStrength;";
 
