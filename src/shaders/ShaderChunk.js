@@ -1,3 +1,4 @@
+import accumulateFrag from './ShaderChunk/accumulateFrag.glsl';
 import ambientFrag from './ShaderChunk/ambientFrag.glsl';
 import ambientFragPars from './ShaderChunk/ambientFragPars.glsl';
 import ambientHemisphereFrag from './ShaderChunk/ambientHemisphereFrag.glsl';
@@ -10,6 +11,7 @@ import { anisotropyUniforms } from './ShaderChunk/anisotropyUniforms.js';
 import aoMapFrag from './ShaderChunk/aoMapFrag.glsl';
 import aoMapFragPars from './ShaderChunk/aoMapFragPars.glsl';
 import { aoMapUniforms } from './ShaderChunk/aoMapUniforms.js';
+import beginFrag from './ShaderChunk/beginFrag.glsl';
 import billboardDefaultVert from './ShaderChunk/billboardDefaultVert.glsl';
 import billboardRotZVertEnd from './ShaderChunk/billboardRotZVertEnd.glsl';
 import { billboardUniforms } from './ShaderChunk/billboardUniforms.js';
@@ -17,6 +19,7 @@ import billboardVert from './ShaderChunk/billboardVert.glsl';
 import billboardVertEnd from './ShaderChunk/billboardVertEnd.glsl';
 import billboardVertPars from './ShaderChunk/billboardVertPars.glsl';
 import billboardYVert from './ShaderChunk/billboardYVert.glsl';
+import bsdfs from './ShaderChunk/bsdfs.glsl';
 import bumpMapFrag from './ShaderChunk/bumpMapFrag.glsl';
 import bumpMapFragPars from './ShaderChunk/bumpMapFragPars.glsl';
 import { bumpMapUniforms } from './ShaderChunk/bumpMapUniforms.js';
@@ -50,6 +53,7 @@ import distortionVert from './ShaderChunk/distortionVert.glsl';
 import distortionVertPars from './ShaderChunk/distortionVertPars.glsl';
 import ditherFrag from './ShaderChunk/ditherFrag.glsl';
 import ditherFragPars from './ShaderChunk/ditherFragPars.glsl';
+import endFrag from './ShaderChunk/endFrag.glsl';
 import fogFrag from './ShaderChunk/fogFrag.glsl';
 import fogFragPars from './ShaderChunk/fogFragPars.glsl';
 import { fogUniforms } from './ShaderChunk/fogUniforms.js';
@@ -85,15 +89,24 @@ import lightMapFrag from './ShaderChunk/lightMapFrag.glsl';
 import lightMapFragPars from './ShaderChunk/lightMapFragPars.glsl';
 import { lightMapUniforms } from './ShaderChunk/lightMapUniforms.js';
 import lightsDirectFrag from './ShaderChunk/lightsDirectFrag.glsl';
+import lightsDirectFragUnroll from './ShaderChunk/lightsDirectFragUnroll.glsl';
 import { lightsDirectUniforms } from './ShaderChunk/lightsDirectUniforms.js';
 import lightsFragPars from './ShaderChunk/lightsFragPars.glsl';
+import lightsPars from './ShaderChunk/lightsPars.glsl';
 import lightsPointFrag from './ShaderChunk/lightsPointFrag.glsl';
+import lightsPointFragUnroll from './ShaderChunk/lightsPointFragUnroll.glsl';
 import { lightsPointUniforms } from './ShaderChunk/lightsPointUniforms.js';
 import lightsSpotFrag from './ShaderChunk/lightsSpotFrag.glsl';
+import lightsSpotFragUnroll from './ShaderChunk/lightsSpotFragUnroll.glsl';
 import { lightsSpotUniforms } from './ShaderChunk/lightsSpotUniforms.js';
+import lightsStandardFrag from './ShaderChunk/lightsStandardFrag.glsl';
 import lineGlowFrag from './ShaderChunk/lineGlowFrag.glsl';
 import lineGlowFragPars from './ShaderChunk/lineGlowFragPars.glsl';
 import { lineGlowUniforms } from './ShaderChunk/lineGlowUniforms.js';
+import metalnessFrag from './ShaderChunk/metalnessFrag.glsl';
+import metalnessMapFrag from './ShaderChunk/metalnessMapFrag.glsl';
+import metalnessMapFragPars from './ShaderChunk/metalnessMapFragPars.glsl';
+import { metalnessMapUniforms } from './ShaderChunk/metalnessMapUniforms.js';
 import nolitFrag from './ShaderChunk/nolitFrag.glsl';
 import normalMapFrag from './ShaderChunk/normalMapFrag.glsl';
 import normalMapFragPars from './ShaderChunk/normalMapFragPars.glsl';
@@ -123,10 +136,15 @@ import receiveShadowVert from './ShaderChunk/receiveShadowVert.glsl';
 import receiveShadowVertPars from './ShaderChunk/receiveShadowVertPars.glsl';
 import reflectionFrag from './ShaderChunk/reflectionFrag.glsl';
 import reflectionFragPars from './ShaderChunk/reflectionFragPars.glsl';
+import reflectionStandardFrag from './ShaderChunk/reflectionStandardFrag.glsl';
 import { reflectionUniforms } from './ShaderChunk/reflectionUniforms.js';
 import rimLightFrag from './ShaderChunk/rimLightFrag.glsl';
 import rimLightFragPars from './ShaderChunk/rimLightFragPars.glsl';
 import { rimLightUniforms } from './ShaderChunk/rimLightUniforms.js';
+import roughnessFrag from './ShaderChunk/roughnessFrag.glsl';
+import roughnessMapFrag from './ShaderChunk/roughnessMapFrag.glsl';
+import roughnessMapFragPars from './ShaderChunk/roughnessMapFragPars.glsl';
+import { roughnessMapUniforms } from './ShaderChunk/roughnessMapUniforms.js';
 import screenVert from './ShaderChunk/screenVert.glsl';
 import screenVertPars from './ShaderChunk/screenVertPars.glsl';
 import skyFrag from './ShaderChunk/skyFrag.glsl';
@@ -138,6 +156,10 @@ import specularMapFrag from './ShaderChunk/specularMapFrag.glsl';
 import specularMapFragPars from './ShaderChunk/specularMapFragPars.glsl';
 import { specularMapUniforms } from './ShaderChunk/specularMapUniforms.js';
 import { specularUniforms } from './ShaderChunk/specularUniforms.js';
+import standardFrag from './ShaderChunk/standardFrag.glsl';
+import standardFragPars from './ShaderChunk/standardFragPars.glsl';
+import standardOrenNayarFrag from './ShaderChunk/standardOrenNayarFrag.glsl';
+import { standardUniforms } from './ShaderChunk/standardUniforms.js';
 import tangentFragPars from './ShaderChunk/tangentFragPars.glsl';
 import tangentVert from './ShaderChunk/tangentVert.glsl';
 import tangentVertPars from './ShaderChunk/tangentVertPars.glsl';
@@ -166,6 +188,7 @@ import velvetFragPars from './ShaderChunk/velvetFragPars.glsl';
 import { velvetUniforms } from './ShaderChunk/velvetUniforms.js';
 
 export var ShaderChunk = {
+	accumulateFrag: accumulateFrag,
 	ambientFrag: ambientFrag,
 	ambientFragPars: ambientFragPars,
 	ambientHemisphereFrag: ambientHemisphereFrag,
@@ -178,6 +201,7 @@ export var ShaderChunk = {
 	aoMapFrag: aoMapFrag,
 	aoMapFragPars: aoMapFragPars,
 	aoMapUniforms: aoMapUniforms,
+	beginFrag: beginFrag,
 	billboardDefaultVert: billboardDefaultVert,
 	billboardRotZVertEnd: billboardRotZVertEnd,
 	billboardUniforms: billboardUniforms,
@@ -185,6 +209,7 @@ export var ShaderChunk = {
 	billboardVertEnd: billboardVertEnd,
 	billboardVertPars: billboardVertPars,
 	billboardYVert: billboardYVert,
+	bsdfs: bsdfs,
 	bumpMapFrag: bumpMapFrag,
 	bumpMapFragPars: bumpMapFragPars,
 	bumpMapUniforms: bumpMapUniforms,
@@ -218,6 +243,7 @@ export var ShaderChunk = {
 	distortionVertPars: distortionVertPars,
 	ditherFrag: ditherFrag,
 	ditherFragPars: ditherFragPars,
+	endFrag: endFrag,
 	fogFrag: fogFrag,
 	fogFragPars: fogFragPars,
 	fogUniforms: fogUniforms,
@@ -253,15 +279,24 @@ export var ShaderChunk = {
 	lightMapFragPars: lightMapFragPars,
 	lightMapUniforms: lightMapUniforms,
 	lightsDirectFrag: lightsDirectFrag,
+	lightsDirectFragUnroll: lightsDirectFragUnroll,
 	lightsDirectUniforms: lightsDirectUniforms,
 	lightsFragPars: lightsFragPars,
+	lightsPars: lightsPars,
 	lightsPointFrag: lightsPointFrag,
+	lightsPointFragUnroll: lightsPointFragUnroll,
 	lightsPointUniforms: lightsPointUniforms,
 	lightsSpotFrag: lightsSpotFrag,
+	lightsSpotFragUnroll: lightsSpotFragUnroll,
 	lightsSpotUniforms: lightsSpotUniforms,
+	lightsStandardFrag: lightsStandardFrag,
 	lineGlowFrag: lineGlowFrag,
 	lineGlowFragPars: lineGlowFragPars,
 	lineGlowUniforms: lineGlowUniforms,
+	metalnessFrag: metalnessFrag,
+	metalnessMapFrag: metalnessMapFrag,
+	metalnessMapFragPars: metalnessMapFragPars,
+	metalnessMapUniforms: metalnessMapUniforms,
 	nolitFrag: nolitFrag,
 	normalMapFrag: normalMapFrag,
 	normalMapFragPars: normalMapFragPars,
@@ -291,10 +326,15 @@ export var ShaderChunk = {
 	receiveShadowVertPars: receiveShadowVertPars,
 	reflectionFrag: reflectionFrag,
 	reflectionFragPars: reflectionFragPars,
+	reflectionStandardFrag: reflectionStandardFrag,
 	reflectionUniforms: reflectionUniforms,
 	rimLightFrag: rimLightFrag,
 	rimLightFragPars: rimLightFragPars,
 	rimLightUniforms: rimLightUniforms,
+	roughnessFrag: roughnessFrag,
+	roughnessMapFrag: roughnessMapFrag,
+	roughnessMapFragPars: roughnessMapFragPars,
+	roughnessMapUniforms: roughnessMapUniforms,
 	screenVert: screenVert,
 	screenVertPars: screenVertPars,
 	skyFrag: skyFrag,
@@ -306,6 +346,10 @@ export var ShaderChunk = {
 	specularMapFragPars: specularMapFragPars,
 	specularMapUniforms: specularMapUniforms,
 	specularUniforms: specularUniforms,
+	standardFrag: standardFrag,
+	standardFragPars: standardFragPars,
+	standardOrenNayarFrag: standardOrenNayarFrag,
+	standardUniforms: standardUniforms,
 	tangentFragPars: tangentFragPars,
 	tangentVert: tangentVert,
 	tangentVertPars: tangentVertPars,

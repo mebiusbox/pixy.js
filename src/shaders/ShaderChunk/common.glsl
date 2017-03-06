@@ -13,7 +13,8 @@ float pow2(const in float x) { return x*x; }
 float pow3(const in float x) { return x*x*x; }
 float pow4(const in float x) { float x2 = x*x; return x2*x2; }
 float pow5(const in float x) { float x2 = x*x; return x2*x2*x; }
-float averate(const in vec3 color) { return dot(color, vec3(0.3333)); }
+float average(const in vec3 color) { return dot(color, vec3(0.3333)); }
+float rcp(const in float x) { return 1.0/x; }
 
 // expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
 // do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
@@ -45,7 +46,8 @@ struct GeometricContext {
 struct Material {
   vec3 diffuseColor;
   float opacity;
-  float specularStrength;
+  float specularRoughness;
+  vec3 specularColor;
 };
 
 vec3 transformDirection(in vec3 dir, in mat4 matrix) {

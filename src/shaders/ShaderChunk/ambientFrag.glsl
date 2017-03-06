@@ -1,1 +1,1 @@
-reflectedLight.indirectDiffuse += ambientColor * material.diffuseColor;
+  reflectedLight.indirectDiffuse += ambientColor * material.diffuseColor;

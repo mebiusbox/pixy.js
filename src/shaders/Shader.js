@@ -184,6 +184,7 @@ Object.assign(Shader.prototype, {
     }
   },
   
+  // MARK: UNIFORMS
   _generateUniforms: function() {
     var result = [];
     
@@ -204,6 +205,9 @@ Object.assign(Shader.prototype, {
     this._addUniform(result, ["PHONG"], "phongUniforms");
     this._addUniform(result, ["PHONG", "SPECULARMAP"], "specularMapUniforms");
     this._addUniform(result, ["PHONG", "-SPECULARMAP"], "specularUniforms");
+    this._addUniform(result, ["STANDARD"], "standardUniforms");
+    this._addUniform(result, ["ROUGHNESSMAP"], "roughnessMapUniforms");
+    this._addUniform(result, ["METALNESSMAP"], "metalnessMapUniforms");
     this._addUniform(result, ["TOON"], "toonUniforms");
     this._addUniform(result, ["REFLECTION"], "reflectionUniforms");
     this._addUniform(result, ["REFLECTION", "FRESNEL"], "fresnelUniforms");
@@ -244,19 +248,20 @@ Object.assign(Shader.prototype, {
   
   _addCode: function(codes, keys, chunk, chunk2) {
     if (this._checkKeys(keys)) {
-      codes.push("//[ " + chunk + " ]{{");
+      codes.push("// begin [" + chunk + "]");
       codes.push(ShaderChunk[chunk]);
-      codes.push("//}} " + chunk);
+      codes.push("// end [" + chunk + "]");
       codes.push("");
     }
     else if (chunk2 !== undefined) {
-      codes.push("//[ " + chunk2 + " ]{{");
+      codes.push("// begin [" + chunk2 + "]");
       codes.push(ShaderChunk[chunk2]);
-      codes.push("//}} " + chunk2);
+      codes.push("// end [" + chunk2 + "]");
       codes.push("");
     }
   },
   
+  // MARK: VERTEX
   _generateVertexShader: function() {
     var codes = [];
     
@@ -340,6 +345,7 @@ Object.assign(Shader.prototype, {
     return codes.join("\n");
   },
   
+  // MARK: FRAGMENTS
   _generateFragmentShader: function() {
     var codes = [];
     
@@ -405,13 +411,17 @@ Object.assign(Shader.prototype, {
     codes.push("varying vec3 vViewPosition;");
     codes.push("");
     
+    this._addCode(codes, ["STANDARD"], "bsdfs");
+    this._addCode(codes, ["STANDARD"], "standardFragPars");
+    this._addCode(codes, ["STANDARD", "ROUGHNESSMAP"], "roughnessMapFragPars");
+    this._addCode(codes, ["STANDARD", "METALNESSMAP"], "metalnessMapFragPars");
     this._addCode(codes, ["PHONG"], "phongFragPars");
     this._addCode(codes, ["PHONG", "SPECULARMAP"], "specularMapFragPars");
     this._addCode(codes, ["PHONG", "-SPECULARMAP"], "specularFragPars");
-    this._addCode(codes, ["-PHONG", "-DEPTH", "-NOLIT"], "lambertFragPars");
     this._addCode(codes, ["TOON"], "toonFragPars");
     this._addCode(codes, ["REFLECTION"], "reflectionFragPars");
     this._addCode(codes, ["REFLECTION", "FRESNEL"], "fresnelFragPars");
+    this._addCode(codes, ["REFLECTION", "-FRESNEL", "STANDARD"], "lightsPars");
     this._addCode(codes, ["VELVET"], "velvetFragPars");
     this._addCode(codes, ["INNERGLOW"], "innerGlowFragPars");
     this._addCode(codes, ["LINEGLOW"], "lineGlowFragPars");
@@ -457,7 +467,9 @@ Object.assign(Shader.prototype, {
       // lighting chunk here
       this._addCode(codes, ["PHONG", "TOON"], "toonFrag");
       this._addCode(codes, ["PHONG", "-TOON"], "phongFrag");
-      this._addCode(codes, ["-PHONG"], "lambertFrag");
+      this._addCode(codes, ["STANDARD", "ORENNAYAR"], "standardOrenNayarFrag");
+      this._addCode(codes, ["STANDARD", "-ORENNAYAR"], "standardFrag");
+      this._addCode(codes, ["-STANDARD", "-PHONG"], "lambertFrag");
       this._addCode(codes, ["VELVET"], "velvetFrag");
       this._addCode(codes, ["RIMLIGHT"], "rimLightFrag");
       this._addCode(codes, ["ANISOTROPY"], "anisotropyFrag");
@@ -467,20 +479,7 @@ Object.assign(Shader.prototype, {
     codes.push("void main() {");
     
       this._addCode(codes, ["CLIPPINGPLANE"], "clippingPlaneFrag");
-    
-      codes.push("  GeometricContext geometry;");
-      codes.push("  geometry.position = -vViewPosition;");
-      codes.push("  geometry.normal = normalize(vNormal);");
-      codes.push("  geometry.viewDir = normalize(vViewPosition);");
-      codes.push("");
-      codes.push("  Material material;");
-      codes.push("  material.diffuseColor = diffuseColor;");
-      codes.push("  material.opacity = opacity;");
-      codes.push("");
-      codes.push("  ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));");
-      codes.push("  vec3 emissive = vec3(0.0);");
-      codes.push("");
-      
+      this._addCode(codes, [], "beginFrag");
       // this._addCode(codes, ["CLIPPINGPLANEALPHA"], "clippingPlaneFrag");
       
       // chunk here
@@ -503,13 +502,19 @@ Object.assign(Shader.prototype, {
       this._addCode(codes, ["BUMPMAP"], "bumpMapFrag");
       this._addCode(codes, ["PHONG", "SPECULARMAP"], "specularMapFrag");
       this._addCode(codes, ["PHONG", "-SPECULARMAP"], "specularFrag");
+      this._addCode(codes, ["STANDARD"], "roughnessFrag");
+      this._addCode(codes, ["STANDARD", "ROUGHNESSMAP"], "roughnessMapFrag");
+      this._addCode(codes, ["STANDARD"], "metalnessFrag");
+      this._addCode(codes, ["STANDARD", "METALNESSMAP"], "metalnessMapFrag");
+      this._addCode(codes, ["STANDARD"], "lightsStandardFrag");
       this._addCode(codes, ["SKY"], "skyFrag");
       this._addCode(codes, ["-SKY", "NOLIT"], "nolitFrag");
       if (this._checkKeys(["-SKY", "-NOLIT"])) {
         codes.push(this._generateLightsFrag(numDirectLight, numPointLight, numSpotLight));
       }
       this._addCode(codes, ["REFLECTION", "FRESNEL"], "fresnelFrag");
-      this._addCode(codes, ["REFLECTION", "-FRESNEL"], "reflectionFrag");
+      this._addCode(codes, ["REFLECTION", "-FRESNEL", "STANDARD"], "reflectionStandardFrag");
+      this._addCode(codes, ["REFLECTION", "-FRESNEL", "-STANDARD"], "reflectionFrag");
       this._addCode(codes, ["LIGHTMAP"], "lightMapFrag");
       this._addCode(codes, ["GLASS"], "glassFrag");
       this._addCode(codes, ["AOMAP"], "aoMapFrag");
@@ -520,19 +525,14 @@ Object.assign(Shader.prototype, {
       // this._addCode(codes, ["DEPTH"], "depthFrag");
       this._addCode(codes, ["CLOUDS"], "cloudsFrag");
       
-      codes.push("  vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + emissive;");
-      codes.push("");
+      this._addCode(codes, [], "accumulateFrag");
       
       this._addCode(codes, ["FOG"], "fogFrag");
       this._addCode(codes, ["HEIGHTFOG", "HEIGHTFOGMAP"], "heightFogMapFrag");
       this._addCode(codes, ["HEIGHTFOG", "-HEIGHTFOGMAP"], "heightFogFrag");
       this._addCode(codes, ["TONEMAPPING"], "toneMappingFrag");
       
-      // debug
-      // codes.push("  outgoingLight = vec3(material.opacity);");
-      
-      codes.push("  gl_FragColor.xyz = outgoingLight;");
-      codes.push("  gl_FragColor.a = material.opacity;");
+      this._addCode(codes, [], "endFrag");
     codes.push("}");
     
     return codes.join("\n");
@@ -573,15 +573,27 @@ Object.assign(Shader.prototype, {
     
     code.push("  IncidentLight directLight;");
     
-    if (numDirect > 0) {
+    if (numDirect == 1) {
+      // THREE.WebGLProgram: gl.getProgramInfoLog() C:\fakepath(496,3-100): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
+      code.push(ShaderChunk["lightsDirectFragUnroll"]);
+    }
+    else if (numDirect > 0) {
       code.push(ShaderChunk["lightsDirectFrag"]);
     }
     
-    if (numPoint > 0) {
+    if (numPoint == 1) {
+      // THREE.WebGLProgram: gl.getProgramInfoLog() C:\fakepath(496,3-100): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
+      code.push(ShaderChunk["lightsPointFragUnroll"]);
+    }
+    else if (numPoint > 0) {
       code.push(ShaderChunk["lightsPointFrag"]);
     }
     
-    if (numSpot > 0) {
+    if (numSpot == 1) {
+      // THREE.WebGLProgram: gl.getProgramInfoLog() C:\fakepath(496,3-100): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
+      code.push(ShaderChunk["lightsSpotFragUnroll"]);
+    }
+    else if (numSpot > 0) {
       code.push(ShaderChunk["lightsSpotFrag"]);
     }
     
@@ -597,11 +609,15 @@ Object.assign(Shader.prototype, {
       fragmentShader: this._generateFragmentShader()
     };
     
+    this.material = new THREE.ShaderMaterial(Object.assign(params, options));
+    
     if (/* this._checkKey('NORMALMAP') || */this._checkKey('BUMPMAP')) {
-      params.derivatives = true;
+      this.material.extensions.derivatives = true;
     };
     
-    this.material = new THREE.ShaderMaterial(Object.assign(params, options));
+    if (this._checkKeys(['STANDARD', 'REFLECTION'])) {
+      this.material.extensions.shaderTextureLOD = true;
+    };
   }
 });
 

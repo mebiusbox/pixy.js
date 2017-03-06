@@ -1,1 +1,1 @@
-outgoingLight = fogColor * vFogFactor + outgoingLight * (1.0 - vFogFactor);
+  outgoingLight = fogColor * vFogFactor + outgoingLight * (1.0 - vFogFactor);

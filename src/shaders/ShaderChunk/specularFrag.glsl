@@ -1,1 +1,1 @@
-material.specularStrength = specularStrength;
+  material.specularRoughness = specularStrength;

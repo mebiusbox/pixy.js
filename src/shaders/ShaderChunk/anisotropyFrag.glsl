@@ -1,7 +1,7 @@
 // vec3 H = normalize(directLight.direction + geometry.viewDir);
 
 // reflectedLight.directDiffuse += material.diffuseColor * AnisotropyDiffuseTerm(material.diffuseColor, anisotropyColor, geometry.normal, directLight.direction, geometry.viewDir) * NoL * anisotropyStrength;
-reflectedLight.directSpecular += AnisotropySpecularTerm(anisotropyExponent, geometry.normal, H, directLight.direction, geometry.viewDir, vTangent, vBinormal, anisotropyFresnel) * anisotropyColor * NoL * anisotropyStrength;
+  reflectedLight.directSpecular += AnisotropySpecularTerm(anisotropyExponent, geometry.normal, H, directLight.direction, geometry.viewDir, vTangent, vBinormal, anisotropyFresnel) * anisotropyColor * NoL * anisotropyStrength;
 
 // vec3 vObjPosition = normalize(geometry.position);
 // vec3 asHL = normalize(directLight.direction + vObjPosition);

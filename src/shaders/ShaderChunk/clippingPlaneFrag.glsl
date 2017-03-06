@@ -1,1 +1,1 @@
-if (dot(vViewPosition, clippingPlane.xyz) > clippingPlane.w) discard;
+  if (dot(vViewPosition, clippingPlane.xyz) > clippingPlane.w) discard;

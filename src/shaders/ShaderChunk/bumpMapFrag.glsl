@@ -1,1 +1,1 @@
-geometry.normal = perturbNormalArb(-vViewPosition, normalize(vNormal), dHdxy_fwd());
+  geometry.normal = perturbNormalArb(-vViewPosition, normalize(vNormal), dHdxy_fwd());

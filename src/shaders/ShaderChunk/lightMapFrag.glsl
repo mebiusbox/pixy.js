@@ -1,1 +1,1 @@
-reflectedLight.directDiffuse *= mix(vec3(1.0), texture2D(tLight, vUv).rgb * lightMapPower, lightMapStrength);;
+  reflectedLight.directDiffuse *= mix(vec3(1.0), texture2D(tLight, vUv).rgb * lightMapPower, lightMapStrength);;

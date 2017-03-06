@@ -1,1 +1,1 @@
-outgoingLight.rgb = toneMapping(outgoingLight.rgb);
+  outgoingLight.rgb = toneMapping(outgoingLight.rgb);

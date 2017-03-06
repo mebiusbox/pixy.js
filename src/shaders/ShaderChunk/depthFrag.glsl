@@ -1,1 +1,1 @@
-gl_FragData[0] = packDepthToRGBA(gl_FragCoord.z);
+  gl_FragData[0] = packDepthToRGBA(gl_FragCoord.z);

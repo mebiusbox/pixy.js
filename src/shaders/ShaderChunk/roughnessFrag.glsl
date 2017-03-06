@@ -1,0 +1,1 @@
+  float roughnessFactor = max(0.04, roughness);

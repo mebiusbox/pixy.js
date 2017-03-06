@@ -48,12 +48,19 @@ export var ShaderUtils = {
     {
       parameters.baseColor = shader.uniforms.diffuseColor.value.getHex();
       parameters.opacity = shader.uniforms.opacity.value;
-      h = gui.addFolder("Color");
+      h = gui.addFolder("Base");
       h.addColor(parameters, "baseColor").onChange(function(value) {
         shader.uniforms.diffuseColor.value.setHex(value);
         callback("baseColor", value);
       });
       h.add(parameters, "opacity", 0.0, 1.0).onChange(function(value) { updateCallback("opacity", value); });
+      
+      if (shader._checkKey("STANDARD")) {
+        parameters.roughness = shader.uniforms.roughness.value;
+        parameters.metalness = shader.uniforms.metalness.value;
+        h.add(parameters, "roughness", 0.0, 1.0, 0.01).onChange(function(value) { updateCallback("roughness", value); });
+        h.add(parameters, "metalness", 0.0, 1.0, 0.01).onChange(function(value) { updateCallback("metalness", value); });
+      }
     }
     
     if (shader._checkKeys(['+PHONG', '+FRESNEL', '+REFLECTION', '+ANISOTROPY'])) {
@@ -101,7 +108,7 @@ export var ShaderUtils = {
       
       if (shader._checkKeys(['+NORMALMAP', '+BUMPMAP'])) {
         parameters.bumpiness = shader.uniforms.bumpiness.value;
-        h.add(parameters, "bumpiness", 0.0, 2.0, 0.01).onChange(function(value) { updateCallback("bumpiness", value); });
+        h.add(parameters, "bumpiness", 0.0, 1.0, 0.01).onChange(function(value) { updateCallback("bumpiness", value); });
       }
       
       if (shader._checkKey('PARALLAXMAP')) {
