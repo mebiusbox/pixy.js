@@ -311,17 +311,17 @@ Object.assign(Shader.prototype, {
       
       codes.push("  vec4 mvPosition = viewMatrix * vec4(vWorldPosition, 1.0);");
       codes.push("  vec4 hpos = projectionMatrix * mvPosition;");
-    }
     
-    if (this._checkKeys(["+NORMALMAP","+ANISOTROPY","+OVERLAYNORMAL"])) {
-      codes.push("  vNormal.xyz = inverseTransformDirection(objectNormal, modelMatrix);");
-    }
-    else {
-      codes.push("  vNormal.xyz = normalMatrix * objectNormal;");
-    }
+      if (this._checkKeys(["+NORMALMAP","+ANISOTROPY","+OVERLAYNORMAL"])) {
+        codes.push("  vNormal.xyz = inverseTransformDirection(objectNormal, modelMatrix);");
+      }
+      else {
+        codes.push("  vNormal.xyz = normalMatrix * objectNormal;");
+      }
     
-    codes.push("  vViewPosition = -mvPosition.xyz;");
-    codes.push("");
+      codes.push("  vViewPosition = -mvPosition.xyz;");
+      codes.push("");
+    }
     
     // chunk here
     if (this._checkKeys(["+COLORMAP","+NORMALMAP","+BUMPMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS"])) {

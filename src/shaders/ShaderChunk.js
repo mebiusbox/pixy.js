@@ -23,6 +23,8 @@ import bsdfs from './ShaderChunk/bsdfs.glsl';
 import bumpMapFrag from './ShaderChunk/bumpMapFrag.glsl';
 import bumpMapFragPars from './ShaderChunk/bumpMapFragPars.glsl';
 import { bumpMapUniforms } from './ShaderChunk/bumpMapUniforms.js';
+import castShadowFrag from './ShaderChunk/castShadowFrag.glsl';
+import castShadowFragPars from './ShaderChunk/castShadowFragPars.glsl';
 import { castShadowUniforms } from './ShaderChunk/castShadowUniforms.js';
 import castShadowVert from './ShaderChunk/castShadowVert.glsl';
 import castShadowVertPars from './ShaderChunk/castShadowVertPars.glsl';
@@ -99,6 +101,7 @@ import { lightsPointUniforms } from './ShaderChunk/lightsPointUniforms.js';
 import lightsSpotFrag from './ShaderChunk/lightsSpotFrag.glsl';
 import lightsSpotFragUnroll from './ShaderChunk/lightsSpotFragUnroll.glsl';
 import { lightsSpotUniforms } from './ShaderChunk/lightsSpotUniforms.js';
+import lightsStandardDisneyFrag from './ShaderChunk/lightsStandardDisneyFrag.glsl';
 import lightsStandardFrag from './ShaderChunk/lightsStandardFrag.glsl';
 import lineGlowFrag from './ShaderChunk/lineGlowFrag.glsl';
 import lineGlowFragPars from './ShaderChunk/lineGlowFragPars.glsl';
@@ -156,6 +159,8 @@ import specularMapFrag from './ShaderChunk/specularMapFrag.glsl';
 import specularMapFragPars from './ShaderChunk/specularMapFragPars.glsl';
 import { specularMapUniforms } from './ShaderChunk/specularMapUniforms.js';
 import { specularUniforms } from './ShaderChunk/specularUniforms.js';
+import standardDisneyFrag from './ShaderChunk/standardDisneyFrag.glsl';
+import standardDisneyFragPars from './ShaderChunk/standardDisneyFragPars.glsl';
 import standardFrag from './ShaderChunk/standardFrag.glsl';
 import standardFragPars from './ShaderChunk/standardFragPars.glsl';
 import standardOrenNayarFrag from './ShaderChunk/standardOrenNayarFrag.glsl';
@@ -213,6 +218,8 @@ export var ShaderChunk = {
 	bumpMapFrag: bumpMapFrag,
 	bumpMapFragPars: bumpMapFragPars,
 	bumpMapUniforms: bumpMapUniforms,
+	castShadowFrag: castShadowFrag,
+	castShadowFragPars: castShadowFragPars,
 	castShadowUniforms: castShadowUniforms,
 	castShadowVert: castShadowVert,
 	castShadowVertPars: castShadowVertPars,
@@ -289,6 +296,7 @@ export var ShaderChunk = {
 	lightsSpotFrag: lightsSpotFrag,
 	lightsSpotFragUnroll: lightsSpotFragUnroll,
 	lightsSpotUniforms: lightsSpotUniforms,
+	lightsStandardDisneyFrag: lightsStandardDisneyFrag,
 	lightsStandardFrag: lightsStandardFrag,
 	lineGlowFrag: lineGlowFrag,
 	lineGlowFragPars: lineGlowFragPars,
@@ -346,6 +354,8 @@ export var ShaderChunk = {
 	specularMapFragPars: specularMapFragPars,
 	specularMapUniforms: specularMapUniforms,
 	specularUniforms: specularUniforms,
+	standardDisneyFrag: standardDisneyFrag,
+	standardDisneyFragPars: standardDisneyFragPars,
 	standardFrag: standardFrag,
 	standardFragPars: standardFragPars,
 	standardOrenNayarFrag: standardOrenNayarFrag,

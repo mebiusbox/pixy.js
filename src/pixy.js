@@ -7,4 +7,5 @@ export * from './utils.js';
 export { Solar } from './solarCalculations.js';
 export { Ocean } from './objects/ocean.js';
 export { HeightField } from './utils/heightField.js';
+export { ScreenSprite } from './utils/screenSprite.js';
 // export * from { './constants.js' };
