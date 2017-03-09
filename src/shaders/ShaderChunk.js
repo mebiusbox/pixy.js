@@ -150,6 +150,9 @@ import roughnessMapFragPars from './ShaderChunk/roughnessMapFragPars.glsl';
 import { roughnessMapUniforms } from './ShaderChunk/roughnessMapUniforms.js';
 import screenVert from './ShaderChunk/screenVert.glsl';
 import screenVertPars from './ShaderChunk/screenVertPars.glsl';
+import skyDomeFrag from './ShaderChunk/skyDomeFrag.glsl';
+import skyDomeFragPars from './ShaderChunk/skyDomeFragPars.glsl';
+import { skyDomeUniforms } from './ShaderChunk/skyDomeUniforms.js';
 import skyFrag from './ShaderChunk/skyFrag.glsl';
 import skyFragPars from './ShaderChunk/skyFragPars.glsl';
 import { skyUniforms } from './ShaderChunk/skyUniforms.js';
@@ -191,6 +194,8 @@ import uvVertFragPars from './ShaderChunk/uvVertFragPars.glsl';
 import velvetFrag from './ShaderChunk/velvetFrag.glsl';
 import velvetFragPars from './ShaderChunk/velvetFragPars.glsl';
 import { velvetUniforms } from './ShaderChunk/velvetUniforms.js';
+import worldPositionVert from './ShaderChunk/worldPositionVert.glsl';
+import worldPositionVertFragPars from './ShaderChunk/worldPositionVertFragPars.glsl';
 
 export var ShaderChunk = {
 	accumulateFrag: accumulateFrag,
@@ -345,6 +350,9 @@ export var ShaderChunk = {
 	roughnessMapUniforms: roughnessMapUniforms,
 	screenVert: screenVert,
 	screenVertPars: screenVertPars,
+	skyDomeFrag: skyDomeFrag,
+	skyDomeFragPars: skyDomeFragPars,
+	skyDomeUniforms: skyDomeUniforms,
 	skyFrag: skyFrag,
 	skyFragPars: skyFragPars,
 	skyUniforms: skyUniforms,
@@ -386,4 +394,6 @@ export var ShaderChunk = {
 	velvetFrag: velvetFrag,
 	velvetFragPars: velvetFragPars,
 	velvetUniforms: velvetUniforms,
+	worldPositionVert: worldPositionVert,
+	worldPositionVertFragPars: worldPositionVertFragPars,
 };

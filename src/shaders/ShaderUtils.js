@@ -46,14 +46,33 @@ export var ShaderUtils = {
     };
 
     {
-      parameters.baseColor = shader.uniforms.diffuseColor.value.getHex();
-      parameters.opacity = shader.uniforms.opacity.value;
       h = gui.addFolder("Base");
-      h.addColor(parameters, "baseColor").onChange(function(value) {
-        shader.uniforms.diffuseColor.value.setHex(value);
-        callback("baseColor", value);
-      });
-      h.add(parameters, "opacity", 0.0, 1.0).onChange(function(value) { updateCallback("opacity", value); });
+      
+      if (shader._checkKey("SKYDOME")) {
+        parameters.topColor = shader.uniforms.topColor.value.getHex();
+        parameters.bottomColor = shader.uniforms.bottomColor.value.getHex();
+        parameters.exponent = shader.uniforms.exponent.value;
+      
+        h.addColor(parameters, "topColor").onChange(function(value) {
+          shader.uniforms.topColor.value.setHex(value);
+          callback("topColor", value);
+        });
+        h.addColor(parameters, "bottomColor").onChange(function(value) {
+          shader.uniforms.bottomColor.value.setHex(value);
+          callback("bottomColor", value);
+        });
+        h.add(parameters, "exponent", 0.0, 1.0).onChange(function(value) { updateCallback("exponent", value); });
+      }
+      else {
+        parameters.baseColor = shader.uniforms.diffuseColor.value.getHex();
+        parameters.opacity = shader.uniforms.opacity.value;
+      
+        h.addColor(parameters, "baseColor").onChange(function(value) {
+          shader.uniforms.diffuseColor.value.setHex(value);
+          callback("baseColor", value);
+        });
+        h.add(parameters, "opacity", 0.0, 1.0).onChange(function(value) { updateCallback("opacity", value); });
+      }
       
       if (shader._checkKey("STANDARD")) {
         parameters.roughness = shader.uniforms.roughness.value;

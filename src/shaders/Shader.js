@@ -234,6 +234,7 @@ Object.assign(Shader.prototype, {
     this._addUniform(result, ["DISPLACEMENTMAP"], "displacementMapUniforms");
     this._addUniform(result, ["CLIPPINGPLANE"], "clippingPlaneUniforms");
     this._addUniform(result, ["SKY"], "skyUniforms");
+    this._addUniform(result, ["SKYDOME"], "skyDomeUniforms");
     this._addUniform(result, ["GRASS"], "grassUniforms");
     this._addUniform(result, ["OVERLAY"], "overlayUniforms");
     this._addUniform(result, ["OVERLAYNORMAL"], "overlayNormalUniforms");
@@ -267,7 +268,7 @@ Object.assign(Shader.prototype, {
     
     this._addCode(codes, [], "common");
     this._addCode(codes, ["+CASTSHADOW", "+RECEIVESHADOW"], "packing");
-    codes.push("varying vec3 vWorldPosition;");
+    this._addCode(codes, [], "worldPositionVertFragPars");
     codes.push("varying vec3 vViewPosition;");
     codes.push("varying vec3 vNormal;");
     codes.push("");
@@ -304,9 +305,7 @@ Object.assign(Shader.prototype, {
       codes.push("  vec3 objectNormal = vec3(normal);");
       
       this._addCode(codes, ["DISPLACEMENTMAP"], "displacementMapVert");
-      
-      codes.push("  vWorldPosition = (modelMatrix * vec4(transformed, 1.0)).xyz;");
-      
+      this._addCode(codes, [], "worldPositionVert");
       this._addCode(codes, ["GRASS"], "grassVert");
       
       codes.push("  vec4 mvPosition = viewMatrix * vec4(vWorldPosition, 1.0);");
@@ -406,11 +405,11 @@ Object.assign(Shader.prototype, {
     
     codes.push("uniform vec3 diffuseColor;");
     codes.push("uniform float opacity;");
-    codes.push("varying vec3 vWorldPosition;");
     codes.push("varying vec3 vNormal;");
     codes.push("varying vec3 vViewPosition;");
     codes.push("");
     
+    this._addCode(codes, [], "worldPositionVertFragPars");
     this._addCode(codes, ["STANDARD"], "bsdfs");
     this._addCode(codes, ["STANDARD"], "standardFragPars");
     this._addCode(codes, ["STANDARD", "ROUGHNESSMAP"], "roughnessMapFragPars");
@@ -444,6 +443,7 @@ Object.assign(Shader.prototype, {
     this._addCode(codes, ["HEIGHTFOG", "HEIGHTFOGMAP"], "heightFogMapFragPars");
     this._addCode(codes, ["CLIPPINGPLANE"], "clippingPlaneFragPars");
     this._addCode(codes, ["SKY"], "skyFragPars");
+    this._addCode(codes, ["SKYDOME"], "skyDomeFragPars");
     this._addCode(codes, ["OVERLAY"], "overlayFragPars");
     this._addCode(codes, ["OVERLAYNORMAL"], "overlayNormalFragPars");
     this._addCode(codes, ["DITHER"], "ditherFragPars");
@@ -512,6 +512,7 @@ Object.assign(Shader.prototype, {
       if (this._checkKeys(["-SKY", "-NOLIT"])) {
         codes.push(this._generateLightsFrag(numDirectLight, numPointLight, numSpotLight));
       }
+      this._addCode(codes, ["SKYDOME"], "skyDomeFrag");
       this._addCode(codes, ["REFLECTION", "FRESNEL"], "fresnelFrag");
       this._addCode(codes, ["REFLECTION", "-FRESNEL", "STANDARD"], "reflectionStandardFrag");
       this._addCode(codes, ["REFLECTION", "-FRESNEL", "-STANDARD"], "reflectionFrag");

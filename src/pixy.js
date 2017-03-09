@@ -6,6 +6,8 @@ export { Shader } from './shaders/Shader.js';
 export * from './utils.js';
 export { Solar } from './solarCalculations.js';
 export { Ocean } from './objects/ocean.js';
+export { ShadowMesh } from './objects/shadowMesh.js';
+export { GPUParticle } from './objects/gpuParticle.js';
 export { HeightField } from './utils/heightField.js';
 export { ScreenSprite } from './utils/screenSprite.js';
 // export * from { './constants.js' };
