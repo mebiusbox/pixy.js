@@ -144,6 +144,8 @@ import lightsPars from './ShaderChunk/lightsPars.glsl';
 import lightsPointFrag from './ShaderChunk/lightsPointFrag.glsl';
 import lightsPointFragUnroll from './ShaderChunk/lightsPointFragUnroll.glsl';
 import { lightsPointUniforms } from './ShaderChunk/lightsPointUniforms.js';
+import lightsRectLightFrag from './ShaderChunk/lightsRectLightFrag.glsl';
+import lightsRectLightFragUnroll from './ShaderChunk/lightsRectLightFragUnroll.glsl';
 import { lightsRectLightUniforms } from './ShaderChunk/lightsRectLightUniforms.js';
 import lightsSpotFrag from './ShaderChunk/lightsSpotFrag.glsl';
 import lightsSpotFragUnroll from './ShaderChunk/lightsSpotFragUnroll.glsl';
@@ -230,6 +232,7 @@ import standardDisneyFragPars from './ShaderChunk/standardDisneyFragPars.glsl';
 import standardFrag from './ShaderChunk/standardFrag.glsl';
 import standardFragPars from './ShaderChunk/standardFragPars.glsl';
 import standardOrenNayarFrag from './ShaderChunk/standardOrenNayarFrag.glsl';
+import standardRectLightFrag from './ShaderChunk/standardRectLightFrag.glsl';
 import standardTubeLightFrag from './ShaderChunk/standardTubeLightFrag.glsl';
 import { standardUniforms } from './ShaderChunk/standardUniforms.js';
 import tangentFragPars from './ShaderChunk/tangentFragPars.glsl';
@@ -413,6 +416,8 @@ export var ShaderChunk = {
 	lightsPointFrag: lightsPointFrag,
 	lightsPointFragUnroll: lightsPointFragUnroll,
 	lightsPointUniforms: lightsPointUniforms,
+	lightsRectLightFrag: lightsRectLightFrag,
+	lightsRectLightFragUnroll: lightsRectLightFragUnroll,
 	lightsRectLightUniforms: lightsRectLightUniforms,
 	lightsSpotFrag: lightsSpotFrag,
 	lightsSpotFragUnroll: lightsSpotFragUnroll,
@@ -499,6 +504,7 @@ export var ShaderChunk = {
 	standardFrag: standardFrag,
 	standardFragPars: standardFragPars,
 	standardOrenNayarFrag: standardOrenNayarFrag,
+	standardRectLightFrag: standardRectLightFrag,
 	standardTubeLightFrag: standardTubeLightFrag,
 	standardUniforms: standardUniforms,
 	tangentFragPars: tangentFragPars,

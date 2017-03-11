@@ -105,9 +105,13 @@ struct TubeLight {
 
 struct RectLight {
   vec3 positions[4];
+  vec3 normal;
+  vec3 tangent;
   vec3 color;
+  float intensity;
   float width;
   float height;
   float distance;
   float decay;
+  int numPositions;
 };

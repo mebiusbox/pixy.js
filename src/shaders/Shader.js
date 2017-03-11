@@ -120,6 +120,24 @@ Object.assign(Shader.prototype, {
       end.applyMatrix4(camera.matrixWorldInverse);
       this.setTubeLightParameter(index, start, end, light.color, light.distance, light.decay, light.radius);
     }
+    else if (light instanceof PIXY.RectLight) {
+      
+      var matrix = new THREE.Matrix4();
+      matrix.copy(camera.matrixWorldInverse);
+      matrix.multiply(light.matrix);
+      
+      var positions = [];
+      for (var i=0; i<light.positions.length; ++i) {
+        var p = new THREE.Vector3().copy(light.positions[i]);
+        p.applyMatrix4(matrix);
+        positions.push(p);
+      }
+      
+      var normal = new THREE.Vector3(0,0,1).applyMatrix4(matrix);
+      var tangent = new THREE.Vector3(1,0,0).applyMatrix4(matrix);
+      
+      this.setRectLightParameter(index, positions, normal, tangent, light.width, light.height, light.color, light.intensity, light.distance, light.decay);
+    }
   },
   
   setDirectLightParameter: function(index, direction, color) {
@@ -159,6 +177,21 @@ Object.assign(Shader.prototype, {
     this.setArrayParameter("tubeLights", index, "distance", distance);
     this.setArrayParameter("tubeLights", index, "decay", decay);
     this.setArrayParameter("tubeLights", index, "radius", radius);
+  },
+  
+  setRectLightParameter: function(index, positions, normal, tangent, width, height, color, intensity, distance, decay) {
+    this.setArrayParameter("rectLights", index, "numPositions", positions.length);
+    for (var i=0; i<positions.length; ++i) {
+      this.uniforms.rectLights.value[index].positions[i].copy(positions[i]);
+    }
+    this.setArrayParameter("rectLights", index, "normal", normal);
+    this.setArrayParameter("rectLights", index, "tangent", tangent);
+    this.setArrayParameter("rectLights", index, "width", width);
+    this.setArrayParameter("rectLights", index, "height", height);
+    this.setArrayParameter("rectLights", index, "color", color);
+    this.setArrayParameter("rectLights", index, "intensity", intensity);
+    this.setArrayParameter("rectLights", index, "distance", distance);
+    this.setArrayParameter("rectLights", index, "decay", decay);
   },
   
   ////////////////////////////////////////////////////////////////////////////
@@ -539,6 +572,9 @@ Object.assign(Shader.prototype, {
     if (numTubeLight > 0) {
       this._addCode(codes, [], "standardTubeLightFrag");
     }
+    if (numRectLight > 0) {
+      this._addCode(codes, [], "standardRectLightFrag");
+    }
     
     if (numDirectLight > 0 || numPointLight > 0 || numSpotLight > 0) {
     
@@ -743,10 +779,10 @@ Object.assign(Shader.prototype, {
     
     if (numRect == 1) {
       // THREE.WebGLProgram: gl.getProgramInfoLog() C:\fakepath(496,3-100): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
-      code.push(ShaderChunk["lightsRectFragUnroll"]);
+      code.push(ShaderChunk["lightsRectLightFragUnroll"]);
     }
     else if (numRect > 0) {
-      code.push(ShaderChunk["lightsRectFrag"]);
+      code.push(ShaderChunk["lightsRectLightFrag"]);
     }
     
     return code.join("\n");

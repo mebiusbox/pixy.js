@@ -1,0 +1,1 @@
+  computeRectLight(rectLights[0], geometry, material, reflectedLight);

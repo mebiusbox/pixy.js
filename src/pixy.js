@@ -25,4 +25,5 @@ export { TAARenderPass } from './post/taaRenderPass.js';
 export { UnrealBloomPass } from './post/unrealBloomPass.js';
 export { AreaLight } from './lights/areaLight.js';
 export { TubeLight } from './lights/tubeLight.js';
+export { RectLight } from './lights/rectLight.js';
 export * from './constants.js';
