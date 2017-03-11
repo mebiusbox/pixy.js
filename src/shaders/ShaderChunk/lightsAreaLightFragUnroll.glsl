@@ -1,0 +1,1 @@
+  computeAreaLight(areaLights[0], geometry, material, reflectedLight);

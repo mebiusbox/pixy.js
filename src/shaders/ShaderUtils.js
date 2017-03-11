@@ -5,7 +5,7 @@ export var ShaderUtils = {
     camera.matrixWorldInverse.getInverse(camera.matrixWorld);
     var viewMatrix = camera.matrixWorldInverse; // alias
     
-    if (shader._checkKeys(['AMBIENT','HEMISPHERE'])) {
+    if (shader.isEnable(['AMBIENT','HEMISPHERE'])) {
       shader.uniforms.skyDirection.value.set(parameters.skyDirectionX, parameters.skyDirectionY, parameters.skyDirectionZ).normalize().transformDirection(viewMatrix);
     }
     
@@ -48,7 +48,7 @@ export var ShaderUtils = {
     {
       h = gui.addFolder("Base");
       
-      if (shader._checkKey("SKYDOME")) {
+      if (shader.isEnable("SKYDOME")) {
         parameters.topColor = shader.uniforms.topColor.value.getHex();
         parameters.bottomColor = shader.uniforms.bottomColor.value.getHex();
         parameters.exponent = shader.uniforms.exponent.value;
@@ -74,7 +74,7 @@ export var ShaderUtils = {
         h.add(parameters, "opacity", 0.0, 1.0).onChange(function(value) { updateCallback("opacity", value); });
       }
       
-      if (shader._checkKey("STANDARD")) {
+      if (shader.isEnable("STANDARD")) {
         parameters.roughness = shader.uniforms.roughness.value;
         parameters.metalness = shader.uniforms.metalness.value;
         h.add(parameters, "roughness", 0.0, 1.0, 0.01).onChange(function(value) { updateCallback("roughness", value); });
@@ -82,32 +82,32 @@ export var ShaderUtils = {
       }
     }
     
-    if (shader._checkKeys(['+PHONG', '+FRESNEL', '+REFLECTION', '+ANISOTROPY'])) {
+    if (shader.isEnable(['+PHONG', '+FRESNEL', '+REFLECTION', '+ANISOTROPY'])) {
       h = gui.addFolder("Specular");
       
-      if (shader._checkKey('FRESNEL')) {
+      if (shader.isEnable('FRESNEL')) {
         parameters.fresnelExponent = shader.uniforms.fresnelExponent.value;
         parameters.fresnelReflectionScale = shader.uniforms.fresnelReflectionScale.value;
         h.add(parameters, "fresnelExponent", 0.0, 5.0, 0.025).name("fresnel exponent").onChange(function(value) { updateCallback("fresnelExponent", value); });
         h.add(parameters, "fresnelReflectionScale", 0.0, 1.0, 0.025).name("fresnel scale").onChange(function(value) { updateCallback("fresnelReflectionScale", value); });
       }
       
-      if (shader._checkKey('REFLECTION')) {
+      if (shader.isEnable('REFLECTION')) {
         parameters.reflectionStrength = shader.uniforms.reflectionStrength.value;
         h.add(parameters, "reflectionStrength", 0.0, 1.0, 0.025).name("reflectionStrength").onChange(function(value) { updateCallback("reflectionStrength", value); });
       }
         
-      if (shader._checkKey('PHONG')) {
+      if (shader.isEnable('PHONG')) {
         parameters.shininess = shader.uniforms.shininess.value;
         h.add(parameters, "shininess", 1.0, 400.0, 1.0).onChange(function(value) { updateCallback("shininess", value); });
       }
       
-      if (shader._checkKeys(['+PHONG', '+SPECULARMAP'])) {
+      if (shader.isEnable(['+PHONG', '+SPECULARMAP'])) {
         parameters.specularStrength = shader.uniforms.specularStrength.value;
         h.add(parameters, "specularStrength", 0.0, 1.0, 0.025).onChange(function(value) { updateCallback("specularStrength", value); });
       }
       
-      if (shader._checkKey('ANISOTROPY')) {
+      if (shader.isEnable('ANISOTROPY')) {
         parameters.anisotropyExponent = shader.uniforms.anisotropyExponent.value;
         parameters.anisotropyStrength = shader.uniforms.anisotropyStrength.value;
         parameters.anisotropyFresnel = shader.uniforms.anisotropyFresnel.value;
@@ -122,15 +122,15 @@ export var ShaderUtils = {
       }
     }
     
-    if (shader._checkKeys(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP'])) {
+    if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP'])) {
       h = gui.addFolder("Bump");
       
-      if (shader._checkKeys(['+NORMALMAP', '+BUMPMAP'])) {
+      if (shader.isEnable(['+NORMALMAP', '+BUMPMAP'])) {
         parameters.bumpiness = shader.uniforms.bumpiness.value;
         h.add(parameters, "bumpiness", 0.0, 1.0, 0.01).onChange(function(value) { updateCallback("bumpiness", value); });
       }
       
-      if (shader._checkKey('PARALLAXMAP')) {
+      if (shader.isEnable('PARALLAXMAP')) {
         parameters.parallaxHeight = shader.uniforms.parallaxHeight.value;
         parameters.parallaxScale = shader.uniforms.parallaxScale.value;
         h.add(parameters, "parallaxHeight", -1.0, 1.0, 0.025).onChange(function(value) { updateCallback("parallaxHeight", value); });
@@ -138,13 +138,13 @@ export var ShaderUtils = {
       }
     }
     
-    if (shader._checkKey("AOMAP")) {
+    if (shader.isEnable("AOMAP")) {
       h = gui.addFolder("Ambient Occlusion");
       parameters.aoStrength = shader.uniforms.aoStrength.value;
       h.add(parameters, "aoStrength", 0.0, 1.0, 0.01).onChange(function(value) { updateCallback("aoStrength", value); });
     }
     
-    if (shader._checkKey('VELVET')) {
+    if (shader.isEnable('VELVET')) {
       h = gui.addFolder("Velvet");
       
       parameters.surfaceColor = shader.uniforms.surfaceColor.value.getHex();
@@ -168,7 +168,7 @@ export var ShaderUtils = {
       h.add(parameters, "velvetStrength", 0.0, 1.0, 0.025).onChange(function(value) { updateCallback("velvetStrength", value); });
     }
     
-    if (shader._checkKey('INNERGLOW')) {
+    if (shader.isEnable('INNERGLOW')) {
       h = gui.addFolder("InnerGlow");
       
       parameters.innerGlowColor = shader.uniforms.innerGlowColor.value.getHex();
@@ -184,7 +184,7 @@ export var ShaderUtils = {
       h.add(parameters, "innerGlowRange", 0.0, 1.0, 0.05).onChange(function(value) { updateCallback("innerGlowRange", value); });
     }
     
-    if (shader._checkKey('LINEGLOW')) {
+    if (shader.isEnable('LINEGLOW')) {
       h = gui.addFolder("LineGlow");
       
       parameters.lineGlowRange = shader.uniforms.lineGlowRange.value;
@@ -207,14 +207,14 @@ export var ShaderUtils = {
       h.add(parameters, "lineGlowPlaneZ", 0.0, 1.0, 0.05).onChange(cb);
     }
     
-    if (shader._checkKey('DISTORTION')) {
+    if (shader.isEnable('DISTORTION')) {
       h = gui.addFolder("Distortion");
       
       parameters.distortionStrength = shader.uniforms.distortionStrength.value;
       h.add(parameters, "distortionStrength", -5.0, 5.0, 0.05).onChange(function(value) { updateCallback("distortionStrength", value); });
     }
     
-    if (shader._checkKey('UVSCROLL')) {
+    if (shader.isEnable('UVSCROLL')) {
       h = gui.addFolder('UV Scroll');
       
       parameters.uvScrollSpeedU = shader.uniforms.uvScrollSpeedU.value;
@@ -223,7 +223,7 @@ export var ShaderUtils = {
       h.add(parameters, "uvScrollSpeedV", -5.0, 5.0, 0.01).onChange(function(value) { updateCallback("uvScrollSpeedV", value); });
     }
     
-    if (shader._checkKey('GLASS')) {
+    if (shader.isEnable('GLASS')) {
       h = gui.addFolder('Glass');
       
       parameters.glassStrength = shader.uniforms.glassStrength.value;
@@ -232,7 +232,7 @@ export var ShaderUtils = {
       h.add(parameters, "glassCurvature", 0.0, 2.0, 0.01).onChange(function(value) { updateCallback("glassCurvature", value); });
     }
     
-    if (shader._checkKey('AMBIENT')) {
+    if (shader.isEnable('AMBIENT')) {
       h = gui.addFolder("Ambient Light");
       
       parameters.ambientColor = shader.uniforms.ambientColor.value.getHex();
@@ -241,7 +241,7 @@ export var ShaderUtils = {
         callback("ambientColor", value);
       });
       
-      if (shader._checkKey('HEMISPHERE')) {
+      if (shader.isEnable('HEMISPHERE')) {
         // var skyDirectionCallback = function(value) {
         //   shader.uniforms.skyDirection.value.set(parameters.skyDirectionX, parameters.skyDirectionY, parameters.skyDirectionZ);
         //   callback("skyDirection", shader.uniforms.skyDirection.value);
@@ -317,7 +317,7 @@ export var ShaderUtils = {
           shader.uniforms.pointLights.value[0].color.setHex(value);
           callback("pointLightColor", value);
         });
-        h.add(parameters, "pointLightDistance", 0.0, 10.0, 1.0).onChange(function(value) {
+        h.add(parameters, "pointLightDistance", 0.0, 100.0, 1.0).onChange(function(value) {
           shader.uniforms.pointLights.value[0].distance = value;
           callback("pointLightDistance", value);
         });
@@ -373,7 +373,7 @@ export var ShaderUtils = {
       }
     }
     
-    if (shader._checkKey('RIMLIGHT')) {
+    if (shader.isEnable('RIMLIGHT')) {
       h = gui.addFolder("Rim Light");
       
       parameters.rimLightColor = shader.uniforms.rimLightColor.value.getHex();
@@ -385,7 +385,7 @@ export var ShaderUtils = {
       h.add(parameters, "rimLightCoef", 0.0, 1.0, 0.05).onChange(function(value) { updateCallback("rimLightCoef", value); });
     }
     
-    if (shader._checkKey('LIGHTMAP')) {
+    if (shader.isEnable('LIGHTMAP')) {
       h = gui.addFolder('Light Map');
       
       parameters.lightMapPower = shader.uniforms.lightMapPower.value;
@@ -394,10 +394,10 @@ export var ShaderUtils = {
       h.add(parameters, "lightMapStrength", 0.0, 1.0, 0.025).onChange(function(value) { updateCallback("lightMapStrength", value); });
     }
 
-    if (shader._checkKeys(['+FOG', '+HEIGHTFOG'])) {
+    if (shader.isEnable(['+FOG', '+HEIGHTFOG'])) {
       h = gui.addFolder("Fog");
       
-      if (shader._checkKey('FOG')) {
+      if (shader.isEnable('FOG')) {
         parameters.fogAlpha = shader.uniforms.fogAlpha.value;
         parameters.fogFar = shader.uniforms.fogFar.value;
         parameters.fogNear = shader.uniforms.fogNear.value;
@@ -411,7 +411,7 @@ export var ShaderUtils = {
         });
       }
       
-      if (shader._checkKey("HEIGHTFOG")) {
+      if (shader.isEnable("HEIGHTFOG")) {
         parameters.heightFogAlpha = shader.uniforms.heightFogAlpha.value;
         parameters.heightFogFar = shader.uniforms.heightFogFar.value;
         parameters.heightFogNear = shader.uniforms.heightFogNear.value;
@@ -426,14 +426,14 @@ export var ShaderUtils = {
       }
     }
     
-    // if (shader._checkKey("PROJECTIONMAP")) {
+    // if (shader.isEnable("PROJECTIONMAP")) {
     //   h = gui.addFolder("Projection Map");
     //   
     //   parameters.projectionScale = shader.uniforms.projectionScale.value;
     //   h.add(parameters, "projectionScale", 0.0, 10.0, 0.025).onChange(function(value) { updateCallback("projectionScale", value); });
     // }
     
-    if (shader._checkKey('DISPLACEMENT')) {
+    if (shader.isEnable('DISPLACEMENT')) {
       h = gui.addFolder("Displacement");
       
       parameters.displacementScale = shader.uniforms.displacementScale.value;
@@ -442,7 +442,7 @@ export var ShaderUtils = {
       h.add(parameters, "displacementBias", 0.0, 10.0, 0.025).onChange(function(value) { updateCallback("displacementBias", value); });
     }
     
-    if (shader._checkKey("SKY")) {
+    if (shader.isEnable("SKY")) {
       h = gui.addFolder("Sky");
       
       parameters.skyTurbidity = shader.uniforms.skyTurbidity.value;
@@ -461,7 +461,7 @@ export var ShaderUtils = {
       // h.add(parameters, "skyAzimuth", 0, 1.0, 0.001).onChange(function(value) { updateCallback("skyAzimuth", value); });
     }
     
-    if (shader._checkKey("GRASS")) {
+    if (shader.isEnable("GRASS")) {
       h = gui.addFolder("Grass");
       
       parameters.grassWindDirectionX = shader.uniforms.grassWindDirection.value.x;
@@ -480,7 +480,7 @@ export var ShaderUtils = {
       h.add(parameters, "grassWindPower", 0.0, 2.0, 0.025).onChange(function(value) { updateCallback("grassWindPower", value); });
     }
     
-    if (shader._checkKey("CLOUDS")) {
+    if (shader.isEnable("CLOUDS")) {
       h = gui.addFolder("Clouds");
       
       parameters.cloudsScale = shader.uniforms.cloudsScale.value;
@@ -491,7 +491,7 @@ export var ShaderUtils = {
       // h.add(parameters, "cloudsSpeed", 0.0, 2.0).onChange(function(value) { updateCallback("cloudsSpeed", value); });
     }
     
-    if (shader._checkKey("GODRAY")) {
+    if (shader.isEnable("GODRAY")) {
       h = gui.addFolder("GodRay");
       
       parameters.godRayStrength = shader.uniforms.godRayStrength.value;
@@ -510,7 +510,7 @@ export var ShaderUtils = {
       });
     }
     
-    if (shader._checkKey("RECEIVESHADOW")) {
+    if (shader.isEnable("RECEIVESHADOW")) {
       h = gui.addFolder("Shadow");
       
       parameters.shadowBias = shader.uniforms.shadowBias.value;
@@ -519,7 +519,7 @@ export var ShaderUtils = {
       h.add(parameters, "shadowDensity", 0.0, 1.0, 0.025).onChange(function(value) { updateCallback("shadowDensity", value); });
     }
     
-    if (shader._checkKey("TONEMAPPING")) {
+    if (shader.isEnable("TONEMAPPING")) {
       h = gui.addFolder("ToneMapping", 0, 10);
       
       parameters.toneMappingExposure = shader.uniforms.toneMappingExposure.value;

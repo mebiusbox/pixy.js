@@ -1,0 +1,1 @@
+  computeTubeLight(tubeLights[0], geometry, material, reflectedLight);

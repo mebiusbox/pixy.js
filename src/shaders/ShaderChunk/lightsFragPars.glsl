@@ -85,3 +85,29 @@ void getSpotDirectLightIrradiance(const in SpotLight spotLight, const in Geometr
     directLight.visible = false;
   }
 }
+
+struct AreaLight {
+  vec3 position;
+  vec3 color;
+  float distance;
+  float decay;
+  float radius;
+};
+
+struct TubeLight {
+  vec3 start;
+  vec3 end;
+  vec3 color;
+  float distance;
+  float decay;
+  float radius;
+};
+
+struct RectLight {
+  vec3 positions[4];
+  vec3 color;
+  float width;
+  float height;
+  float distance;
+  float decay;
+};

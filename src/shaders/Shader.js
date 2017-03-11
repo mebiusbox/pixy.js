@@ -8,8 +8,8 @@ function Shader() {
 
 Object.assign(Shader.prototype, {
   
-  enable: function(key) {
-    this.enables[key] = 1;
+  enable: function(key, value) {
+    this.enables[key] = (value === undefined) ? 1 : value;
   },
   
   clear: function() {
@@ -85,26 +85,40 @@ Object.assign(Shader.prototype, {
   setLightParameter: function(index, light, camera) {
     
     camera.updateMatrixWorld();
+    camera.matrixWorldInverse.getInverse(camera.matrixWorld);
     
     if (light instanceof THREE.DirectionalLight) {
-      this.setDirectLightParameter(index,
-        light.position.clone().normalize().transformDirection(camera.matrixWorld),
-        light.color);
+      var direction = light.position.clone().applyMatrix4(camera.matrixWorldInverse);
+      var targetPos = light.target.position.clone().applyMatrix4(camera.matrixWorldInverse);
+      direction.sub(targetPos).normalize();
+      this.setDirectLightParameter(index, direction, light.color);
     }
     else if (light instanceof THREE.PointLight) {
       var viewPos = light.position.clone();
-      viewPos.applyMatrix4(camera.matrixWorld);
+      viewPos.applyMatrix4(camera.matrixWorldInverse);
       this.setPointLightParameter(index, viewPos, light.color, light.distance, light.decay);
     }
     else if (light instanceof THREE.SpotLight) {
       var viewPos = light.position.clone();
-      viewPos.applyMatrix4(camera.matrixWorld);
+      viewPos.applyMatrix4(camera.matrixWorldInverse);
       var viewDir = viewPos.clone().normalize();
       this.setSpotLightParameter(index, viewPos, viewDir, light.color, light.distance, light.decay,
         Math.cos(light.angle), Math.cos(light.angle * (1.0 - light.penumbra)));
     }
     else if (light instanceof THREE.AmbientLight) {
       this.setParameter("ambientColor", light.color);
+    }
+    else if (light instanceof PIXY.AreaLight) {
+      var viewPos = light.position.clone();
+      viewPos.applyMatrix4(camera.matrixWorldInverse);
+      this.setAreaLightParameter(index, viewPos, light.color, light.distance, light.decay, light.radius);
+    }
+    else if (light instanceof PIXY.TubeLight) {
+      var start = new THREE.Vector3().copy(light.start);
+      start.applyMatrix4(camera.matrixWorldInverse);
+      var end = new THREE.Vector3().copy(light.end);
+      end.applyMatrix4(camera.matrixWorldInverse);
+      this.setTubeLightParameter(index, start, end, light.color, light.distance, light.decay, light.radius);
     }
   },
   
@@ -130,56 +144,73 @@ Object.assign(Shader.prototype, {
     this.setArrayParameter("spotLights", index, "penumbraCos", penumbraCos);
   },
   
+  setAreaLightParameter: function(index, position, color, distance, decay, radius) {
+    this.setArrayParameter("areaLights", index, "position", position);
+    this.setArrayParameter("areaLights", index, "color", color);
+    this.setArrayParameter("areaLights", index, "distance", distance);
+    this.setArrayParameter("areaLights", index, "decay", decay);
+    this.setArrayParameter("areaLights", index, "radius", radius);
+  },
+  
+  setTubeLightParameter: function(index, start, end, color, distance, decay, radius) {
+    this.setArrayParameter("tubeLights", index, "start", start);
+    this.setArrayParameter("tubeLights", index, "end", end);
+    this.setArrayParameter("tubeLights", index, "color", color);
+    this.setArrayParameter("tubeLights", index, "distance", distance);
+    this.setArrayParameter("tubeLights", index, "decay", decay);
+    this.setArrayParameter("tubeLights", index, "radius", radius);
+  },
+  
   ////////////////////////////////////////////////////////////////////////////
   
-  _checkKey: function(key) {
-    for (var i in this.enables) {
-      if (i === key) {
+  // +AAA : OR
+  // -BBB : NOT
+  isEnable: function(keys) {
+    
+    if (!keys) return true;
+    
+    if (keys instanceof Array) {
+      if (keys.length === 0) {
         return true;
       }
+    
+      var check = 0;
+      for (var i in keys) {
+        if (keys[i][0] === '-') {
+          if (this.isEnable(keys[i].substr(1))) {
+            return false;
+          }
+        }
+        else if (keys[i][0] === '+') {
+          if (check === 0) {
+            check = 1;
+          }
+          if (this.isEnable(keys[i].substr(1))) {
+            check = 2;
+          }
+        }
+        else {
+          if (this.isEnable(keys[i]) === false) {
+            return false;
+          }
+        }
+      }
+      
+      if (check > 0 && check < 2) {
+        return false;
+      }
+      
+      return true;
+    }
+    else {
+      return keys in this.enables;
     }
     
     return false;
   },
   
-  // +AAA : OR
-  // -BBB : NOT
-  _checkKeys: function(keys) {
-    if (keys === null || keys.length === 0) {
-      return true;
-    }
-  
-    var check = 0;
-    for (var i in keys) {
-      if (keys[i][0] === '-') {
-        if (this._checkKey(keys[i].substr(1))) {
-          return false;
-        }
-      }
-      else if (keys[i][0] === '+') {
-        if (check === 0) {
-          check = 1;
-        }
-        if (this._checkKey(keys[i].substr(1))) {
-          check = 2;
-        }
-      }
-      else {
-        if (this._checkKey(keys[i]) === false) {
-          return false;
-        }
-      }
-    }
-    
-    if (check > 0 && check < 2) {
-      return false;
-    }
-    
-    return true;
-  },
-  
   _addUniform: function(uniforms, keys, chunk) {
-    if (this._checkKeys(keys)) {
+    if (this.isEnable(keys)) {
       uniforms.push(ShaderChunk[chunk]);
     }
   },
@@ -199,6 +230,13 @@ Object.assign(Shader.prototype, {
     if (numDirectLight > 0) result.push(ShaderChunk.lightsDirectUniforms);
     if (numPointLight > 0) result.push(ShaderChunk.lightsPointUniforms);
     if (numSpotLight > 0) result.push(ShaderChunk.lightsSpotUniforms);
+    
+    var numAreaLight = this.enables["AREALIGHT"] || 0;
+    var numTubeLight = this.enables["TUBELIGHT"] || 0;
+    var numRectLight = this.enables["RECTLIGHT"] || 0;
+    if (numAreaLight > 0) result.push(ShaderChunk.lightsAreaLightUniforms);
+    if (numTubeLight > 0) result.push(ShaderChunk.lightsTubeLightUniforms);
+    if (numRectLight > 0) result.push(ShaderChunk.lightsRectLightUniforms);
     
     this._addUniform(result, ["AMBIENT"], "ambientUniforms");
     this._addUniform(result, ["AMBIENT", "HEMISPHERE"], "ambientHemisphereUniforms");
@@ -244,11 +282,14 @@ Object.assign(Shader.prototype, {
     this._addUniform(result, ["DEPTHSHADOW"], "depthShadowUniforms");
     this._addUniform(result, ["CLOUDS"], "cloudsUniforms");
     this._addUniform(result, ["TONEMAPPING"], "toneMappingUniforms");
+    this._addUniform(result, ["DEFERRED_GEOMETRY"], "deferredGeometryUniforms");
+    this._addUniform(result, ["DEFERRED_LIGHT"], "deferredLightUniforms");
+    this._addUniform(result, ["VIEW"], "viewUniforms");
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(result));
   },
   
   _addCode: function(codes, keys, chunk, chunk2) {
-    if (this._checkKeys(keys)) {
+    if (this.isEnable(keys)) {
       codes.push("// begin [" + chunk + "]");
       codes.push(ShaderChunk[chunk]);
       codes.push("// end [" + chunk + "]");
@@ -266,6 +307,19 @@ Object.assign(Shader.prototype, {
   _generateVertexShader: function() {
     var codes = [];
     
+    // DEFFERED
+    
+    if (this.isEnable("DEFERRED_GEOMETRY")) {
+      this._addCode(codes, [], "deferredGeometryVert");
+      return codes.join("\n");
+    }
+    if (this.isEnable("DEFERRED_LIGHT")) {
+      this._addCode(codes, [], "deferredLightVert");
+      return codes.join("\n");
+    }
+    
+    // FORWARD
+    
     this._addCode(codes, [], "common");
     this._addCode(codes, ["+CASTSHADOW", "+RECEIVESHADOW"], "packing");
     this._addCode(codes, [], "worldPositionVertFragPars");
@@ -273,7 +327,7 @@ Object.assign(Shader.prototype, {
     codes.push("varying vec3 vNormal;");
     codes.push("");
     
-    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+BUMPMAP","+PROJECTIONMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS"], "uvVertFragPars");
+    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+BUMPMAP","+PROJECTIONMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS", "+VIEW"], "uvVertFragPars");
     this._addCode(codes, ["+NORMALMAP","+ANISOTROPY","+OVERLAYNORMAL"], "tangentVertPars");
     this._addCode(codes, ["UVSCROLL"], "uvScrollVertPars");
     this._addCode(codes, ["+GLASS","+DITHER"], "screenVertPars");
@@ -288,13 +342,13 @@ Object.assign(Shader.prototype, {
     this._addCode(codes, ["CASTSHADOW", "-GRASS"], "castShadowVertPars");
     this._addCode(codes, ["RECEIVESHADOW"], "receiveShadowVertPars");
     
-    if (this._checkKeys(["BILLBOARD"])) {
+    if (this.isEnable(["BILLBOARD"])) {
       this._addCode(codes, [], "billboardVertPars");
       this._addCode(codes, [], "billboardVert");
       this._addCode(codes, ["BILLBOARDY"], "billboardYVert", "billboardDefaultVert");
       this._addCode(codes, ["BILLBOARDROTZ"], "billboardRotZVertEnd", "billboardVertEnd");
     }
-    else if (this._checkKeys(["CASTSHADOW"])) {
+    else if (this.isEnable(["CASTSHADOW"])) {
       codes.push("void main() {");
       this._addCode(codes, ["GRASS"], "instanceCastShadowVert");
       this._addCode(codes, ["-GRASS"], "castShadowVert");
@@ -311,7 +365,7 @@ Object.assign(Shader.prototype, {
       codes.push("  vec4 mvPosition = viewMatrix * vec4(vWorldPosition, 1.0);");
       codes.push("  vec4 hpos = projectionMatrix * mvPosition;");
     
-      if (this._checkKeys(["+NORMALMAP","+ANISOTROPY","+OVERLAYNORMAL"])) {
+      if (this.isEnable(["+NORMALMAP","+ANISOTROPY","+OVERLAYNORMAL"])) {
         codes.push("  vNormal.xyz = inverseTransformDirection(objectNormal, modelMatrix);");
       }
       else {
@@ -323,7 +377,7 @@ Object.assign(Shader.prototype, {
     }
     
     // chunk here
-    if (this._checkKeys(["+COLORMAP","+NORMALMAP","+BUMPMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS"])) {
+    if (this.isEnable(["+COLORMAP","+NORMALMAP","+BUMPMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS","+VIEW"])) {
       this._addCode(codes, ["UVPROJECTION"], "uvProjectionVert", "uvVert");
       this._addCode(codes, ["UVSCROLL"], "uvScrollVert");
       this._addCode(codes, ["DISTORTION"], "distortionVert");
@@ -348,9 +402,27 @@ Object.assign(Shader.prototype, {
   _generateFragmentShader: function() {
     var codes = [];
     
+    // DEFERRED
+    
+    if (this.isEnable("DEFERRED_GEOMETRY")) {
+      this._addCode(codes, [], "deferredGeometryFrag");
+      return codes.join("\n");
+    }
+    if (this.isEnable("DEFERRED_LIGHT")) {
+      this._addCode(codes, [], "deferredLightFrag");
+      return codes.join("\n");
+    }
+    
+    // FORWARD
+    
+    if (this.isEnable("VIEW")) {
+      this._addCode(codes, [], "viewFrag");
+      return codes.join("\n");
+    }
+    
     this._addCode(codes, [], "common");
     
-    if (this._checkKeys(["CASTSHADOW"])) {
+    if (this.isEnable(["CASTSHADOW"])) {
       this._addCode(codes, [], "packing");
       this._addCode(codes, [], "castShadowFragPars");
       this._addCode(codes, ["GRASS"], "uvVertFragPars");
@@ -366,7 +438,7 @@ Object.assign(Shader.prototype, {
       return codes.join("\n");
     }
     
-    if (this._checkKeys(["DEPTHSHADOW"])) {
+    if (this.isEnable(["DEPTHSHADOW"])) {
       this._addCode(codes, [], "packing");
       this._addCode(codes, [], "uvVertFragPars");
       this._addCode(codes, [], "depthShadowFragPars");
@@ -380,7 +452,7 @@ Object.assign(Shader.prototype, {
       return codes.join("\n");
     }
     
-    if (this._checkKeys(["DEPTH"])) {
+    if (this.isEnable(["DEPTH"])) {
       // this._addCode(codes, [], "packing");
       this._addCode(codes, [], "depthFragPars");
       
@@ -402,6 +474,11 @@ Object.assign(Shader.prototype, {
     var numPointLight = this.enables["POINTLIGHT"] || 0;
     var numSpotLight = this.enables["SPOTLIGHT"] || 0;
     codes.push(this._generateLightsFragPars(numDirectLight, numPointLight, numSpotLight));
+    
+    var numAreaLight = this.enables["AREALIGHT"] || 0;
+    var numTubeLight = this.enables["TUBELIGHT"] || 0;
+    var numRectLight = this.enables["RECTLIGHT"] || 0;
+    codes.push(this._generateAreaLightsFragPars(numAreaLight, numTubeLight, numRectLight));
     
     codes.push("uniform vec3 diffuseColor;");
     codes.push("uniform float opacity;");
@@ -456,26 +533,37 @@ Object.assign(Shader.prototype, {
     //   codes.push("vec3 toneMapping(vec3) { return " + this.enables["TONEMAPPING"] + "ToneMapping(x); }");
     // }
     
-    codes.push("void updateLight(inout IncidentLight directLight) {");
-      
-      this._addCode(codes, ["-SKY", "-NOLIT", "RECEIVESHADOW"], "receiveShadowFrag");
-      
-    codes.push("}");
-    codes.push("");
-    codes.push("void computeLight(const in IncidentLight directLight, const in GeometricContext geometry, const in Material material, inout ReflectedLight reflectedLight) {");
+    if (numAreaLight > 0) {
+      this._addCode(codes, [], "standardAreaLightFrag");
+    }
+    if (numTubeLight > 0) {
+      this._addCode(codes, [], "standardTubeLightFrag");
+    }
     
-      // lighting chunk here
-      this._addCode(codes, ["PHONG", "TOON"], "toonFrag");
-      this._addCode(codes, ["PHONG", "-TOON"], "phongFrag");
-      this._addCode(codes, ["STANDARD", "ORENNAYAR"], "standardOrenNayarFrag");
-      this._addCode(codes, ["STANDARD", "-ORENNAYAR"], "standardFrag");
-      this._addCode(codes, ["-STANDARD", "-PHONG"], "lambertFrag");
-      this._addCode(codes, ["VELVET"], "velvetFrag");
-      this._addCode(codes, ["RIMLIGHT"], "rimLightFrag");
-      this._addCode(codes, ["ANISOTROPY"], "anisotropyFrag");
+    if (numDirectLight > 0 || numPointLight > 0 || numSpotLight > 0) {
     
-    codes.push("}");
-    codes.push("");
+      codes.push("void updateLight(inout IncidentLight directLight) {");
+        
+        this._addCode(codes, ["-SKY", "-NOLIT", "RECEIVESHADOW"], "receiveShadowFrag");
+        
+      codes.push("}");
+      codes.push("");
+      codes.push("void computeLight(const in IncidentLight directLight, const in GeometricContext geometry, const in Material material, inout ReflectedLight reflectedLight) {");
+      
+        // lighting chunk here
+        this._addCode(codes, ["PHONG", "TOON"], "toonFrag");
+        this._addCode(codes, ["PHONG", "-TOON"], "phongFrag");
+        this._addCode(codes, ["STANDARD", "ORENNAYAR"], "standardOrenNayarFrag");
+        this._addCode(codes, ["STANDARD", "-ORENNAYAR"], "standardFrag");
+        this._addCode(codes, ["-STANDARD", "-PHONG"], "lambertFrag");
+        this._addCode(codes, ["VELVET"], "velvetFrag");
+        this._addCode(codes, ["RIMLIGHT"], "rimLightFrag");
+        this._addCode(codes, ["ANISOTROPY"], "anisotropyFrag");
+      
+      codes.push("}");
+      codes.push("");
+    }
+    
     codes.push("void main() {");
     
       this._addCode(codes, ["CLIPPINGPLANE"], "clippingPlaneFrag");
@@ -509,8 +597,9 @@ Object.assign(Shader.prototype, {
       this._addCode(codes, ["STANDARD"], "lightsStandardFrag");
       this._addCode(codes, ["SKY"], "skyFrag");
       this._addCode(codes, ["-SKY", "NOLIT"], "nolitFrag");
-      if (this._checkKeys(["-SKY", "-NOLIT"])) {
+      if (this.isEnable(["-SKY", "-NOLIT"])) {
         codes.push(this._generateLightsFrag(numDirectLight, numPointLight, numSpotLight));
+        codes.push(this._generateAreaLightsFrag(numAreaLight, numTubeLight, numRectLight));
       }
       this._addCode(codes, ["SKYDOME"], "skyDomeFrag");
       this._addCode(codes, ["REFLECTION", "FRESNEL"], "fresnelFrag");
@@ -565,6 +654,32 @@ Object.assign(Shader.prototype, {
     return code.join("\n");
   },
   
+  _generateAreaLightsFragPars: function(numArea, numTube, numRect) {
+    if (numArea <= 0 && numTube <= 0 && numRect <= 0) {
+      return "";
+    }
+    
+    var code = [];
+    code.push(ShaderChunk["lightsFragPars"]);
+    
+    if (numArea > 0) {
+      code.push("#define PIXY_AREA_LIGHTS_NUM " + numArea);
+      code.push("uniform AreaLight areaLights[ PIXY_AREA_LIGHTS_NUM ];");
+    }
+    
+    if (numTube > 0) {
+      code.push("#define PIXY_TUBE_LIGHTS_NUM " + numTube);
+      code.push("uniform TubeLight tubeLights[ PIXY_TUBE_LIGHTS_NUM ];");
+    }
+    
+    if (numRect > 0) {
+      code.push("#define PIXY_RECT_LIGHTS_NUM " + numRect);
+      code.push("uniform RectLight rectLights[ PIXY_RECT_LIGHTS_NUM ];");
+    }
+    
+    return code.join("\n");
+  },
+  
   _generateLightsFrag: function(numDirect, numPoint, numSpot) {
     if (numDirect <= 0 && numPoint <= 0 && numSpot <= 0) {
       return "";
@@ -601,6 +716,42 @@ Object.assign(Shader.prototype, {
     return code.join("\n");
   },
   
+  _generateAreaLightsFrag: function(numArea, numTube, numRect) {
+    if (numArea <= 0 && numTube <= 0 && numRect <= 0) {
+      return "";
+    }
+    
+    var code = [];
+    
+    code.push("  IncidentLight directLight;");
+    
+    if (numArea == 1) {
+      // THREE.WebGLProgram: gl.getProgramInfoLog() C:\fakepath(496,3-100): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
+      code.push(ShaderChunk["lightsAreaLightFragUnroll"]);
+    }
+    else if (numArea > 0) {
+      code.push(ShaderChunk["lightsAreaLightFrag"]);
+    }
+    
+    if (numTube == 1) {
+      // THREE.WebGLProgram: gl.getProgramInfoLog() C:\fakepath(496,3-100): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
+      code.push(ShaderChunk["lightsTubeLightFragUnroll"]);
+    }
+    else if (numTube > 0) {
+      code.push(ShaderChunk["lightsTubeLightFrag"]);
+    }
+    
+    if (numRect == 1) {
+      // THREE.WebGLProgram: gl.getProgramInfoLog() C:\fakepath(496,3-100): warning X3557: loop only executes for 1 iteration(s), forcing loop to unroll
+      code.push(ShaderChunk["lightsRectFragUnroll"]);
+    }
+    else if (numRect > 0) {
+      code.push(ShaderChunk["lightsRectFrag"]);
+    }
+    
+    return code.join("\n");
+  },
+  
   build: function(options) {
     this.uniforms = this._generateUniforms();
     
@@ -610,13 +761,18 @@ Object.assign(Shader.prototype, {
       fragmentShader: this._generateFragmentShader()
     };
     
+    if (this.isEnable(["+DEFERRED_GEOMETRY", "+DEFERRED_LIGHT"])) {
+      this.material = new THREE.RawShaderMaterial(Object.assign(params, options));
+      return;
+    }
+    
     this.material = new THREE.ShaderMaterial(Object.assign(params, options));
     
-    if (/* this._checkKey('NORMALMAP') || */this._checkKey('BUMPMAP')) {
+    if (/* this.isEnable('NORMALMAP') || */this.isEnable('BUMPMAP')) {
       this.material.extensions.derivatives = true;
     };
     
-    if (this._checkKeys(['STANDARD', 'REFLECTION'])) {
+    if (this.isEnable(['STANDARD', 'REFLECTION'])) {
       this.material.extensions.shaderTextureLOD = true;
     };
   }

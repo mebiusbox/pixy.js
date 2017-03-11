@@ -65,6 +65,14 @@ float D_GGX(float a, float NoH) {
   return a2 / (PI * d * d);
 }
 
+float D_GGX_AreaLight(float a, float aP, float NoH) {
+  float a2 = a*a;
+  float aP2 = aP*aP;
+  float NoH2 = NoH*NoH;
+  float d = NoH2 * (a2 - 1.0) + 1.0;
+  return (a2*aP2) / (pow(NoH2 * (a2-1.0) + 1.0, 2.0) * PI);
+}
+
 // following functions are copies fo UE4
 // for computing cook-torrance specular lighitng terms
 // https://gist.github.com/galek/53557375251e1a942dfa
