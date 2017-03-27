@@ -172,7 +172,7 @@ export function floatFormat(number, n) {
 //-------------------------------------------------------------------------
 export function dumpMatrix4(matrix) {
 	var s = "";
-	for (i=0; i<4; ++i) {
+	for (var i=0; i<4; ++i) {
 		// s += ("        " + matrix.elements[i*4+0]).substr(-8) + ", ";
 		// s += ("        " + matrix.elements[i*4+1]).substr(-8) + ", ";
 		// s += ("        " + matrix.elements[i*4+2]).substr(-8) + ", ";

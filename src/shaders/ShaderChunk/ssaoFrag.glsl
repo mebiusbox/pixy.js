@@ -4,6 +4,9 @@ uniform bool onlyAO; // use only ambient occulusion pass?
 uniform vec2 size; // texture width, height
 uniform float aoClamp; // depth clamp - reduces haloing at screen edges
 uniform float lumInfluence;  // how much luminance affects occulusion
+uniform float radius; // ao radius
+uniform float diffArea; // self-shadowing reduction
+uniform float gDisplace; // gause bell center
 uniform sampler2D tDiffuse;
 uniform sampler2D tDepth;
 varying vec2 vUv;
@@ -14,14 +17,11 @@ varying vec2 vUv;
 
 // user variables
 const int samples = 8; // ao sample count
-const float radius = 5.0; // ao radius
+// const float radius = 5.0; // ao radius
 const bool useNoise = false; // use noise instead of pattern for sample dithering
 const float noiseAmount = 0.0003; // dithering amount
-const float diffArea = 0.4; // self-shadowing reduction
-const float gDisplace = 0.4; // gause bell center
-
-// RGBA depth
-#include <packing>
+// const float diffArea = 0.4; // self-shadowing reduction
+// const float gDisplace = 0.4; // gause bell center
 
 // generating noise / pattern texture for dithering
 vec2 rand(const vec2 coord) {
@@ -45,7 +45,8 @@ float readDepth(const in vec2 coord) {
   float zcoef = 2.0 * cameraNear;
 
 //   return (2.0 * cameraNear) / (cameraFar + cameraNear - unpackDepth(texture2D(tDepth, coord)) * (cameraFar - cameraNear));
-  return zcoef / (zfarPlusNear - unpackRGBAToDepth(texture2D(tDepth, coord)) * zfarMinusNear);
+  // return zcoef / (zfarPlusNear - unpackRGBAToDepth(texture2D(tDepth, coord)) * zfarMinusNear);
+  return zcoef / (zfarPlusNear - texture2D(tDepth, coord).r * zfarMinusNear);
 }
 
 float compareDepths(const in float depth1, const in float depth2, inout int far) {

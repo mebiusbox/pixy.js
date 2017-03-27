@@ -81,8 +81,55 @@ var ShaderLib = {
     ]),
     vertexShader: ShaderChunk.toneMapVert,
     fragmentShader: ShaderChunk.toneMapFrag
+  },
+  
+  ssao: {
+    uniforms: THREE.UniformsUtils.merge([
+      ShaderChunk.ssaoUniforms
+    ]),
+    vertexShader: ShaderChunk.ssaoVert,
+    fragmentShader: ShaderChunk.ssaoFrag
+  },
+  
+  ssao2: {
+    uniforms: THREE.UniformsUtils.merge([
+      ShaderChunk.ssao2Uniforms
+    ]),
+    vertexShader: ShaderChunk.ssaoVert,
+    fragmentShader: ShaderChunk.ssao2Frag
+  },
+  
+  ssao2Blur: {
+    uniforms: THREE.UniformsUtils.merge([
+      ShaderChunk.ssao2BlurUniforms
+    ]),
+    vertexShader: ShaderChunk.copyVert,
+    fragmentShader: ShaderChunk.ssao2BlurFrag
+  },
+  
+  ssao2Composite: {
+    uniforms: THREE.UniformsUtils.merge([
+      ShaderChunk.ssao2CompositeUniforms
+    ]),
+    vertexShader: ShaderChunk.copyVert,
+    fragmentShader: ShaderChunk.ssao2CompositeFrag
+  },
+  
+  fxaa: {
+    uniforms: THREE.UniformsUtils.merge([
+      ShaderChunk.antiAliasUniforms
+    ]),
+    vertexShader: ShaderChunk.antiAliasVert,
+    fragmentShader: ShaderChunk.antiAliasFrag
+  },
+  
+  view: {
+    uniforms: THREE.UniformsUtils.merge([
+      ShaderChunk.viewUniforms
+    ]),
+    vertexShader: ShaderChunk.copyVert,
+    fragmentShader: ShaderChunk.viewFrag
   }
-    
 };
 
 export { ShaderLib };

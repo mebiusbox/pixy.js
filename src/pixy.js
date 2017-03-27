@@ -23,6 +23,7 @@ export { EdgePass } from './post/edgePass.js';
 export { SSAARenderPass } from './post/ssaaRenderPass.js';
 export { TAARenderPass } from './post/taaRenderPass.js';
 export { UnrealBloomPass } from './post/unrealBloomPass.js';
+export { SSAOPass } from './post/ssaoPass.js';
 export { AreaLight } from './lights/areaLight.js';
 export { TubeLight } from './lights/tubeLight.js';
 export { RectLight } from './lights/rectLight.js';

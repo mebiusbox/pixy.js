@@ -223,6 +223,12 @@ import specularMapFrag from './ShaderChunk/specularMapFrag.glsl';
 import specularMapFragPars from './ShaderChunk/specularMapFragPars.glsl';
 import { specularMapUniforms } from './ShaderChunk/specularMapUniforms.js';
 import { specularUniforms } from './ShaderChunk/specularUniforms.js';
+import ssao2BlurFrag from './ShaderChunk/ssao2BlurFrag.glsl';
+import { ssao2BlurUniforms } from './ShaderChunk/ssao2BlurUniforms.js';
+import ssao2CompositeFrag from './ShaderChunk/ssao2CompositeFrag.glsl';
+import { ssao2CompositeUniforms } from './ShaderChunk/ssao2CompositeUniforms.js';
+import ssao2Frag from './ShaderChunk/ssao2Frag.glsl';
+import { ssao2Uniforms } from './ShaderChunk/ssao2Uniforms.js';
 import ssaoFrag from './ShaderChunk/ssaoFrag.glsl';
 import { ssaoUniforms } from './ShaderChunk/ssaoUniforms.js';
 import ssaoVert from './ShaderChunk/ssaoVert.glsl';
@@ -495,6 +501,12 @@ export var ShaderChunk = {
 	specularMapFragPars: specularMapFragPars,
 	specularMapUniforms: specularMapUniforms,
 	specularUniforms: specularUniforms,
+	ssao2BlurFrag: ssao2BlurFrag,
+	ssao2BlurUniforms: ssao2BlurUniforms,
+	ssao2CompositeFrag: ssao2CompositeFrag,
+	ssao2CompositeUniforms: ssao2CompositeUniforms,
+	ssao2Frag: ssao2Frag,
+	ssao2Uniforms: ssao2Uniforms,
 	ssaoFrag: ssaoFrag,
 	ssaoUniforms: ssaoUniforms,
 	ssaoVert: ssaoVert,

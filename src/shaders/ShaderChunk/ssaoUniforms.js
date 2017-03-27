@@ -6,5 +6,8 @@ export var ssaoUniforms = {
   cameraFar:   { value: 100 },
   onlyAO:      { value: 0 },
   aoClamp:     { value: 0.5 },
-  lumInfluence: { value: 0.5 }
+  lumInfluence: { value: 0.5 },
+  radius:       { value: 5.0 },
+  diffArea:     { value: 0.4 },
+  gDisplace:    { value: 0.4 }
 };
