@@ -200,7 +200,7 @@ var depthFrag = "  gl_FragData[0] = packDepthToRGBA(gl_FragCoord.z);";
 
 var depthFragPars = "#include <packing>";
 
-var depthShadowFrag = "  gl_FragColor.xyz = vec3(unpackRGBAToDepth(texture2D(tShadow, vUv)));\r\n// gl_FragColor.xyz = vec3(DecodeFloatRGBA(texture2D(tShadow, vUv)));\r\n// gl_FragColor.xyz = texture2D(tShadow, vUv).aaa;\r\n  // gl_FragColor.xyz = texture2D(tShadow, vUv).xyz;\r\n  gl_FragColor.a = 1.0;";
+var depthShadowFrag = "  gl_FragColor.xyz = vec3(unpackRGBAToDepth(texture2D(tShadow, vUv)));\r\n// gl_FragColor.xyz = vec3(DecodeFloatRGBA(texture2D(tShadow, vUv)));\r\n// gl_FragColor.xyz = texture2D(tShadow, vUv).aaa;\r\n  gl_FragColor.a = 1.0;";
 
 var depthShadowFragPars = "uniform sampler2D tShadow;";
 
@@ -399,7 +399,7 @@ var idUniforms = {
 
 var idVert = "void main() {\r\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n}";
 
-var innerGlowFrag = "  float glow = 1.0 - max(0.0, dot(geometry.normal, geometry.viewDir));\r\n  float glowPow = max(glow / (innerGlowBase * (1.0 - glow) + glow), 0.0) * innerGlowSub;\r\n  glowPow = max(0.0, glowPow - innerGlowRange) * (1.0 / (1.0 - innerGlowRange));\r\n  reflectedLight.indirectSpecular += innerGlowColor * glowPow;\r\n  // reflectedLight.indirectSpecular += vec3(glowPow);\r\n  // reflectedLight.indirectSpecular += vec3(glow);";
+var innerGlowFrag = "  float glow = 1.0 - max(0.0, dot(geometry.normal, geometry.viewDir));\r\n  float glowPow = max(glow / (innerGlowBase * (1.0 - glow) + glow), 0.0) * innerGlowSub;\r\n  glowPow = max(0.0, glowPow - innerGlowRange) * (1.0 / max(1.0 - innerGlowRange, 0.00001));\r\n  glowPow = min(glowPow, 1.0);\r\n  // glowPow = min(1.0, glowPow*step(innerGlowRange, glowPow));\r\n  reflectedLight.indirectSpecular += innerGlowColor * glowPow;\r\n  // reflectedLight.indirectSpecular += vec3(glowPow);\r\n  // reflectedLight.indirectSpecular += vec3(glow);";
 
 var innerGlowFragPars = "uniform vec3 innerGlowColor;\r\nuniform float innerGlowBase;\r\nuniform float innerGlowSub;\r\nuniform float innerGlowRange;";
 
