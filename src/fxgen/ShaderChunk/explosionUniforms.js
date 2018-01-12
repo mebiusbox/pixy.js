@@ -1,0 +1,18 @@
+export var explosionUniforms = {
+  cCameraTilt: { value: 0.0 },
+  cCameraPan: { value: 0.0 },
+  cExplosionRadius: { value: 1.75 },
+  cExplosionDownScale: { value: 1.25 },
+  cExplosionGrain: { value: 2.0 },
+  cExplosionSpeed: { value: 0.3 },
+  cExplosionBallness: { value: 2.0 },
+  cExplosionGrowth: { value: 2.2 },
+  cExplosionFade: { value: 1.6 },
+  // cExplosionThinoutSmooth: { value: 0.7 },
+  cExplosionDensity: { value: 1.35 },
+  cExplosionContrast: { value: 1.0 },
+  cExplosionRollingInitDamp: { value: 0.3 },
+  cExplosionRollingSpeed: { value: 2.0 },
+  cExplosionDelayRange: { value: 0.25 },
+  cExplosionBallSpread: { value: 1.0 },
+};

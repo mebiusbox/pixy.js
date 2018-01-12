@@ -1,0 +1,16 @@
+export var cloudUniforms = {
+  cCameraTilt: { value: 0.2 },
+  cCameraPan:  { value: 0.0 },
+  cWidth: { value: 1.0 },
+  cHeight: { value: 0.65 },
+  cDepth: { value: 0.65 },
+  cLightX: { value: -0.4 },
+  cLightY: { value: 0.0 },
+  cLightZ: { value: 1.0 },
+  cIntensity: { value: 1.0 },
+  cAmbient: { value: 0.1 },
+  cSmoothness: { value: 1.0 },
+  cSmoothnessPower: { value: 3.0 },
+  cThickness: { value: 0.7 },
+  cThicknessPower: { value: 3.0 },
+};

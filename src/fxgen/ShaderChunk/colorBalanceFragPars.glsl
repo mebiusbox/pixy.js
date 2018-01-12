@@ -1,0 +1,4 @@
+uniform vec3 cColorBalanceShadows;
+uniform vec3 cColorBalanceMidtones;
+uniform vec3 cColorBalanceHighlights;
+uniform bool cColorBalancePreserveLuminosity;

@@ -1,0 +1,1 @@
+gl_FragColor = vec4(pout.color, pout.opacity);

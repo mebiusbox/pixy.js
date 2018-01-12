@@ -1,0 +1,1 @@
+pout.color = vec3(displacement);
