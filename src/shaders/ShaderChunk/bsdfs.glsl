@@ -170,6 +170,8 @@ float G_Smith_Schlick_GGX(float a, float NoV, float NoL) {
   return gl*gv;
 }
 
+// Tuned to match behavior of Vis_Smith
+// [Schlick 1994, "An Inexpensive BRDF Model for Physically-Based Rendering"]
 float G_Schlick(in float a, in float NoV, in float NoL) {
   float k = a * 0.5;
   float V = NoV * (1.0 - k) + k;
