@@ -40,6 +40,9 @@ import { clippingPlaneUniforms } from './ShaderChunk/clippingPlaneUniforms.js';
 import cloudsFrag from './ShaderChunk/cloudsFrag.glsl';
 import cloudsFragPars from './ShaderChunk/cloudsFragPars.glsl';
 import { cloudsUniforms } from './ShaderChunk/cloudsUniforms.js';
+import colorMap2Frag from './ShaderChunk/colorMap2Frag.glsl';
+import colorMap2FragPars from './ShaderChunk/colorMap2FragPars.glsl';
+import { colorMap2Uniforms } from './ShaderChunk/colorMap2Uniforms.js';
 import colorMapAlphaFrag from './ShaderChunk/colorMapAlphaFrag.glsl';
 import colorMapFrag from './ShaderChunk/colorMapFrag.glsl';
 import colorMapFragPars from './ShaderChunk/colorMapFragPars.glsl';
@@ -182,6 +185,7 @@ import overlayNormalFragPars from './ShaderChunk/overlayNormalFragPars.glsl';
 import { overlayNormalUniforms } from './ShaderChunk/overlayNormalUniforms.js';
 import { overlayUniforms } from './ShaderChunk/overlayUniforms.js';
 import packing from './ShaderChunk/packing.glsl';
+import parallaxFrag from './ShaderChunk/parallaxFrag.glsl';
 import parallaxMapFrag from './ShaderChunk/parallaxMapFrag.glsl';
 import parallaxMapFragPars from './ShaderChunk/parallaxMapFragPars.glsl';
 import { parallaxMapUniforms } from './ShaderChunk/parallaxMapUniforms.js';
@@ -261,6 +265,7 @@ import uvProjectionVert from './ShaderChunk/uvProjectionVert.glsl';
 import uvScaleFrag from './ShaderChunk/uvScaleFrag.glsl';
 import uvScaleFragPars from './ShaderChunk/uvScaleFragPars.glsl';
 import { uvScaleUniforms } from './ShaderChunk/uvScaleUniforms.js';
+import uvScroll2Vert from './ShaderChunk/uvScroll2Vert.glsl';
 import { uvScrollUniforms } from './ShaderChunk/uvScrollUniforms.js';
 import uvScrollVert from './ShaderChunk/uvScrollVert.glsl';
 import uvScrollVertPars from './ShaderChunk/uvScrollVertPars.glsl';
@@ -318,6 +323,9 @@ export var ShaderChunk = {
 	cloudsFrag: cloudsFrag,
 	cloudsFragPars: cloudsFragPars,
 	cloudsUniforms: cloudsUniforms,
+	colorMap2Frag: colorMap2Frag,
+	colorMap2FragPars: colorMap2FragPars,
+	colorMap2Uniforms: colorMap2Uniforms,
 	colorMapAlphaFrag: colorMapAlphaFrag,
 	colorMapFrag: colorMapFrag,
 	colorMapFragPars: colorMapFragPars,
@@ -460,6 +468,7 @@ export var ShaderChunk = {
 	overlayNormalUniforms: overlayNormalUniforms,
 	overlayUniforms: overlayUniforms,
 	packing: packing,
+	parallaxFrag: parallaxFrag,
 	parallaxMapFrag: parallaxMapFrag,
 	parallaxMapFragPars: parallaxMapFragPars,
 	parallaxMapUniforms: parallaxMapUniforms,
@@ -539,6 +548,7 @@ export var ShaderChunk = {
 	uvScaleFrag: uvScaleFrag,
 	uvScaleFragPars: uvScaleFragPars,
 	uvScaleUniforms: uvScaleUniforms,
+	uvScroll2Vert: uvScroll2Vert,
 	uvScrollUniforms: uvScrollUniforms,
 	uvScrollVert: uvScrollVert,
 	uvScrollVertPars: uvScrollVertPars,

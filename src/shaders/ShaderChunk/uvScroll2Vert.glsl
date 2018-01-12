@@ -1,0 +1,1 @@
+  vUv2 += fract(vec2(uvScrollSpeedU, uvScrollSpeedV) * uvScrollTime);

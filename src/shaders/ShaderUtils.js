@@ -138,6 +138,12 @@ export var ShaderUtils = {
       }
     }
     
+    if (shader.isEnable(['BUMPOFFSET'])) {
+      h = gui.addFolder("Parallax");
+      parameters.parallaxHeight = shader.uniforms.parallaxHeight.value;
+      h.add(parameters, "parallaxHeight", 0.0, 0.5, 0.001).onChange(function(value) { updateCallback("parallaxHeight", value); });
+    }
+    
     if (shader.isEnable("AOMAP")) {
       h = gui.addFolder("Ambient Occlusion");
       parameters.aoStrength = shader.uniforms.aoStrength.value;
