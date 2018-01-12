@@ -27,4 +27,6 @@ export { SSAOPass } from './post/ssaoPass.js';
 export { AreaLight } from './lights/areaLight.js';
 export { TubeLight } from './lights/tubeLight.js';
 export { RectLight } from './lights/rectLight.js';
+export { FxgenShader } from './fxgen/FxgenShader.js';
+export { FxgenShaderUtils } from './fxgen/FxgenShaderUtils.js';
 export * from './constants.js';
