@@ -26,7 +26,8 @@
   "scripts": {
     "build": "rollup -c",
     "build-uglify": "rollup -c && uglifyjs build/pixy.js --cm --preamble \"\" > build/pixy.min.js",
-    "build-shaderchunk": "python scripts/generateShaderChunk.py",
+    "build-shaderchunk": "python scripts/generateShaderChunk.py ./src/shaders/",
+    "build-fxgen": "python scripts/generateShaderChunk.py ./src/fxgen/",
     "dev": "rollup -c -w",
     "lint": "eslint src",
     "copy:three": "cpx node_modules/three/examples/js/**/*.* samples/js && cpx node_modules/three/build/*.js samples/js"

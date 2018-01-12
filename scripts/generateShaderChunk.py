@@ -1,19 +1,18 @@
 import os
 import os.path
-# import sys
+import sys
 import glob
 
-if __name__ == '__main__':
-    # args = sys.argv
-    
+def generate(dirname):
     chunks = [];
     
-    outfilename = './src/shaders/ShaderChunk.js'
+    outfilename = os.path.join(dirname, 'ShaderChunk.js')
     if os.path.exists(outfilename):
         os.remove(outfilename)
     outfile = open(outfilename, 'w')
     
-    files = glob.glob('./src/shaders/ShaderChunk/*.*')
+    shaderChunkDir = os.path.join(dirname, 'ShaderChunk')
+    files = glob.glob(os.path.join(shaderChunkDir, '*.*'))
     for path in files:
         dirname,filename = os.path.split(path)
         basename,ext = os.path.splitext(filename)
@@ -31,4 +30,13 @@ if __name__ == '__main__':
         outfile.write('};')
     
     outfile.close()
-        
+
+if __name__ == '__main__':
+    args = sys.argv
+    argc = len(args)
+    if (argc != 2):
+        print 'Usage: # python %s <dirname>' % args[0]
+        quit()
+    
+    generate(args[1])
+    
