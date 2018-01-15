@@ -297,6 +297,22 @@ var edgeUniforms = {
 
 var edgeVert = "uniform vec2 aspect;\r\nvarying vec2 vUv0;\r\nvarying vec2 vUv1;\r\nvarying vec2 vUv2;\r\nvarying vec2 vUv3;\r\nvoid main() {\r\n  vec2 stepUV = vec2(0.5 / aspect.x, 0.5 / aspect.y);\r\n  vUv0 = uv + vec2(-stepUV.x, -stepUV.y);\r\n  vUv1 = uv + vec2( stepUV.x,  stepUV.y);\r\n  vUv2 = uv + vec2(-stepUV.x,  stepUV.y);\r\n  vUv3 = uv + vec2( stepUV.x, -stepUV.y);\r\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n}";
 
+var emissiveFrag = "emissive += emissiveColor;";
+
+var emissiveFragPars = "uniform vec3 emissiveColor;";
+
+var emissiveMapFrag = "emissive *= texture2D(tEmissive, uv).rgb;";
+
+var emissiveMapFragPars = "uniform sampler2D tEmissive;";
+
+var emissiveMapUniforms = {
+  tEmissive: { value: null }
+};
+
+var emissiveUniforms = {
+  emissiveColor: { value: new THREE.Color(0x0) }
+};
+
 var endFrag = "  gl_FragColor.xyz = outgoingLight;\r\n  gl_FragColor.a = material.opacity;";
 
 var fakeSunFrag = "uniform vec2 sunPos; // screen space\r\nuniform float aspect;\r\nuniform vec3 sunColor;\r\nuniform vec3 bgColor;\r\nvarying vec2 vUv;\r\nvoid main() {\r\n  vec2 diff = vUv - sunPos;\r\n  \r\n  // Correct for aspect ratio\r\n  diff.x *= aspect;\r\n  \r\n  float prop = clamp(length(diff) / 0.5, 0.0, 1.0);\r\n  prop = 0.35 * pow(1.0 - prop, 3.0);\r\n  gl_FragColor.xyz = mix(sunColor, bgColor, 1.0 - prop);\r\n  gl_FragColor.a = 1.0;\r\n}";
@@ -999,6 +1015,12 @@ var ShaderChunk = {
 	edgeIDVert: edgeIDVert,
 	edgeUniforms: edgeUniforms,
 	edgeVert: edgeVert,
+	emissiveFrag: emissiveFrag,
+	emissiveFragPars: emissiveFragPars,
+	emissiveMapFrag: emissiveMapFrag,
+	emissiveMapFragPars: emissiveMapFragPars,
+	emissiveMapUniforms: emissiveMapUniforms,
+	emissiveUniforms: emissiveUniforms,
 	endFrag: endFrag,
 	fakeSunFrag: fakeSunFrag,
 	fakeSunUniforms: fakeSunUniforms,
@@ -1313,6 +1335,25 @@ var ShaderUtils = {
           callback("anisotropyColor", value);
         });
       }
+    }
+    
+    if (shader.isEnable("EMISSIVE")) {
+      h = gui.addFolder("Emissive");
+      parameters.emissiveR = shader.uniforms.emissiveColor.value.r;
+      parameters.emissiveG = shader.uniforms.emissiveColor.value.g;
+      parameters.emissiveB = shader.uniforms.emissiveColor.value.b;
+      
+      var emissiveCallback = function(value) {
+        shader.uniforms.emissiveColor.value.setRGB(
+          parameters.emissiveR,
+          parameters.emissiveG, 
+          parameters.emissiveB);
+        callback("emissiveColor", shader.uniforms.emissiveColor.value);
+      };
+      
+      h.add(parameters, "emissiveR", 0.0, 5.0, 0.01).onChange(emissiveCallback);
+      h.add(parameters, "emissiveG", 0.0, 5.0, 0.01).onChange(emissiveCallback);
+      h.add(parameters, "emissiveB", 0.0, 5.0, 0.01).onChange(emissiveCallback);
     }
     
     if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP'])) {
@@ -2049,6 +2090,8 @@ Object.assign(Shader.prototype, {
     this._addUniform(result, ["DEFERRED_GEOMETRY"], "deferredGeometryUniforms");
     this._addUniform(result, ["DEFERRED_LIGHT"], "deferredLightUniforms");
     this._addUniform(result, ["VIEW"], "viewUniforms");
+    this._addUniform(result, ["EMISSIVE"], "emissiveUniforms");
+    this._addUniform(result, ["EMISSIVEMAP"], "emissiveMapUniforms");
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(result));
   },
   
@@ -2091,7 +2134,7 @@ Object.assign(Shader.prototype, {
     codes.push("varying vec3 vNormal;");
     codes.push("");
     
-    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+BUMPMAP","+PROJECTIONMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS", "+VIEW"], "uvVertFragPars");
+    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+BUMPMAP","+PROJECTIONMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS", "+VIEW", "+EMISSIVEMAP"], "uvVertFragPars");
     this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+ANISOTROPY","+OVERLAYNORMAL"], "tangentVertPars");
     this._addCode(codes, ["+UVSCROLL","+UVSCROLL2"], "uvScrollVertPars");
     this._addCode(codes, ["+GLASS","+DITHER"], "screenVertPars");
@@ -2141,7 +2184,7 @@ Object.assign(Shader.prototype, {
     }
     
     // chunk here
-    if (this.isEnable(["+COLORMAP","+NORMALMAP","+BUMPMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS","+VIEW"])) {
+    if (this.isEnable(["+COLORMAP","+NORMALMAP","+BUMPMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS","+VIEW","+EMISSIVEMAP"])) {
       this._addCode(codes, ["UVPROJECTION"], "uvProjectionVert", "uvVert");
       this._addCode(codes, ["UVSCROLL"], "uvScrollVert");
       this._addCode(codes, ["DISTORTION"], "distortionVert");
@@ -2267,7 +2310,7 @@ Object.assign(Shader.prototype, {
     this._addCode(codes, ["INNERGLOW"], "innerGlowFragPars");
     this._addCode(codes, ["LINEGLOW"], "lineGlowFragPars");
     this._addCode(codes, ["RIMLIGHT"], "rimLightFragPars");
-    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+PROJECTIONMAP","+OVERLAY","+CLOUDS"], "uvVertFragPars");
+    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+PROJECTIONMAP","+OVERLAY","+CLOUDS","+EMISSIVEMAP"], "uvVertFragPars");
     this._addCode(codes, ["UVSCALE"], "uvScaleFragPars");
     this._addCode(codes, ["COLORMAP"], "colorMapFragPars");
     this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+ANISOTROPY","+OVERLAYNORMAL"], "tangentFragPars");
@@ -2293,6 +2336,9 @@ Object.assign(Shader.prototype, {
     this._addCode(codes, ["RECEIVESHADOW"], "receiveShadowFragPars");
     this._addCode(codes, ["CLOUDS"], "cloudsFragPars");
     this._addCode(codes, ["TONEMAPPING"], "toneMappingFragPars");
+    this._addCode(codes, ["EMISSIVE"], "emissiveFragPars");
+    this._addCode(codes, ["EMISSIVEMAP"], "emissiveMapFragPars");
+
     
     // if (this.check(["TONEMAPPING"])) {
     //   codes.push("vec3 toneMapping(vec3) { return " + this.enables["TONEMAPPING"] + "ToneMapping(x); }");
@@ -2341,7 +2387,7 @@ Object.assign(Shader.prototype, {
       // chunk here
       this._addCode(codes, ["AMBIENT", "HEMISPHERE"], "ambientHemisphereFrag");
       this._addCode(codes, ["AMBIENT", "-HEMISPHERE"], "ambientFrag");
-      this._addCode(codes, ["+COLORMAP", "+NORMALMAP", "+BUMPMAP", "+OVERLAY", "+CLOUDS"], "uvFrag");
+      this._addCode(codes, ["+COLORMAP", "+NORMALMAP", "+BUMPMAP", "+OVERLAY", "+CLOUDS", "+EMISSIVEMAP"], "uvFrag");
       this._addCode(codes, ["UVSPHERICAL"], "uvSphericalFrag");
       this._addCode(codes, ["UVHEMISPHERICAL"], "uvHemiSphericalFrag");
       this._addCode(codes, ["UVSCALE"], "uvScaleFrag");
@@ -2384,6 +2430,8 @@ Object.assign(Shader.prototype, {
       // this._addCode(codes, ["DEPTH"], "depthFrag");
       this._addCode(codes, ["CLOUDS"], "cloudsFrag");
       
+      this._addCode(codes, ["EMISSIVE"], "emissiveFrag");
+      this._addCode(codes, ["EMISSIVEMAP"], "emissiveMapFrag");
       this._addCode(codes, [], "accumulateFrag");
       
       this._addCode(codes, ["FOG"], "fogFrag");
@@ -4609,7 +4657,7 @@ TAARenderPass.prototype = Object.assign(Object.create(SSAARenderPass.prototype),
   }
 });
 
-var UnrealBloomPass = function(resolution, strength, radius, threshold) {
+var UnrealBloomPass = function(resolution, strength, radius, threshold, hdr) {
   
   ScreenPass.call(this);
   
@@ -4623,6 +4671,9 @@ var UnrealBloomPass = function(resolution, strength, radius, threshold) {
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat
   };
+  if (hdr) {
+    pars.type = THREE.FloatType;
+  }
   this.rtHori = [];
   this.rtVert = [];
   this.nMips = 5;
