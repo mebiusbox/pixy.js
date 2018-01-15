@@ -318,6 +318,8 @@ Object.assign(Shader.prototype, {
     this._addUniform(result, ["DEFERRED_GEOMETRY"], "deferredGeometryUniforms");
     this._addUniform(result, ["DEFERRED_LIGHT"], "deferredLightUniforms");
     this._addUniform(result, ["VIEW"], "viewUniforms");
+    this._addUniform(result, ["EMISSIVE"], "emissiveUniforms");
+    this._addUniform(result, ["EMISSIVEMAP"], "emissiveMapUniforms");
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(result));
   },
   
@@ -360,7 +362,7 @@ Object.assign(Shader.prototype, {
     codes.push("varying vec3 vNormal;");
     codes.push("");
     
-    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+BUMPMAP","+PROJECTIONMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS", "+VIEW"], "uvVertFragPars");
+    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+BUMPMAP","+PROJECTIONMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS", "+VIEW", "+EMISSIVEMAP"], "uvVertFragPars");
     this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+ANISOTROPY","+OVERLAYNORMAL"], "tangentVertPars");
     this._addCode(codes, ["+UVSCROLL","+UVSCROLL2"], "uvScrollVertPars");
     this._addCode(codes, ["+GLASS","+DITHER"], "screenVertPars");
@@ -410,7 +412,7 @@ Object.assign(Shader.prototype, {
     }
     
     // chunk here
-    if (this.isEnable(["+COLORMAP","+NORMALMAP","+BUMPMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS","+VIEW"])) {
+    if (this.isEnable(["+COLORMAP","+NORMALMAP","+BUMPMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS","+VIEW","+EMISSIVEMAP"])) {
       this._addCode(codes, ["UVPROJECTION"], "uvProjectionVert", "uvVert");
       this._addCode(codes, ["UVSCROLL"], "uvScrollVert");
       this._addCode(codes, ["DISTORTION"], "distortionVert");
@@ -536,7 +538,7 @@ Object.assign(Shader.prototype, {
     this._addCode(codes, ["INNERGLOW"], "innerGlowFragPars");
     this._addCode(codes, ["LINEGLOW"], "lineGlowFragPars");
     this._addCode(codes, ["RIMLIGHT"], "rimLightFragPars");
-    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+PROJECTIONMAP","+OVERLAY","+CLOUDS"], "uvVertFragPars");
+    this._addCode(codes, ["+COLORMAP","+NORMALMAP","+PROJECTIONMAP","+OVERLAY","+CLOUDS","+EMISSIVEMAP"], "uvVertFragPars");
     this._addCode(codes, ["UVSCALE"], "uvScaleFragPars");
     this._addCode(codes, ["COLORMAP"], "colorMapFragPars");
     this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+ANISOTROPY","+OVERLAYNORMAL"], "tangentFragPars");
@@ -562,6 +564,9 @@ Object.assign(Shader.prototype, {
     this._addCode(codes, ["RECEIVESHADOW"], "receiveShadowFragPars");
     this._addCode(codes, ["CLOUDS"], "cloudsFragPars");
     this._addCode(codes, ["TONEMAPPING"], "toneMappingFragPars");
+    this._addCode(codes, ["EMISSIVE"], "emissiveFragPars");
+    this._addCode(codes, ["EMISSIVEMAP"], "emissiveMapFragPars");
+
     
     // if (this.check(["TONEMAPPING"])) {
     //   codes.push("vec3 toneMapping(vec3) { return " + this.enables["TONEMAPPING"] + "ToneMapping(x); }");
@@ -610,7 +615,7 @@ Object.assign(Shader.prototype, {
       // chunk here
       this._addCode(codes, ["AMBIENT", "HEMISPHERE"], "ambientHemisphereFrag");
       this._addCode(codes, ["AMBIENT", "-HEMISPHERE"], "ambientFrag");
-      this._addCode(codes, ["+COLORMAP", "+NORMALMAP", "+BUMPMAP", "+OVERLAY", "+CLOUDS"], "uvFrag");
+      this._addCode(codes, ["+COLORMAP", "+NORMALMAP", "+BUMPMAP", "+OVERLAY", "+CLOUDS", "+EMISSIVEMAP"], "uvFrag");
       this._addCode(codes, ["UVSPHERICAL"], "uvSphericalFrag");
       this._addCode(codes, ["UVHEMISPHERICAL"], "uvHemiSphericalFrag");
       this._addCode(codes, ["UVSCALE"], "uvScaleFrag");
@@ -653,6 +658,8 @@ Object.assign(Shader.prototype, {
       // this._addCode(codes, ["DEPTH"], "depthFrag");
       this._addCode(codes, ["CLOUDS"], "cloudsFrag");
       
+      this._addCode(codes, ["EMISSIVE"], "emissiveFrag");
+      this._addCode(codes, ["EMISSIVEMAP"], "emissiveMapFrag");
       this._addCode(codes, [], "accumulateFrag");
       
       this._addCode(codes, ["FOG"], "fogFrag");

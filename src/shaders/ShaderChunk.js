@@ -89,6 +89,12 @@ import { edgeIDUniforms } from './ShaderChunk/edgeIDUniforms.js';
 import edgeIDVert from './ShaderChunk/edgeIDVert.glsl';
 import { edgeUniforms } from './ShaderChunk/edgeUniforms.js';
 import edgeVert from './ShaderChunk/edgeVert.glsl';
+import emissiveFrag from './ShaderChunk/emissiveFrag.glsl';
+import emissiveFragPars from './ShaderChunk/emissiveFragPars.glsl';
+import emissiveMapFrag from './ShaderChunk/emissiveMapFrag.glsl';
+import emissiveMapFragPars from './ShaderChunk/emissiveMapFragPars.glsl';
+import { emissiveMapUniforms } from './ShaderChunk/emissiveMapUniforms.js';
+import { emissiveUniforms } from './ShaderChunk/emissiveUniforms.js';
 import endFrag from './ShaderChunk/endFrag.glsl';
 import fakeSunFrag from './ShaderChunk/fakeSunFrag.glsl';
 import { fakeSunUniforms } from './ShaderChunk/fakeSunUniforms.js';
@@ -372,6 +378,12 @@ export var ShaderChunk = {
 	edgeIDVert: edgeIDVert,
 	edgeUniforms: edgeUniforms,
 	edgeVert: edgeVert,
+	emissiveFrag: emissiveFrag,
+	emissiveFragPars: emissiveFragPars,
+	emissiveMapFrag: emissiveMapFrag,
+	emissiveMapFragPars: emissiveMapFragPars,
+	emissiveMapUniforms: emissiveMapUniforms,
+	emissiveUniforms: emissiveUniforms,
 	endFrag: endFrag,
 	fakeSunFrag: fakeSunFrag,
 	fakeSunUniforms: fakeSunUniforms,

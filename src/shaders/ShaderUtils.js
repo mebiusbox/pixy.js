@@ -122,6 +122,25 @@ export var ShaderUtils = {
       }
     }
     
+    if (shader.isEnable("EMISSIVE")) {
+      h = gui.addFolder("Emissive");
+      parameters.emissiveR = shader.uniforms.emissiveColor.value.r;
+      parameters.emissiveG = shader.uniforms.emissiveColor.value.g;
+      parameters.emissiveB = shader.uniforms.emissiveColor.value.b;
+      
+      var emissiveCallback = function(value) {
+        shader.uniforms.emissiveColor.value.setRGB(
+          parameters.emissiveR,
+          parameters.emissiveG, 
+          parameters.emissiveB);
+        callback("emissiveColor", shader.uniforms.emissiveColor.value);
+      };
+      
+      h.add(parameters, "emissiveR", 0.0, 5.0, 0.01).onChange(emissiveCallback);
+      h.add(parameters, "emissiveG", 0.0, 5.0, 0.01).onChange(emissiveCallback);
+      h.add(parameters, "emissiveB", 0.0, 5.0, 0.01).onChange(emissiveCallback);
+    }
+    
     if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP'])) {
       h = gui.addFolder("Bump");
       
