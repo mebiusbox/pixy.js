@@ -1,7 +1,7 @@
 import { ShaderLib } from '../shaders/ShaderLib.js';
 import { ScreenPass } from './screenPass.js';
 
-var UnrealBloomPass = function(resolution, strength, radius, threshold) {
+var UnrealBloomPass = function(resolution, strength, radius, threshold, hdr) {
   
   ScreenPass.call(this);
   
@@ -15,6 +15,9 @@ var UnrealBloomPass = function(resolution, strength, radius, threshold) {
     magFilter: THREE.LinearFilter,
     format: THREE.RGBAFormat
   };
+  if (hdr) {
+    pars.type = THREE.FloatType;
+  }
   this.rtHori = [];
   this.rtVert = [];
   this.nMips = 5;
