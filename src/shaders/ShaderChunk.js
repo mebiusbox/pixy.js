@@ -40,6 +40,8 @@ import { clippingPlaneUniforms } from './ShaderChunk/clippingPlaneUniforms.js';
 import cloudsFrag from './ShaderChunk/cloudsFrag.glsl';
 import cloudsFragPars from './ShaderChunk/cloudsFragPars.glsl';
 import { cloudsUniforms } from './ShaderChunk/cloudsUniforms.js';
+import colorBalanceFrag from './ShaderChunk/colorBalanceFrag.glsl';
+import { colorBalanceUniforms } from './ShaderChunk/colorBalanceUniforms.js';
 import colorMap2Frag from './ShaderChunk/colorMap2Frag.glsl';
 import colorMap2FragPars from './ShaderChunk/colorMap2FragPars.glsl';
 import { colorMap2Uniforms } from './ShaderChunk/colorMap2Uniforms.js';
@@ -329,6 +331,8 @@ export var ShaderChunk = {
 	cloudsFrag: cloudsFrag,
 	cloudsFragPars: cloudsFragPars,
 	cloudsUniforms: cloudsUniforms,
+	colorBalanceFrag: colorBalanceFrag,
+	colorBalanceUniforms: colorBalanceUniforms,
 	colorMap2Frag: colorMap2Frag,
 	colorMap2FragPars: colorMap2FragPars,
 	colorMap2Uniforms: colorMap2Uniforms,

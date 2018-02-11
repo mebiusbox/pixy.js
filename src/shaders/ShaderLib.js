@@ -123,6 +123,14 @@ var ShaderLib = {
     fragmentShader: ShaderChunk.antiAliasFrag
   },
   
+  colorBalance: {
+    uniforms: THREE.UniformsUtils.merge([
+      ShaderChunk.colorBalanceUniforms
+    ]),
+    vertexShader: ShaderChunk.copyVert,
+    fragmentShader: ShaderChunk.colorBalanceFrag
+  },
+  
   view: {
     uniforms: THREE.UniformsUtils.merge([
       ShaderChunk.viewUniforms
