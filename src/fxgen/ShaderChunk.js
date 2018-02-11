@@ -50,6 +50,9 @@ import fireFragPars from './ShaderChunk/fireFragPars.glsl';
 import { fireUniforms } from './ShaderChunk/fireUniforms.js';
 import flameFrag from './ShaderChunk/flameFrag.glsl';
 import flameFragPars from './ShaderChunk/flameFragPars.glsl';
+import flamelanceFrag from './ShaderChunk/flamelanceFrag.glsl';
+import flamelanceFragPars from './ShaderChunk/flamelanceFragPars.glsl';
+import { flamelanceUniforms } from './ShaderChunk/flamelanceUniforms.js';
 import { flameUniforms } from './ShaderChunk/flameUniforms.js';
 import flare2Frag from './ShaderChunk/flare2Frag.glsl';
 import flare2FragPars from './ShaderChunk/flare2FragPars.glsl';
@@ -215,6 +218,9 @@ export var ShaderChunk = {
 	fireUniforms: fireUniforms,
 	flameFrag: flameFrag,
 	flameFragPars: flameFragPars,
+	flamelanceFrag: flamelanceFrag,
+	flamelanceFragPars: flamelanceFragPars,
+	flamelanceUniforms: flamelanceUniforms,
 	flameUniforms: flameUniforms,
 	flare2Frag: flare2Frag,
 	flare2FragPars: flare2FragPars,

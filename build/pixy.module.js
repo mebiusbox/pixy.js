@@ -5371,6 +5371,21 @@ var flameFrag = "// https://www.shadertoy.com/view/MdX3zr\r\nvec2 v = -1.0 + 2.0
 
 var flameFragPars = "// https://www.shadertoy.com/view/MdX3zr\r\nuniform float cIntensity;\r\nuniform float cWidth;\r\nuniform float cScale;\r\n\r\nfloat flameNoise(vec3 p) {\r\n  vec3 i = floor(p);\r\n  vec4 a = dot(i, vec3(1.0, 57.0, 21.0)) + vec4(0.0, 57.0, 21.0, 78.0);\r\n  vec3 f = cos((p-i)*acos(-1.0)) * (-0.5) + 0.5;\r\n  a = mix(sin(cos(a)*a), sin(cos(1.0+a)*(1.0+a)), f.x);\r\n  a.xy = mix(a.xz, a.yw, f.y);\r\n  return mix(a.x, a.y, f.z);\r\n}\r\n\r\nfloat sphere(vec3 p, vec4 spr) {\r\n  return length(spr.xyz-p) - spr.w;\r\n}\r\n\r\nfloat flame(vec3 p) {\r\n  float d = sphere(p * vec3(1.0, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 1.0));\r\n  return d + (flameNoise(p + vec3(0.0, time*2.0, 0.0)) + flameNoise(p*3.0)*0.5)*0.25*p.y;\r\n}\r\n\r\nfloat scene(vec3 p) {\r\n  return min(100.0 - length(p), abs(flame(p)));\r\n}\r\n\r\nvec4 raymarch(vec3 org, vec3 dir) {\r\n  float d = 0.0, glow = 0.0, eps = 0.02;\r\n  vec3 p = org;\r\n  bool glowed = false;\r\n  for (int i=0; i<64; i++) {\r\n    d = scene(p) + eps;\r\n    p += d * dir;\r\n    if (d > eps) {\r\n      if (flame(p) < 0.0) {\r\n        glowed = true;\r\n      } else if (glowed) {\r\n        glow = float(i)/64.0;\r\n      }\r\n    }\r\n  }\r\n  return vec4(p, glow);\r\n}";
 
+var flamelanceFrag = "// compute flame area\r\nvec2 position = vec2((cAngle+1.)/2., 0.) * resolution.xy;\r\nfloat xinc = clamp(mod(time, 6.0)-3.0, -3.0, 3.0);\r\nfloat yinc = clamp(mod(-time, 6.0)+3.0, -3.0, 3.0);\r\n// float inc = xinc/yinc;\r\nfloat inc = -cAngle;\r\nfloat xslope = (pin.coord.x - position.x);\r\nfloat yslope = (pin.coord.y - position.y);\r\nfloat slope = xslope/yslope;\r\nfloat xdif = xinc/xslope;\r\nfloat ydif = yinc/yslope;\r\nfloat dist = distance(position, pin.coord.xy);\r\ndist = abs(slope - inc) * .1 + dist/(10000.*cPower);\r\nif ((inc > 0.0 && inc > 2.0) || (inc < 0.0 && inc < -2.0)) dist *= dist;\r\nif ((xdif < 0.0 && ydif < 0.0) || (ydif < 0.0 && xdif > 0.0)) dist = 10.0;\r\n\r\n// compute flame noise\r\nvec2 noisePosition = cNoiseSize * (pin.coord - position) / resolution.y - vec2(xinc*cSpeed*time, yinc*cSpeed*time);\r\nfloat noise = 0.0;\r\nfor (int i=0; i<10; i++) {\r\n  if (i > cNoiseDepth) break;\r\n  noise += cnoise(noisePosition * pow(2.0, float(i)));\r\n}\r\nvec4 d = mix(-(101.0-cSize) * dist, noise, cNoiseStrength) + color;\r\nvec3 gray = vec3(rgb2gray(d.xyz));\r\npout.color = mix(gray, d.xyz, cColor);";
+
+var flamelanceFragPars = "uniform float cSize;\r\nuniform float cSpeed;\r\nuniform float cPower;\r\nuniform float cAngle;\r\nuniform float cColor;\r\nuniform float cNoiseSize;\r\nuniform float cNoiseStrength;\r\nuniform int cNoiseDepth;\r\nconst vec4 color = vec4(2.0, 1.5, .5, 1.0);\r\n\r\nvec2 fade(vec2 t) {\r\n  return t*t*t*(t*(t*6.0-15.0)+10.0);\r\n}\r\n\r\nfloat cnoise(vec2 P) {\r\n  vec4 Pi = floor(P.xyxy) + vec4(0.0, 0.0, 1.0, 1.0);\r\n  vec4 Pf = fract(P.xyxy) - vec4(0.0, 0.0, 1.0, 1.0);\r\n  Pi = mod289(Pi);\r\n  vec4 ix = Pi.xzxz;\r\n  vec4 iy = Pi.yyww;\r\n  vec4 fx = Pf.xzxz;\r\n  vec4 fy = Pf.yyww;\r\n  vec4 i = permute(permute(ix)+iy);\r\n  vec4 gx = fract(i*(1.0/41.0))*2.0-1.0;\r\n  vec4 gy = abs(gx) - 0.5;\r\n  vec4 tx = floor(gx + 0.5);\r\n  gx = gx - tx;\r\n  vec2 g00 = vec2(gx.x, gy.x);\r\n  vec2 g10 = vec2(gx.y, gy.y);\r\n  vec2 g01 = vec2(gx.z, gy.z);\r\n  vec2 g11 = vec2(gx.w, gy.w);\r\n  vec4 norm = taylorInvSqrt(vec4(dot(g00,g00), dot(g01, g01), dot(g10, g10), dot(g11, g11)));\r\n  g00 *= norm.x;\r\n  g01 *= norm.y;\r\n  g10 *= norm.z;\r\n  g11 *= norm.w;\r\n  float n00 = dot(g00, vec2(fx.x, fy.x));\r\n  float n10 = dot(g10, vec2(fx.y, fy.y));\r\n  float n01 = dot(g01, vec2(fx.z, fy.z));\r\n  float n11 = dot(g11, vec2(fx.w, fy.w));\r\n  vec2 fade_xy = fade(Pf.xy);\r\n  vec2 n_x = mix(vec2(n00, n01), vec2(n10, n11), fade_xy.x);\r\n  float n_xy = mix(n_x.x, n_x.y, fade_xy.y);\r\n  return 2.3 * n_xy;\r\n}";
+
+var flamelanceUniforms = {
+  cSize: { value: 32.0 },
+  cSpeed: { value: 4.0 },
+  cPower: { value: 1.0 },
+  cAngle: { value: 0.0 },
+  cColor: { value: 1.0 },
+  cNoiseSize: { value: 8.0 },
+  cNoiseStrength: { value: 0.25 },
+  cNoiseDepth: { value: 3 },
+};
+
 var flameUniforms = {
   cIntensity: { value: 1.0 },
   cWidth: { value: 1.0 },
@@ -5748,6 +5763,9 @@ var ShaderChunk$1 = {
 	fireUniforms: fireUniforms,
 	flameFrag: flameFrag,
 	flameFragPars: flameFragPars,
+	flamelanceFrag: flamelanceFrag,
+	flamelanceFragPars: flamelanceFragPars,
+	flamelanceUniforms: flamelanceUniforms,
 	flameUniforms: flameUniforms,
 	flare2Frag: flare2Frag,
 	flare2FragPars: flare2FragPars,
@@ -5986,6 +6004,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["TOON"], "toonUniforms");
     this.addUniform(uniforms, ["CHECKER"], "checkerUniforms");
     this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
+    this.addUniform(uniforms, ["FLAMELANCE"], "flamelanceUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6067,6 +6086,7 @@ function FxgenShader() {
     this.addCode(codes, ["TOON"], "toonFragPars");
     this.addCode(codes, ["CHECKER"], "checkerFragPars");
     this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFragPars");
+    this.addCode(codes, ["FLAMELANCE"], "flamelanceFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -6130,6 +6150,7 @@ function FxgenShader() {
       this.addCode(codes, ["MANDARA"], "mandaraFrag");
       this.addCode(codes, ["COPY"], "copyFrag");
       this.addCode(codes, ["CHECKER"], "checkerFrag");
+      this.addCode(codes, ["FLAMELANCE"], "flamelanceFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");
