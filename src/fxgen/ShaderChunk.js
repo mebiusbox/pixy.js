@@ -6,6 +6,9 @@ import cellFragPars from './ShaderChunk/cellFragPars.glsl';
 import cellNoiseFrag from './ShaderChunk/cellNoiseFrag.glsl';
 import cellNoiseFragPars from './ShaderChunk/cellNoiseFragPars.glsl';
 import { cellUniforms } from './ShaderChunk/cellUniforms.js';
+import checkerFrag from './ShaderChunk/checkerFrag.glsl';
+import checkerFragPars from './ShaderChunk/checkerFragPars.glsl';
+import { checkerUniforms } from './ShaderChunk/checkerUniforms.js';
 import circleFrag from './ShaderChunk/circleFrag.glsl';
 import circleFragPars from './ShaderChunk/circleFragPars.glsl';
 import { circleUniforms } from './ShaderChunk/circleUniforms.js';
@@ -165,6 +168,9 @@ export var ShaderChunk = {
 	cellNoiseFrag: cellNoiseFrag,
 	cellNoiseFragPars: cellNoiseFragPars,
 	cellUniforms: cellUniforms,
+	checkerFrag: checkerFrag,
+	checkerFragPars: checkerFragPars,
+	checkerUniforms: checkerUniforms,
 	circleFrag: circleFrag,
 	circleFragPars: circleFragPars,
 	circleUniforms: circleUniforms,

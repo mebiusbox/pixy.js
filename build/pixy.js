@@ -150,6 +150,12 @@
 	  cloudsBrightness: { value: 0.5 }
 	};
 
+	var colorBalanceFrag = "uniform vec3 cColorBalanceColor;\r\nuniform sampler2D tDiffuse;\r\nvarying vec2 vUv;\r\n// http://stackoverflow.com/questions/23213925/interpreting-color-function-and-adjusting-pixels-values\r\n// https://gist.github.com/liovch/3168961\r\n// https://github.com/liovch/GPUImage/blob/master/framework/Source/GPUImageColorBalanceFilter.m\r\n\r\nfloat rgb2l(vec3 c) {\r\n  float fmin = min(min(c.r, c.g), c.b);\r\n  float fmax = max(max(c.r, c.g), c.b);\r\n  return (fmax + fmin) * 0.5; // Luminance\r\n}\r\n\r\nvoid main() {\r\n  vec4 texel = texture2D(tDiffuse, vUv);\r\n\r\n  float lightness = rgb2l(texel.rgb);\r\n\r\n  const float a = 0.25;\r\n  const float b = 0.333;\r\n  const float scale = 0.7;\r\n\r\n  float c2 = clamp((lightness - b) / a + 0.5, 0.0, 1.0);\r\n  float c3 = clamp((lightness + b - 1.0) / -a + 0.5, 0.0, 1.0);\r\n  vec3 midtones = cColorBalanceColor * (c2 * c3 * scale);\r\n\r\n  vec3 newColor = texel.rgb + midtones;\r\n  newColor = clamp(newColor, 0.0, 1.0);\r\n  gl_FragColor = vec4(newColor, 1.0);\r\n}";
+
+	var colorBalanceUniforms = {
+	  cColorBalanceColor: { value: new THREE.Vector3(0.0, 0.0, 0.0) }
+	};
+
 	var colorMap2Frag = "  vec4 color2RGBA = texture2D(tDiffuse2, uv);\r\n  material.diffuseColor.rgb = (1.0 - color2RGBA.a) * material.diffuseColor.rgb + color2RGBA.rgb * color2RGBA.a;";
 
 	var colorMap2FragPars = "uniform sampler2D tDiffuse2;";
@@ -972,6 +978,8 @@
 		cloudsFrag: cloudsFrag,
 		cloudsFragPars: cloudsFragPars,
 		cloudsUniforms: cloudsUniforms,
+		colorBalanceFrag: colorBalanceFrag,
+		colorBalanceUniforms: colorBalanceUniforms,
 		colorMap2Frag: colorMap2Frag,
 		colorMap2FragPars: colorMap2FragPars,
 		colorMap2Uniforms: colorMap2Uniforms,
@@ -2722,6 +2730,14 @@
 	    ]),
 	    vertexShader: ShaderChunk.antiAliasVert,
 	    fragmentShader: ShaderChunk.antiAliasFrag
+	  },
+	  
+	  colorBalance: {
+	    uniforms: THREE.UniformsUtils.merge([
+	      ShaderChunk.colorBalanceUniforms
+	    ]),
+	    vertexShader: ShaderChunk.copyVert,
+	    fragmentShader: ShaderChunk.colorBalanceFrag
 	  },
 	  
 	  view: {
@@ -5201,6 +5217,15 @@
 	  cSize: { value: 1.0 },
 	};
 
+	var checkerFrag = "float scale = min(resolution.x, resolution.y);\r\nfloat width = resolution.x / scale;\r\nfloat height = resolution.y / scale;\r\nvec2 xy = pin.coord / scale - vec2(width/2.0, height/2.0);\r\nxy = vec2(xy) * rotate2d(radians(time*5.0));\r\n\r\nfloat tile = floor(sin(xy.x*cWidth) * sin(xy.y*cHeight) + 1.0);\r\npout.color = vec3(tile);\r\n";
+
+	var checkerFragPars = "uniform float cWidth;\r\nuniform float cHeight;";
+
+	var checkerUniforms = {
+	  cWidth: { value: 50.0 },
+	  cHeight: { value: 50.0 }
+	};
+
 	var circleFrag = "// float t = 1.1 - length(pin.mouse - pin.position);\r\nfloat t = cRadius - length(pin.position);\r\nt = pow(t, cPowerExponent);\r\npout.color = vec3(t);";
 
 	var circleFragPars = "uniform float cRadius;\r\nuniform float cPowerExponent;";
@@ -5241,11 +5266,11 @@
 
 	var color = "float rgb2gray(vec3 c) {\r\n  return dot(c, vec3(0.3, 0.59, 0.11));\r\n}\r\n\r\n\r\nfloat rgb2l(vec3 c) {\r\n  float fmin = min(min(c.r, c.g), c.b);\r\n  float fmax = max(max(c.r, c.g), c.b);\r\n  return (fmax + fmin) * 0.5; // Luminance\r\n}\r\n\r\n\r\n// https://github.com/liovch/GPUImage/blob/master/framework/Source/GPUImageColorBalanceFilter.m\r\nvec3 rgb2hsl(vec3 c) {\r\n  vec3 hsl;\r\n  float fmin = min(min(c.r, c.g), c.b);\r\n  float fmax = max(max(c.r, c.g), c.b);\r\n  float delta = fmax - fmin;\r\n\r\n  hsl.z = (fmax + fmin) * 0.5; // Luminance\r\n\r\n  if (delta == 0.0) {  // This is a gray, no chroma...\r\n    hsl.x = 0.0; // Hue\r\n    hsl.y = 0.0; // Saturation\r\n  } else { // Chromatic data...\r\n    if (hsl.z < 0.5) {\r\n      hsl.y = delta / (fmax + fmin); // Saturation\r\n    } else {\r\n      hsl.y = delta / (2.0 - fmax - fmin); // Saturation\r\n    }\r\n\r\n    float deltaR = (((fmax - c.r) / 6.0) + (delta / 2.0)) / delta;\r\n    float deltaG = (((fmax - c.g) / 6.0) + (delta / 2.0)) / delta;\r\n    float deltaB = (((fmax - c.b) / 6.0) + (delta / 2.0)) / delta;\r\n\r\n    if (c.r == fmax) {\r\n      hsl.x = deltaB - deltaG; // Hue\r\n    } else if (c.g == fmax) {\r\n      hsl.x = (1.0 / 3.0) + deltaR - deltaB; // Hue\r\n    } else if (c.b == fmax) {\r\n      hsl.x = (2.0 / 3.0) + deltaG - deltaR; // Hue\r\n    }\r\n\r\n    if (hsl.x < 0.0) {\r\n      hsl.x += 1.0; // Hue\r\n    } else if (hsl.x > 1.0) {\r\n      hsl.x -= 1.0; // Hue\r\n    }\r\n  }\r\n  return hsl;\r\n}\r\n\r\n\r\nfloat hue2rgb(float f1, float f2, float hue) {\r\n  if (hue < 0.0) {\r\n    hue += 1.0;\r\n  } else if (hue > 1.0) {\r\n    hue -= 1.0;\r\n  }\r\n  float res;\r\n  if ((6.0*hue) < 1.0) {\r\n    res = f1 + (f2-f1) * 6.0 * hue;\r\n  } else if ((2.0 * hue) < 1.0) {\r\n    res = f2;\r\n  } else if ((3.0 * hue) < 2.0) {\r\n    res = f1 + (f2-f1) * ((2.0/3.0) - hue) * 6.0;\r\n  } else {\r\n    res = f1;\r\n  }\r\n  return res;\r\n}\r\n\r\n\r\nvec3 hsl2rgb(vec3 hsl) {\r\n  vec3 rgb;\r\n  if (hsl.y == 0.0) {\r\n    rgb = vec3(hsl.z); // Luminace\r\n  } else {\r\n    float f2;\r\n    if (hsl.z < 0.5) {\r\n      f2 = hsl.z * (1.0 + hsl.y);\r\n    } else {\r\n      f2 = (hsl.z + hsl.y) - (hsl.y * hsl.z);\r\n    }\r\n    float f1 = 2.0 * hsl.z - f2;\r\n    rgb.r = hue2rgb(f1, f2, hsl.x + (1.0/3.0));\r\n    rgb.g = hue2rgb(f1, f2, hsl.x);\r\n    rgb.b = hue2rgb(f1, f2, hsl.x - (1.0/3.0));\r\n  }\r\n  return rgb;\r\n}\r\n\r\n\r\nvec3 hsv2rgb(vec3 c) {\r\n  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);\r\n  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);\r\n  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);\r\n}";
 
-	var colorBalanceFrag = "// http://stackoverflow.com/questions/23213925/interpreting-color-function-and-adjusting-pixels-values\r\n// https://gist.github.com/liovch/3168961\r\n// https://github.com/liovch/GPUImage/blob/master/framework/Source/GPUImageColorBalanceFilter.m\r\nvec4 texel = texture2D(tDiffuse, pin.uv);\r\n\r\nfloat lightness = rgb2l(texel.rgb);\r\n\r\nconst float a = 0.25;\r\nconst float b = 0.333;\r\nconst float scale = 0.7;\r\n\r\nfloat c1 = clamp((lightness - b) / -a + 0.5, 0.0, 1.0);\r\nfloat c2 = clamp((lightness - b) / a + 0.5, 0.0, 1.0);\r\nfloat c3 = clamp((lightness + b - 1.0) / -a + 0.5, 0.0, 1.0);\r\nfloat c4 = clamp((lightness + b - 1.0) / a + 0.5, 0.0, 1.0);\r\nvec3 shadows = cColorBalanceShadows * (c1 * scale);\r\nvec3 midtones = cColorBalanceMidtones * (c2 * c3 * scale);\r\nvec3 highlights = cColorBalanceHighlights * (c4 * scale);\r\n\r\nvec3 newColor = texel.rgb + shadows + midtones + highlights;\r\nnewColor = clamp(newColor, 0.0, 1.0);\r\n\r\nif (cColorBalancePreserveLuminosity) {\r\n  vec3 newHSL = rgb2hsl(newColor);\r\n  pout.color = hsl2rgb(vec3(newHSL.x, newHSL.y, lightness));\r\n} else {\r\n  pout.color = newColor.xyz;\r\n}\r\npout.opacity = texel.w;";
+	var colorBalanceFrag$1 = "// http://stackoverflow.com/questions/23213925/interpreting-color-function-and-adjusting-pixels-values\r\n// https://gist.github.com/liovch/3168961\r\n// https://github.com/liovch/GPUImage/blob/master/framework/Source/GPUImageColorBalanceFilter.m\r\nvec4 texel = texture2D(tDiffuse, pin.uv);\r\n\r\nfloat lightness = rgb2l(texel.rgb);\r\n\r\nconst float a = 0.25;\r\nconst float b = 0.333;\r\nconst float scale = 0.7;\r\n\r\nfloat c1 = clamp((lightness - b) / -a + 0.5, 0.0, 1.0);\r\nfloat c2 = clamp((lightness - b) / a + 0.5, 0.0, 1.0);\r\nfloat c3 = clamp((lightness + b - 1.0) / -a + 0.5, 0.0, 1.0);\r\nfloat c4 = clamp((lightness + b - 1.0) / a + 0.5, 0.0, 1.0);\r\nvec3 shadows = cColorBalanceShadows * (c1 * scale);\r\nvec3 midtones = cColorBalanceMidtones * (c2 * c3 * scale);\r\nvec3 highlights = cColorBalanceHighlights * (c4 * scale);\r\n\r\nvec3 newColor = texel.rgb + shadows + midtones + highlights;\r\nnewColor = clamp(newColor, 0.0, 1.0);\r\n\r\nif (cColorBalancePreserveLuminosity) {\r\n  vec3 newHSL = rgb2hsl(newColor);\r\n  pout.color = hsl2rgb(vec3(newHSL.x, newHSL.y, lightness));\r\n} else {\r\n  pout.color = newColor.xyz;\r\n}\r\npout.opacity = texel.w;";
 
 	var colorBalanceFragPars = "uniform vec3 cColorBalanceShadows;\r\nuniform vec3 cColorBalanceMidtones;\r\nuniform vec3 cColorBalanceHighlights;\r\nuniform bool cColorBalancePreserveLuminosity;";
 
-	var colorBalanceUniforms = {
+	var colorBalanceUniforms$1 = {
 	  // x: cyan red, y: magenta green, z: yellow blue, w: tone
 	  cColorBalanceShadows: { value: new THREE.Vector3(0.0, 0.0, 0.0) },
 	  cColorBalanceMidtones: { value: new THREE.Vector3(0.0, 0.0, 0.0) },
@@ -5676,6 +5701,9 @@
 		cellNoiseFrag: cellNoiseFrag,
 		cellNoiseFragPars: cellNoiseFragPars,
 		cellUniforms: cellUniforms,
+		checkerFrag: checkerFrag,
+		checkerFragPars: checkerFragPars,
+		checkerUniforms: checkerUniforms,
 		circleFrag: circleFrag,
 		circleFragPars: circleFragPars,
 		circleUniforms: circleUniforms,
@@ -5686,9 +5714,9 @@
 		cloudsUniforms: cloudsUniforms$1,
 		cloudUniforms: cloudUniforms,
 		color: color,
-		colorBalanceFrag: colorBalanceFrag,
+		colorBalanceFrag: colorBalanceFrag$1,
 		colorBalanceFragPars: colorBalanceFragPars,
-		colorBalanceUniforms: colorBalanceUniforms,
+		colorBalanceUniforms: colorBalanceUniforms$1,
 		common: common$1,
 		coneFrag: coneFrag,
 		coneFragPars: coneFragPars,
@@ -5950,6 +5978,7 @@
 	    this.addUniform(uniforms, ["CLOUDS"], "cloudsUniforms");
 	    this.addUniform(uniforms, ["MANDARA"], "mandaraUniforms");
 	    this.addUniform(uniforms, ["TOON"], "toonUniforms");
+	    this.addUniform(uniforms, ["CHECKER"], "checkerUniforms");
 	    this.addUniform(uniforms, ["TEST"], "testUniforms");
 	    
 	    return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6029,6 +6058,7 @@
 	    this.addCode(codes, ["CLOUDS"], "cloudsFragPars");
 	    this.addCode(codes, ["MANDARA"], "mandaraFragPars");
 	    this.addCode(codes, ["TOON"], "toonFragPars");
+	    this.addCode(codes, ["CHECKER"], "checkerFragPars");
 	    this.addCode(codes, ["TEST"], "testFragPars");
 	    
 	    codes.push("");
@@ -6090,6 +6120,7 @@
 	      this.addCode(codes, ["CLOUDS"], "cloudsFrag");
 	      this.addCode(codes, ["MANDARA"], "mandaraFrag");
 	      this.addCode(codes, ["COPY"], "copyFrag");
+	      this.addCode(codes, ["CHECKER"], "checkerFrag");
 	      this.addCode(codes, ["TEST"], "testFrag");
 	      
 	      this.addCode(codes, ["TOON"], "toonFrag");

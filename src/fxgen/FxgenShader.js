@@ -123,6 +123,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["CLOUDS"], "cloudsUniforms");
     this.addUniform(uniforms, ["MANDARA"], "mandaraUniforms");
     this.addUniform(uniforms, ["TOON"], "toonUniforms");
+    this.addUniform(uniforms, ["CHECKER"], "checkerUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -202,6 +203,7 @@ function FxgenShader() {
     this.addCode(codes, ["CLOUDS"], "cloudsFragPars");
     this.addCode(codes, ["MANDARA"], "mandaraFragPars");
     this.addCode(codes, ["TOON"], "toonFragPars");
+    this.addCode(codes, ["CHECKER"], "checkerFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -263,6 +265,7 @@ function FxgenShader() {
       this.addCode(codes, ["CLOUDS"], "cloudsFrag");
       this.addCode(codes, ["MANDARA"], "mandaraFrag");
       this.addCode(codes, ["COPY"], "copyFrag");
+      this.addCode(codes, ["CHECKER"], "checkerFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");
