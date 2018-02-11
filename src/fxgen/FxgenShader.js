@@ -124,6 +124,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["MANDARA"], "mandaraUniforms");
     this.addUniform(uniforms, ["TOON"], "toonUniforms");
     this.addUniform(uniforms, ["CHECKER"], "checkerUniforms");
+    this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -204,6 +205,7 @@ function FxgenShader() {
     this.addCode(codes, ["MANDARA"], "mandaraFragPars");
     this.addCode(codes, ["TOON"], "toonFragPars");
     this.addCode(codes, ["CHECKER"], "checkerFragPars");
+    this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -238,7 +240,8 @@ function FxgenShader() {
       this.addCode(codes, ["MANDELBLOT"], "mandelblotFrag");
       this.addCode(codes, ["JULIA"], "juliaFrag");
       this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFrag");
-      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE"], "noiseGraphFrag");
+      this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFrag");
+      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE"], "noiseGraphFrag");
       this.addCode(codes, ["HEIGHT2NORMAL"], "height2NormalFrag");
       this.addCode(codes, ["HEIGHT2NORMALSOBEL"], "height2NormalSobelFrag");
       this.addCode(codes, ["POLARCONVERSION"], "polarConversionFrag");

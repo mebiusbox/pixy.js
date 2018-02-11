@@ -108,6 +108,9 @@ import mandaraFrag from './ShaderChunk/mandaraFrag.glsl';
 import mandaraFragPars from './ShaderChunk/mandaraFragPars.glsl';
 import { mandaraUniforms } from './ShaderChunk/mandaraUniforms.js';
 import mandelblot from './ShaderChunk/mandelblot.glsl';
+import marbleNoiseFrag from './ShaderChunk/marbleNoiseFrag.glsl';
+import marbleNoiseFragPars from './ShaderChunk/marbleNoiseFragPars.glsl';
+import { marbleNoiseUniforms } from './ShaderChunk/marbleNoiseUniforms.js';
 import noise from './ShaderChunk/noise.glsl';
 import noiseGraphFrag from './ShaderChunk/noiseGraphFrag.glsl';
 import { noiseUniforms } from './ShaderChunk/noiseUniforms.js';
@@ -270,6 +273,9 @@ export var ShaderChunk = {
 	mandaraFragPars: mandaraFragPars,
 	mandaraUniforms: mandaraUniforms,
 	mandelblot: mandelblot,
+	marbleNoiseFrag: marbleNoiseFrag,
+	marbleNoiseFragPars: marbleNoiseFragPars,
+	marbleNoiseUniforms: marbleNoiseUniforms,
 	noise: noise,
 	noiseGraphFrag: noiseGraphFrag,
 	noiseUniforms: noiseUniforms,
