@@ -1,4 +1,7 @@
 import blocksFrag from './ShaderChunk/blocksFrag.glsl';
+import bonfireFrag from './ShaderChunk/bonfireFrag.glsl';
+import bonfireFragPars from './ShaderChunk/bonfireFragPars.glsl';
+import { bonfireUniforms } from './ShaderChunk/bonfireUniforms.js';
 import booleanNoiseFrag from './ShaderChunk/booleanNoiseFrag.glsl';
 import booleanNoiseFragPars from './ShaderChunk/booleanNoiseFragPars.glsl';
 import cellFrag from './ShaderChunk/cellFrag.glsl';
@@ -167,6 +170,9 @@ import { woodUniforms } from './ShaderChunk/woodUniforms.js';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
+	bonfireFrag: bonfireFrag,
+	bonfireFragPars: bonfireFragPars,
+	bonfireUniforms: bonfireUniforms,
 	booleanNoiseFrag: booleanNoiseFrag,
 	booleanNoiseFragPars: booleanNoiseFragPars,
 	cellFrag: cellFrag,

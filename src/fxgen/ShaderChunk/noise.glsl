@@ -13,7 +13,6 @@ float rand(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453);
 }
 
-
 // expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
 // do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 highp float rand2(const in vec2 uv) {
@@ -30,7 +29,6 @@ float cosine(float a, float b, float x) {
 float bicosine(float tl, float tr, float bl, float br, float x, float y) {
   return cosine(cosine(tl,tr,x), cosine(bl,br,x), y);
 }
-
 
 float linear(float a, float b, float t) {
   return a + (b-a)*t;
@@ -76,7 +74,6 @@ float vnoise(vec2 p) {
                  dot(vrand(i+vec2(1.0,1.0)), f-vec2(1.0,1.0)), u.x), u.y);
 }
 
-
 float plerp(vec2 p) {
   vec2 i = floor(p);
   vec2 f = fract(p);
@@ -102,7 +99,6 @@ float pnoise(vec2 p) {
   return t;
 }
 
-
 float pnoise(vec2 p, int octave, float frequency, float persistence) {
   float t = 0.0;
   float maxAmplitude = EPSILON;
@@ -116,7 +112,6 @@ float pnoise(vec2 p, int octave, float frequency, float persistence) {
   }
   return t / maxAmplitude;
 }
-
 
 // ridged noise
 float rpnoise(vec2 p, int octave, float frequency, float persistence) {
@@ -133,13 +128,20 @@ float rpnoise(vec2 p, int octave, float frequency, float persistence) {
   return t / maxAmplitude;
 }
 
-
 float psnoise(vec2 p, vec2 q, vec2 r) {
   return pnoise(vec2(p.x,       p.y      )) *        q.x  *        q.y +
          pnoise(vec2(p.x,       p.y + r.y)) *        q.x  * (1.0 - q.y) +
          pnoise(vec2(p.x + r.x, p.y      )) * (1.0 - q.x) *        q.y +
          pnoise(vec2(p.x + r.x, p.y + r.y)) * (1.0 - q.x) * (1.0 - q.y);
 }
+
+// PRNG (https://www.shadertoy.com/view/4djSRW)
+float prng(in vec2 seed) {
+  seed = fract(seed * vec2(5.3983, 5.4427));
+  seed += dot(seed.yx, seed.xy + vec2(21.5351, 14.3137));
+  return fract(seed.x * seed.y * 95.4337);
+}
+
 // https://www.shadertoy.com/view/Xd23Dh
 // Created by inigo quilez - iq/2014
 // License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
