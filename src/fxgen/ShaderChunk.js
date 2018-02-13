@@ -137,6 +137,9 @@ import silexarsFrag from './ShaderChunk/silexarsFrag.glsl';
 import smokeFrag from './ShaderChunk/smokeFrag.glsl';
 import smokeFragPars from './ShaderChunk/smokeFragPars.glsl';
 import { smokeUniforms } from './ShaderChunk/smokeUniforms.js';
+import snowFrag from './ShaderChunk/snowFrag.glsl';
+import snowFragPars from './ShaderChunk/snowFragPars.glsl';
+import { snowUniforms } from './ShaderChunk/snowUniforms.js';
 import solarFrag from './ShaderChunk/solarFrag.glsl';
 import solarFragPars from './ShaderChunk/solarFragPars.glsl';
 import { solarUniforms } from './ShaderChunk/solarUniforms.js';
@@ -308,6 +311,9 @@ export var ShaderChunk = {
 	smokeFrag: smokeFrag,
 	smokeFragPars: smokeFragPars,
 	smokeUniforms: smokeUniforms,
+	snowFrag: snowFrag,
+	snowFragPars: snowFragPars,
+	snowUniforms: snowUniforms,
 	solarFrag: solarFrag,
 	solarFragPars: solarFragPars,
 	solarUniforms: solarUniforms,

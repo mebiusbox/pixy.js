@@ -5645,6 +5645,17 @@
 	  cDelta: { value: 0.05 },
 	};
 
+	var snowFrag = "t = time * cSpeed;\r\n\r\nfloat c = .0;\r\nif (cDensity > 4.) c += snow(pin.uv, 30.);\r\nif (cDensity > 3.) c += snow(pin.uv, 15.);\r\nif (cDensity > 2.) c += snow(pin.uv, 10.);\r\nc += snow(pin.uv, 5.);\r\nif (cDensity > 1. && cDensity < 5.5) c += snow(pin.uv, 3.);\r\n\r\n\r\nvec3 finalColor = vec3(c*.6);\r\n\r\nvec2 v = pin.position;\r\nfinalColor *= (.5+cRange - sqrt((v.x*v.x) + (v.y*v.y)))*2.5;\r\n\r\n// vec2 p = pin.uv;\r\n// p = 2.*p - 2.;\r\n// p.x *= resolution.x / resolution.y;\r\n// p.x -= time * .125;\r\n// float a = 0.5;\r\n// float n = pin.coord.y / resolution.y;\r\n// n *= n;\r\n// n *= snowNoise(p*2.) * a;\r\n// finalColor += vec3(n) * 1.2;\r\n\r\npout.color = finalColor;";
+
+	var snowFragPars = "uniform float cSpeed;\r\nuniform float cScale;\r\nuniform float cDensity;\r\nuniform float cRange;\r\nfloat t = 0.0;\r\n\r\nvec2 snowHash(in vec2 p) {\r\n  return cos(t + sin(mat2(17., 5., 3., 257.) * p - p) * 1234.5678);\r\n}\r\n\r\nfloat snowNoise(in vec2 p) {\r\n  const float K1 = (sqrt(3.)-1.)/2.;\r\n  const float K2 = (3.-sqrt(3.))/6.;\r\n  vec2 i = floor(p+(p.x + p.y)*K1);\r\n  vec2 a = p - i + (i.x + i.y)*K2;\r\n  vec2 o = (a.x > a.y) ? vec2(1., 0.) : vec2(0., 1.);\r\n  vec2 b = a - o + K2;\r\n  vec2 c = a - 1. + 2. * K2;\r\n  vec3 h = (.5 - vec3(dot(a,a), dot(b,b), dot(c,c))) * 3.;\r\n  vec3 n = vec3(dot(a,snowHash(i)), dot(b, snowHash(i+o)), dot(c, snowHash(i+1.)));\r\n  return dot(n, h*h*h*h*h)*.5 + .5;\r\n}\r\n\r\nfloat snow(vec2 uv, float scale) {\r\n  float w = smoothstep(1., 0., -uv.y * (scale / 40.0));\r\n  uv += t/scale;\r\n  uv.y += t/scale;\r\n  uv.x += sin(uv.y + t*.25)/scale;\r\n  uv *= scale;\r\n  \r\n  vec2 s = floor(uv);\r\n  vec2 f = fract(uv);\r\n  float k = 4.;\r\n  vec2 p = .5 + .3 * sin(11. * fract(sin((s+scale)*mat2(7., 3., 6., 5.))*5.)) - f;\r\n  float d = length(p);\r\n  k = min(d,k);\r\n  k = smoothstep(0., k, sin(f.x + f.y)*.01);\r\n  return w*k*(cScale*5.0);\r\n}";
+
+	var snowUniforms = {
+	  cSpeed: { value: 0.2 },
+	  cScale: { value: 1.0 },
+	  cDensity: { value: 5.0 },
+	  cRange: { value: 0.5 },
+	};
+
 	var solarFrag = "// float t = 1.0 / (length(pin.position) * solarIntensity);\r\nfloat t = cIntensity / (length(pin.position));\r\nt = pow(t, cPowerExponent);\r\npout.color = vec3(t);";
 
 	var solarFragPars = "uniform float cIntensity;\r\nuniform float cPowerExponent;";
@@ -5869,6 +5880,9 @@
 		smokeFrag: smokeFrag,
 		smokeFragPars: smokeFragPars,
 		smokeUniforms: smokeUniforms,
+		snowFrag: snowFrag,
+		snowFragPars: snowFragPars,
+		snowUniforms: snowUniforms,
 		solarFrag: solarFrag,
 		solarFragPars: solarFragPars,
 		solarUniforms: solarUniforms,
@@ -6028,6 +6042,7 @@
 	    this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
 	    this.addUniform(uniforms, ["FLAMELANCE"], "flamelanceUniforms");
 	    this.addUniform(uniforms, ["BONFIRE"], "bonfireUniforms");
+	    this.addUniform(uniforms, ["SNOW"], "snowUniforms");
 	    this.addUniform(uniforms, ["TEST"], "testUniforms");
 	    
 	    return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6111,6 +6126,7 @@
 	    this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFragPars");
 	    this.addCode(codes, ["FLAMELANCE"], "flamelanceFragPars");
 	    this.addCode(codes, ["BONFIRE"], "bonfireFragPars");
+	    this.addCode(codes, ["SNOW"], "snowFragPars");
 	    this.addCode(codes, ["TEST"], "testFragPars");
 	    
 	    codes.push("");
@@ -6176,6 +6192,7 @@
 	      this.addCode(codes, ["CHECKER"], "checkerFrag");
 	      this.addCode(codes, ["FLAMELANCE"], "flamelanceFrag");
 	      this.addCode(codes, ["BONFIRE"], "bonfireFrag");
+	      this.addCode(codes, ["SNOW"], "snowFrag");
 	      this.addCode(codes, ["TEST"], "testFrag");
 	      
 	      this.addCode(codes, ["TOON"], "toonFrag");
