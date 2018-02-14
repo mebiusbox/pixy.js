@@ -98,6 +98,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["FLOWER"], "flowerUniforms");
     this.addUniform(uniforms, ["FLOWERFUN"], "flowerFunUniforms");
     this.addUniform(uniforms, ["WAVERING"], "waveRingUniforms");
+    this.addUniform(uniforms, ["FBMNOISE2"], "fbmNoise2Uniforms");
     this.addUniform(uniforms, ["SEEMLESSNOISE"], "seemlessNoiseUniforms");
     this.addUniform(uniforms, ["+HEIGHT2NORMAL","+HEIGHT2NORMALSOBEL"], "height2NormalUniforms");
     this.addUniform(uniforms, ["COLORBALANCE"], "colorBalanceUniforms");
@@ -177,6 +178,7 @@ function FxgenShader() {
     this.addCode(codes, ["BOOLEANNOISE"], "booleanNoiseFragPars");
     this.addCode(codes, ["CELLNOISE"], "cellNoiseFragPars");
     this.addCode(codes, ["FBMNOISE"], "fbmNoiseFragPars");
+    this.addCode(codes, ["FBMNOISE2"], "fbmNoise2FragPars");
     this.addCode(codes, ["VORONOINOISE"], "voronoiNoiseFragPars");
     this.addCode(codes, ["TURBULENTNOISE"], "turbulentNoiseFragPars");
     this.addCode(codes, ["SPARKNOISE"], "sparkNoiseFragPars");
@@ -239,6 +241,7 @@ function FxgenShader() {
       this.addCode(codes, ["BOOLEANNOISE"], "booleanNoiseFrag");
       this.addCode(codes, ["CELLNOISE"], "cellNoiseFrag");
       this.addCode(codes, ["FBMNOISE"], "fbmNoiseFrag");
+      this.addCode(codes, ["FBMNOISE2"], "fbmNoise2Frag");
       this.addCode(codes, ["VORONOINOISE"], "voronoiNoiseFrag");
       this.addCode(codes, ["TURBULENTNOISE"], "turbulentNoiseFrag");
       this.addCode(codes, ["SPARKNOISE"], "sparkNoiseFrag");
@@ -247,7 +250,7 @@ function FxgenShader() {
       this.addCode(codes, ["JULIA"], "juliaFrag");
       this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFrag");
       this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFrag");
-      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE"], "noiseGraphFrag");
+      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE"], "noiseGraphFrag");
       this.addCode(codes, ["HEIGHT2NORMAL"], "height2NormalFrag");
       this.addCode(codes, ["HEIGHT2NORMALSOBEL"], "height2NormalSobelFrag");
       this.addCode(codes, ["POLARCONVERSION"], "polarConversionFrag");

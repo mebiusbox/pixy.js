@@ -46,6 +46,9 @@ import { explosion2Uniforms } from './ShaderChunk/explosion2Uniforms.js';
 import explosionFrag from './ShaderChunk/explosionFrag.glsl';
 import explosionFragPars from './ShaderChunk/explosionFragPars.glsl';
 import { explosionUniforms } from './ShaderChunk/explosionUniforms.js';
+import fbmNoise2Frag from './ShaderChunk/fbmNoise2Frag.glsl';
+import fbmNoise2FragPars from './ShaderChunk/fbmNoise2FragPars.glsl';
+import { fbmNoise2Uniforms } from './ShaderChunk/fbmNoise2Uniforms.js';
 import fbmNoiseFrag from './ShaderChunk/fbmNoiseFrag.glsl';
 import fbmNoiseFragPars from './ShaderChunk/fbmNoiseFragPars.glsl';
 import fireFrag from './ShaderChunk/fireFrag.glsl';
@@ -220,6 +223,9 @@ export var ShaderChunk = {
 	explosionFrag: explosionFrag,
 	explosionFragPars: explosionFragPars,
 	explosionUniforms: explosionUniforms,
+	fbmNoise2Frag: fbmNoise2Frag,
+	fbmNoise2FragPars: fbmNoise2FragPars,
+	fbmNoise2Uniforms: fbmNoise2Uniforms,
 	fbmNoiseFrag: fbmNoiseFrag,
 	fbmNoiseFragPars: fbmNoiseFragPars,
 	fireFrag: fireFrag,
