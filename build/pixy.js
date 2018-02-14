@@ -5695,6 +5695,14 @@
 	  cColor: { value: 0.0 },
 	};
 
+	var tessNoiseFrag = "vec2 p = pin.uv - cOffset;\r\np *= pow(2.0, 13.0);\r\nvec4 a = tessNoise(p);\r\nvec4 n = vec4(a.x+a.y+a.z+a.w) * .5;\r\npout.color = vec3(n.xyz);\r\n\r\nfloat graph = n.x;";
+
+	var tessNoiseFragPars = "uniform float cOffset;\r\n\r\nvec4 tessNoise(vec2 p) {\r\n  vec4 base = vec4(p, 0.0, 0.0);\r\n  vec4 rotation = vec4(0.0, 0.0, 0.0, 0.0);\r\n  float theta = fract(time*1.025);\r\n  float phase = .55;\r\n  float frequency = .49 * mix(1.0, 1.2, cNoiseFrequency);\r\n  \r\n  vec4 result;\r\n  for (int i=0; i<16; i++) {\r\n    base += rotation;\r\n    rotation = fract(base.wxyz - base.zwxy + theta);\r\n    rotation *= (1.0 - rotation);\r\n    base *= frequency;\r\n    base += base.wxyz * phase;\r\n  }\r\n  return rotation * 2.0;\r\n}";
+
+	var tessNoiseUniforms = {
+	  cOffset: { value: 0.5 }
+	};
+
 	var testFrag = "vec2 p = (-resolution + 2.0*pin.coord) / resolution.y;\r\nvec2 m = mouse.xy / resolution.xy;\r\nvec3 ro = 4.0*normalize(vec3(sin(3.0*m.x), 0.4*m.y, cos(3.0*m.x)));\r\nvec3 ta = vec3(0.0,-1.0,0.0);\r\nmat3 ca = setCamera(ro, ta, 0.0);\r\nvec3 rd = ca*normalize(vec3(p.xy,1.5));\r\npout.color = render(ro, rd).xyz;";
 
 	var testFragPars = "uniform sampler2D tNoise;\r\n\r\nfloat noise(in vec3 x) {\r\n  vec3 p = floor(x);\r\n  vec3 f = fract(x);\r\n  f = f*f*(3.0-2.0*f);\r\n  vec2 uv = (p.xy + vec2(37.0, 17.0)*p.z) + f.xy;\r\n  uv = (uv+0.5)/256.0;\r\n  uv = vec2(uv.x, -uv.y);\r\n  vec2 rg = texture2D(tNoise, uv).yx;\r\n  return -1.0 + 2.0*mix(rg.x, rg.y, f.z);\r\n}\r\n\r\nfloat map5(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q); q = q*2.02;\r\n  f += 0.03125*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map4(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map3(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map2(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nvec3 sundir = normalize(vec3(-1.0, 0.0, -1.0));\r\n\r\nvec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {\r\n// lighting\r\n  vec3 lin = vec3(0.65,0.7,0.75)*1.4 + vec3(1.0,0.6,0.3)*dif;\r\n  vec4 col = vec4(mix(vec3(1.0,0.95,0.8), vec3(0.25,0.3,0.35), den), den);\r\n  col.xyz *= lin;\r\n  col.xyz = mix(col.xyz, bgcol, 1.0-exp(-0.003*t*t));\r\n// front to back blending\r\n  col.a *= 0.4;\r\n  col.rgb *= col.a;\r\n  return sum + col*(1.0-sum.a);\r\n}\r\n\r\n#define MARCH(STEPS,MAPLOD) for(int i=0; i<STEPS; i++) { vec3 pos = ro + t*rd; if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break; float den = MAPLOD(pos); if (den>0.01) { float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.05, 0.02*t); }\r\n// for (int i=0; i<STEPS; i++) {\r\n//   vec3 pos = ro + t*rd;\r\n//   if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;\r\n//   float den = MAPLOD(pos);\r\n//   if (den>0.01) {\r\n//     float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0);\r\n//     sum = integrate(sum, dif, den, bgcol, t);\r\n//   }\r\n//   t += max(0.05, 0.02*t);\r\n// }\r\n\r\nvec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {\r\n  vec4 sum = vec4(0.0);\r\n  float t = 0.0;\r\n  MARCH(30,map5);\r\n  MARCH(30,map4);\r\n  MARCH(30,map3);\r\n  MARCH(30,map2);\r\n  return clamp(sum, 0.0, 1.0);\r\n}\r\n\r\nmat3 setCamera(in vec3 ro, in vec3 ta, float cr) {\r\n  vec3 cw = normalize(ta-ro);\r\n  vec3 cp = vec3(sin(cr), cos(cr), 0.0);\r\n  vec3 cu = normalize(cross(cw,cp));\r\n  vec3 cv = normalize(cross(cu,cw));\r\n  return mat3(cu, cv, cw);\r\n}\r\n\r\nvec4 render(in vec3 ro, in vec3 rd) {\r\n// background sky\r\n  float sun = clamp(dot(sundir,rd), 0.0, 1.0);\r\n  vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;\r\n  col += 0.2*vec3(1.0,0.6,0.1)*pow(sun,8.0);\r\n// clouds\r\n  vec4 res = raymarch(ro, rd, col);\r\n  col = col * (1.0-res.w) + res.xyz;\r\n// sun glare\r\n  col += 0.2*vec3(1.0,0.4,0.2)*pow(sun,3.0);\r\n  return vec4(col, 1.0);\r\n}";
@@ -5905,6 +5913,9 @@
 		sunFrag: sunFrag,
 		sunFragPars: sunFragPars,
 		sunUniforms: sunUniforms,
+		tessNoiseFrag: tessNoiseFrag,
+		tessNoiseFragPars: tessNoiseFragPars,
+		tessNoiseUniforms: tessNoiseUniforms,
 		testFrag: testFrag,
 		testFragPars: testFragPars,
 		testUniforms: testUniforms,
@@ -6052,6 +6063,7 @@
 	    this.addUniform(uniforms, ["TOON"], "toonUniforms");
 	    this.addUniform(uniforms, ["CHECKER"], "checkerUniforms");
 	    this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
+	    this.addUniform(uniforms, ["TESSNOISE"], "tessNoiseUniforms");
 	    this.addUniform(uniforms, ["FLAMELANCE"], "flamelanceUniforms");
 	    this.addUniform(uniforms, ["BONFIRE"], "bonfireUniforms");
 	    this.addUniform(uniforms, ["SNOW"], "snowUniforms");
@@ -6110,6 +6122,7 @@
 	    this.addCode(codes, ["SPARKNOISE"], "sparkNoiseFragPars");
 	    this.addCode(codes, ["RANDOMNOISE"], "randomNoiseFragPars");
 	    this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFragPars");
+	    this.addCode(codes, ["TESSNOISE"], "tessNoiseFragPars");
 	    this.addCode(codes, ["+HEIGHT2NORMAL","+HEIGHT2NORMALSOBEL"], "height2NormalFragPars");
 	    this.addCode(codes, ["COLORBALANCE"], "colorBalanceFragPars");
 	    this.addCode(codes, ["POLARCONVERSION"], "polarConversionFragPars");
@@ -6176,7 +6189,8 @@
 	      this.addCode(codes, ["JULIA"], "juliaFrag");
 	      this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFrag");
 	      this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFrag");
-	      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE"], "noiseGraphFrag");
+	      this.addCode(codes, ["TESSNOISE"], "tessNoiseFrag");
+	      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE", "+TESSNOISE"], "noiseGraphFrag");
 	      this.addCode(codes, ["HEIGHT2NORMAL"], "height2NormalFrag");
 	      this.addCode(codes, ["HEIGHT2NORMALSOBEL"], "height2NormalSobelFrag");
 	      this.addCode(codes, ["POLARCONVERSION"], "polarConversionFrag");

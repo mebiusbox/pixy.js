@@ -126,6 +126,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["TOON"], "toonUniforms");
     this.addUniform(uniforms, ["CHECKER"], "checkerUniforms");
     this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
+    this.addUniform(uniforms, ["TESSNOISE"], "tessNoiseUniforms");
     this.addUniform(uniforms, ["FLAMELANCE"], "flamelanceUniforms");
     this.addUniform(uniforms, ["BONFIRE"], "bonfireUniforms");
     this.addUniform(uniforms, ["SNOW"], "snowUniforms");
@@ -184,6 +185,7 @@ function FxgenShader() {
     this.addCode(codes, ["SPARKNOISE"], "sparkNoiseFragPars");
     this.addCode(codes, ["RANDOMNOISE"], "randomNoiseFragPars");
     this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFragPars");
+    this.addCode(codes, ["TESSNOISE"], "tessNoiseFragPars");
     this.addCode(codes, ["+HEIGHT2NORMAL","+HEIGHT2NORMALSOBEL"], "height2NormalFragPars");
     this.addCode(codes, ["COLORBALANCE"], "colorBalanceFragPars");
     this.addCode(codes, ["POLARCONVERSION"], "polarConversionFragPars");
@@ -250,7 +252,8 @@ function FxgenShader() {
       this.addCode(codes, ["JULIA"], "juliaFrag");
       this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFrag");
       this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFrag");
-      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE"], "noiseGraphFrag");
+      this.addCode(codes, ["TESSNOISE"], "tessNoiseFrag");
+      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE", "+TESSNOISE"], "noiseGraphFrag");
       this.addCode(codes, ["HEIGHT2NORMAL"], "height2NormalFrag");
       this.addCode(codes, ["HEIGHT2NORMALSOBEL"], "height2NormalSobelFrag");
       this.addCode(codes, ["POLARCONVERSION"], "polarConversionFrag");
