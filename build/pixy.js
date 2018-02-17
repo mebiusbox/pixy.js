@@ -5377,6 +5377,15 @@
 	  cScale: { value: 0.2 }
 	};
 
+	var fbmNoise3Frag = "vec2 position = pin.uv + cOffset;\r\nposition *= cNoiseScale * 10.0;\r\nfloat color = intersectcloudscovonly(vec3(position.x, time * 0.03, position.y));\r\npout.color = vec3(color);\r\n\r\nfloat graph = color;";
+
+	var fbmNoise3FragPars = "uniform float cNoiseScale;\r\nuniform float cOffset;\r\n\r\nfloat hash(float n) {\r\n  return fract(sin(n)*758.5453);\r\n}\r\nfloat noise3d(in vec3 x) {\r\n  vec3 p = floor(x);\r\n  vec3 f = fract(x);\r\n  f = f*f*(3.0-2.0*f);\r\n  float n = p.x + p.y * 157.0 + 113.0 * p.z;\r\n  return mix(mix(mix(hash(n+0.0), hash(n+1.0), f.x),\r\n                 mix(hash(n+157.0), hash(n+158.0), f.x), f.y),\r\n             mix(mix(hash(n+113.0), hash(n+114.0), f.x),\r\n                 mix(hash(n+270.0), hash(n+271.0), f.x), f.y), f.z);\r\n}\r\nfloat noise2d(in vec2 x) {\r\n  vec2 p = floor(x);\r\n  vec2 f = smoothstep(0.0, 1.0, fract(x));\r\n  float n = p.x + p.y * 57.0;\r\n  return mix(mix(hash(n+0.0), hash(n+1.0), f.x), mix(hash(n+57.0), hash(n+58.0), f.x), f.y);\r\n}\r\n\r\nfloat configurablenoise(vec3 x, float c1, float c2) {\r\n  vec3 p = floor(x);\r\n  vec3 f = fract(x);\r\n  f = f*f*(3.0-2.0*f);\r\n  float h2 = c1;\r\n  float h1 = c2;\r\n  float n = p.x + p.y*h1+h2*p.z;\r\n  return mix(mix(mix(hash(n+0.0), hash(n+1.0), f.x),\r\n                 mix(hash(n+h1), hash(n+h1+1.0), f.x), f.y),\r\n             mix(mix(hash(n+h2), hash(n+h2+1.0), f.x),\r\n                 mix(hash(n+h1+h2), hash(n+h1+h2+1.0), f.x), f.y), f.z);\r\n}\r\n\r\nfloat supernoise3d(vec3 p) {\r\n  float a = configurablenoise(p, 883.0, 971.0);\r\n  float b = configurablenoise(p+0.5, 113.0, 157.0);\r\n  return (a+b)*0.5;\r\n}\r\n\r\nfloat supernoise3dX(vec3 p) {\r\n  float a = configurablenoise(p, 883.0, 971.0);\r\n  float b = configurablenoise(p+0.5, 113.0, 157.0);\r\n  return (a*b);\r\n}\r\n\r\nfloat fbmHI(vec3 p, float dx) {\r\n  p *= 1.2;\r\n  float a = 0.0;\r\n  float w = 1.0;\r\n  float wc = 0.0;\r\n  for (int i=0; i<8; i++) {\r\n    if (i >= cNoiseOctave) break;\r\n    a += clamp(2.0 * abs(0.5 - supernoise3dX(p)) * w, 0.0, 1.0);\r\n    wc += w * cNoiseFrequency;\r\n    p = p * dx;\r\n    a *= cNoiseAmplitude;\r\n  }\r\n  return a / wc;\r\n  // return a / wc + noise(p*100.0)*11.0;\r\n}\r\n\r\n#define clouds pow(smoothstep(0.36 - supernoise3d(mx * 0.3 + time * 0.1) * 1.0, 0.46, supernoise3d(mx * 2.0) * fbmHI(mx * 6.0 + 5.0*fbmHI(mx.yxz * 1.0 + time * 0.001, 2.0) * 0.5 - time * 0.01, 2.8)), 3.0);\r\nfloat intersectcloudscovonly(vec3 start) {\r\n  vec3 mx = start;\r\n  // float h = (length(mx) - planetsize);\r\n  // h = smoothstep(0.0, 0.2, h) * (1.0 - smoothstep(0.2, 0.4, h));\r\n  return clouds\r\n}\r\n";
+
+	var fbmNoise3Uniforms = {
+	  cNoiseScale: { value: 0.5 },
+	  cOffset: { value: 0.0 }
+	};
+
 	var fbmNoiseFrag = "vec2 p = pin.uv - time*0.1;\r\nfloat lum = fbm(pin.uv);\r\npout.color = vec3(lum);\r\n\r\nfloat graph = fbm(pin.uv.xx);";
 
 	var fbmNoiseFragPars = "// fractal brownian motion (noise harmonic)\r\n// float fbm4(vec2 uv) {\r\n//   float n = 0.5;\r\n//   float f = 1.0;\r\n//   float l = 0.2;\r\n//   for (int i=0; i<4; i++) {\r\n//     n += snoise(vec3(uv*f, 1.0))*l;\r\n//     f *= 2.0;\r\n//     l *= 0.65;\r\n//   }\r\n//   return n;\r\n// }\r\n\r\n// fractal brownian motion (noise harmonic - fewer octaves = smoother)\r\n// float fbm8(vec2 uv) {\r\n//   float n = 0.5;\r\n//   float f = 4.0;\r\n//   float l = 0.2;\r\n//   for (int i=0; i<8; i++) {\r\n//     n += snoise(vec3(uv*f, 1.0))*l;\r\n//     f *= 2.0;\r\n//     l *= 0.65;\r\n//   }\r\n//   return n;\r\n// }\r\nfloat fbm(vec2 uv) {\r\n  float n = 0.5;\r\n  float f = 1.0;\r\n  float l = 0.2;\r\n  for (int i=0; i<8; i++) {\r\n    if (i >= cNoiseOctave) break;\r\n    n += snoise(vec3(uv*f, time))*l;\r\n//     f *= 2.0;\r\n//     l *= 0.65;\r\n    f *= cNoiseFrequency * 8.0;\r\n    l *= cNoiseAmplitude;\r\n  }\r\n  return n;\r\n}";
@@ -5817,6 +5826,9 @@
 		fbmNoise2Frag: fbmNoise2Frag,
 		fbmNoise2FragPars: fbmNoise2FragPars,
 		fbmNoise2Uniforms: fbmNoise2Uniforms,
+		fbmNoise3Frag: fbmNoise3Frag,
+		fbmNoise3FragPars: fbmNoise3FragPars,
+		fbmNoise3Uniforms: fbmNoise3Uniforms,
 		fbmNoiseFrag: fbmNoiseFrag,
 		fbmNoiseFragPars: fbmNoiseFragPars,
 		fireFrag: fireFrag,
@@ -6048,6 +6060,7 @@
 	    this.addUniform(uniforms, ["FLOWERFUN"], "flowerFunUniforms");
 	    this.addUniform(uniforms, ["WAVERING"], "waveRingUniforms");
 	    this.addUniform(uniforms, ["FBMNOISE2"], "fbmNoise2Uniforms");
+	    this.addUniform(uniforms, ["FBMNOISE3"], "fbmNoise3Uniforms");
 	    this.addUniform(uniforms, ["SEEMLESSNOISE"], "seemlessNoiseUniforms");
 	    this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
 	    this.addUniform(uniforms, ["TESSNOISE"], "tessNoiseUniforms");
@@ -6130,6 +6143,7 @@
 	    this.addCode(codes, ["CELLNOISE"], "cellNoiseFragPars");
 	    this.addCode(codes, ["FBMNOISE"], "fbmNoiseFragPars");
 	    this.addCode(codes, ["FBMNOISE2"], "fbmNoise2FragPars");
+	    this.addCode(codes, ["FBMNOISE3"], "fbmNoise3FragPars");
 	    this.addCode(codes, ["VORONOINOISE"], "voronoiNoiseFragPars");
 	    this.addCode(codes, ["TURBULENTNOISE"], "turbulentNoiseFragPars");
 	    this.addCode(codes, ["SPARKNOISE"], "sparkNoiseFragPars");
@@ -6195,6 +6209,7 @@
 	      this.addCode(codes, ["CELLNOISE"], "cellNoiseFrag");
 	      this.addCode(codes, ["FBMNOISE"], "fbmNoiseFrag");
 	      this.addCode(codes, ["FBMNOISE2"], "fbmNoise2Frag");
+	      this.addCode(codes, ["FBMNOISE3"], "fbmNoise3Frag");
 	      this.addCode(codes, ["VORONOINOISE"], "voronoiNoiseFrag");
 	      this.addCode(codes, ["TURBULENTNOISE"], "turbulentNoiseFrag");
 	      this.addCode(codes, ["SPARKNOISE"], "sparkNoiseFrag");
@@ -6205,7 +6220,7 @@
 	      this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFrag");
 	      this.addCode(codes, ["TESSNOISE"], "tessNoiseFrag");
 	      this.addCode(codes, ["GRADIENTNOISE"], "gradientNoiseFrag");
-	      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE", "+TESSNOISE", "+GRADIENTNOISE"], "noiseGraphFrag");
+	      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+FBMNOISE3", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE", "+TESSNOISE", "+GRADIENTNOISE"], "noiseGraphFrag");
 	      this.addCode(codes, ["HEIGHT2NORMAL"], "height2NormalFrag");
 	      this.addCode(codes, ["HEIGHT2NORMALSOBEL"], "height2NormalSobelFrag");
 	      this.addCode(codes, ["POLARCONVERSION"], "polarConversionFrag");
