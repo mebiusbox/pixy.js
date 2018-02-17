@@ -627,7 +627,7 @@
         h.add(effectController, "type", [
           "Wood", "Circle", "Solar", "Corona", "Spark", "Ring", "Gradation", "GradationLine", "Flash", "Cone", "Flower", "FlowerFun", "WaveRing", "Smoke", "Flame", "Fire", "Cell", "Lightning", "Flare", "Flare2", "Flare3", "LensFlare", "Sun", "MagicCircle", "Mandara",
           "Explosion", "Explosion2", "Cross", "Laser", "Laser2", "Light", "Cloud",
-          "PerlinNoise", "SeemlessNoise", "BooleanNoise", "CellNoise", "TurbulentNoise", "FbmNoise", "FbmNoise2", "RandomNoise", "VoronoiNoise", "SparkNoise", "MarbleNoise", "TessNoise", 
+          "PerlinNoise", "SeemlessNoise", "BooleanNoise", "CellNoise", "TurbulentNoise", "FbmNoise", "FbmNoise2", "RandomNoise", "VoronoiNoise", "SparkNoise", "MarbleNoise", "TessNoise", "GradientNoise",
           "Checker", "FlameLance", "Bonfire", "Snow"
           
         ]).onChange(function(value) {
@@ -887,6 +887,7 @@
           VoronoiNoise: ["cNoiseFrequency", "cNoiseSphereEnable", "cNoiseGraphEnable"],
           MarbleNoise: ["cScale", "cFrequency", "cNoiseSphereEnable", "cNoiseGraphEnable"],
           TessNoise: [ "cNoiseFrequency", "cOffset",  "cNoiseSphereEnable", "cNoiseGraphEnable"],
+          GradientNoise: [ "cNoiseScale", "cColor", "cNoiseSphereEnable", "cNoiseGraphEnable"],
           
           Checker: ["cWidth", "cHeight"],
           FlameLance: ["cSize", "cSpeed", "cPower", "cAngle", "cColor",  "cNoiseSize", "cNoiseStrength", "cNoiseDepth"],

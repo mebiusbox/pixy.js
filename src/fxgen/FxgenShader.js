@@ -100,6 +100,9 @@ function FxgenShader() {
     this.addUniform(uniforms, ["WAVERING"], "waveRingUniforms");
     this.addUniform(uniforms, ["FBMNOISE2"], "fbmNoise2Uniforms");
     this.addUniform(uniforms, ["SEEMLESSNOISE"], "seemlessNoiseUniforms");
+    this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
+    this.addUniform(uniforms, ["TESSNOISE"], "tessNoiseUniforms");
+    this.addUniform(uniforms, ["GRADIENTNOISE"], "gradientNoiseUniforms");
     this.addUniform(uniforms, ["+HEIGHT2NORMAL","+HEIGHT2NORMALSOBEL"], "height2NormalUniforms");
     this.addUniform(uniforms, ["COLORBALANCE"], "colorBalanceUniforms");
     this.addUniform(uniforms, ["SMOKE"], "smokeUniforms");
@@ -125,8 +128,6 @@ function FxgenShader() {
     this.addUniform(uniforms, ["MANDARA"], "mandaraUniforms");
     this.addUniform(uniforms, ["TOON"], "toonUniforms");
     this.addUniform(uniforms, ["CHECKER"], "checkerUniforms");
-    this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
-    this.addUniform(uniforms, ["TESSNOISE"], "tessNoiseUniforms");
     this.addUniform(uniforms, ["FLAMELANCE"], "flamelanceUniforms");
     this.addUniform(uniforms, ["BONFIRE"], "bonfireUniforms");
     this.addUniform(uniforms, ["SNOW"], "snowUniforms");
@@ -186,6 +187,7 @@ function FxgenShader() {
     this.addCode(codes, ["RANDOMNOISE"], "randomNoiseFragPars");
     this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFragPars");
     this.addCode(codes, ["TESSNOISE"], "tessNoiseFragPars");
+    this.addCode(codes, ["GRADIENTNOISE"], "gradientNoiseFragPars");
     this.addCode(codes, ["+HEIGHT2NORMAL","+HEIGHT2NORMALSOBEL"], "height2NormalFragPars");
     this.addCode(codes, ["COLORBALANCE"], "colorBalanceFragPars");
     this.addCode(codes, ["POLARCONVERSION"], "polarConversionFragPars");
@@ -253,7 +255,8 @@ function FxgenShader() {
       this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFrag");
       this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFrag");
       this.addCode(codes, ["TESSNOISE"], "tessNoiseFrag");
-      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE", "+TESSNOISE"], "noiseGraphFrag");
+      this.addCode(codes, ["GRADIENTNOISE"], "gradientNoiseFrag");
+      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE", "+TESSNOISE", "+GRADIENTNOISE"], "noiseGraphFrag");
       this.addCode(codes, ["HEIGHT2NORMAL"], "height2NormalFrag");
       this.addCode(codes, ["HEIGHT2NORMALSOBEL"], "height2NormalSobelFrag");
       this.addCode(codes, ["POLARCONVERSION"], "polarConversionFrag");

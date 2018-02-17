@@ -5499,6 +5499,15 @@ var gradationUniforms = {
 
 var gradient = "// http://g3d.cs.williams.edu/websvn/filedetails.php?repname=g3d&path=%2FG3D10%2Fdata-files%2Fshader%2Fgradient.glsl\r\nvec3 hueGradient(float t) {\r\n  vec3 p = abs(fract(t+vec3(1.0,2.0/3.0,1.0/3.0))*6.0 - 3.0);\r\n  return clamp(p-1.0, 0.0, 1.0);\r\n}\r\n\r\nvec3 techGradient(float t) {\r\n  return pow(vec3(t+0.01), vec3(120.0, 10.0, 180.0));\r\n}\r\n\r\nvec3 fireGradient(float t) {\r\n  return max(pow(vec3(min(t*1.02,1.0)), vec3(1.7,25.0,100.0)),\r\n             vec3(0.06 * pow(max(1.0 - abs(t-0.35), 0.0), 5.0)));\r\n}\r\n\r\nvec3 desertGradient(float t) {\r\n  float s = sqrt(clamp(1.0 - (t - 0.4) / 0.6, 0.0, 1.0));\r\n  vec3 sky = sqrt(mix(vec3(1, 1, 1), vec3(0, 0.8, 1.0), smoothstep(0.4, 0.9, t)) * vec3(s, s, 1.0));\r\n  vec3 land = mix(vec3(0.7, 0.3, 0.0), vec3(0.85, 0.75 + max(0.8 - t * 20.0, 0.0), 0.5), pow2(t / 0.4));\r\n  return clamp((t > 0.4) ? sky : land, 0.0, 1.0) * clamp(1.5 * (1.0 - abs(t - 0.4)), 0.0, 1.0);\r\n}\r\n\r\nvec3 electricGradient(float t) {\r\n  return clamp( vec3(t * 8.0 - 6.3, pow2(smoothstep(0.6, 0.9, t)), pow(t, 3.0) * 1.7), 0.0, 1.0);\r\n}\r\n\r\nvec3 neonGradient(float t) {\r\n  return clamp(vec3(t * 1.3 + 0.1, pow2(abs(0.43 - t) * 1.7), (1.0 - t) * 1.7), 0.0, 1.0);\r\n}\r\n\r\nvec3 heatmapGradient(float t) {\r\n  return clamp((pow(t, 1.5) * 0.8 + 0.2) * vec3(smoothstep(0.0, 0.35, t) + t * 0.5, smoothstep(0.5, 1.0, t), max(1.0 - t * 1.7, t * 7.0 - 6.0)), 0.0, 1.0);\r\n}\r\n\r\nvec3 rainbowGradient(float t) {\r\n  vec3 c = 1.0 - pow(abs(vec3(t) - vec3(0.65, 0.5, 0.2)) * vec3(3.0, 3.0, 5.0), vec3(1.5, 1.3, 1.7));\r\n  c.r = max((0.15 - pow2(abs(t - 0.04) * 5.0)), c.r);\r\n  c.g = (t < 0.5) ? smoothstep(0.04, 0.45, t) : c.g;\r\n  return clamp(c, 0.0, 1.0);\r\n}\r\n\r\nvec3 brightnessGradient(float t) {\r\n  return vec3(t * t);\r\n}\r\n\r\nvec3 grayscaleGradient(float t) {\r\n  return vec3(t);\r\n}\r\n\r\nvec3 stripeGradient(float t) {\r\n  return vec3(mod(floor(t * 32.0), 2.0) * 0.2 + 0.8);\r\n}\r\n\r\nvec3 ansiGradient(float t) {\r\n  return mod(floor(t * vec3(8.0, 4.0, 2.0)), 2.0);\r\n}";
 
+var gradientNoiseFrag = "vec2 uv = pin.uv * cNoiseScale * 10.0;\r\nvec3 p = normal(vec3(uv, time), 0.01);\r\np = (p + vec3(1.0)) * 0.5;\r\nvec3 gray = vec3(rgb2gray(p));\r\npout.color = mix(gray, p, cColor);\r\n\r\nfloat graph = gray.x;";
+
+var gradientNoiseFragPars = "uniform float cNoiseScale;\r\nuniform float cColor;\r\nvec3 normal(vec3 v, float delta) {\r\n  vec2 coefficient = vec2(\r\n    snoise(v + vec3(delta, 0.0, 0.0)) - snoise(v - vec3(delta, 0.0, 0.0)),\r\n    snoise(v + vec3(0.0, delta, 0.0)) - snoise(v - vec3(0.0, delta, 0.0))) / delta;\r\n  coefficient *= 0.3;\r\n  vec3 req = vec3(-coefficient.x, -coefficient.y, 1.0);\r\n  return req / length(req);\r\n}";
+
+var gradientNoiseUniforms = {
+  cNoiseScale: { value: 1.0 },
+  cColor: { value: 1.0 }
+};
+
 var height2NormalFrag = "//   // Determine the offsets\r\n//   vec3 vPixelSize = vec3(1.0 / resolution.x, 0.0, -1.0 / resolution.x);\r\n//   \r\n//   // Take three samples to determine two vectors that can be\r\n//   // use to generate the normal at this pixel\r\n//   float h0 = texture2D(tDiffuse, pin.uv).r;\r\n//   float h1 = texture2D(tDiffuse, pin.uv + vPixelSize.xy).r;\r\n//   float h2 = texture2D(tDiffuse, pin.uv + vPixelSize.yx).r;\r\n//   \r\n//   vec3 v01 = vec3(vPixelSize.xy, h1-h0);\r\n//   vec3 v02 = vec3(vPixelSize.yx, h2-h0);\r\n//   vec3 n = cross(v01, v02);\r\n//   \r\n//   // Can be useful to scale the Z component to tweak the\r\n//   // amount bumps show up, less than 1.0 will make them\r\n//   // more apparent, greater than 1.0 will smooth them out\r\n//   n.z *= 0.5;\r\n//   \r\n//   pout.color = n;\r\n\r\nconst vec2 size = vec2(2.0, 0.0);\r\nvec3 vPixelSize = vec3(1.0 / resolution.x, 0.0, -1.0 / resolution.x);\r\nfloat s01 = texture2D(tDiffuse, pin.uv + vPixelSize.xy).x;\r\nfloat s21 = texture2D(tDiffuse, pin.uv + vPixelSize.zy).x;\r\nfloat s10 = texture2D(tDiffuse, pin.uv + vPixelSize.yx).x;\r\nfloat s12 = texture2D(tDiffuse, pin.uv + vPixelSize.yz).x;\r\nvec3 va = normalize(vec3(size.xy,(s21-s01)*cHeightScale));\r\nvec3 vb = normalize(vec3(size.yx,(s10-s12)*cHeightScale));\r\nvec3 n = cross(va,vb);\r\npout.color = n*0.5 + 0.5;\r\n\r\n// THREE.JS (NormalMapShader.js)\r\n// vec3 vPixelSize = vec3(1.0 / resolution.x, 0.0, -1.0 / resolution.x);\r\n// float s11 = texture2D(tDiffuse, pin.uv).x;\r\n// float s01 = texture2D(tDiffuse, pin.uv + vPixelSize.xy).x;\r\n// float s10 = texture2D(tDiffuse, pin.uv + vPixelSize.yx).x;\r\n// vec3 n = normalize(vec3((s11-s10) * heightScale, (s11-s01)*heightScale, 2.0));\r\n// pout.color = n*0.5 + 0.5;\r\n\r\n// vec3 vPixelSize = vec3(1.0 / resolution.x, 0.0, -1.0 / resolution.x);\r\n// float s01 = texture2D(tDiffuse, pin.uv + vPixelSize.xy).x;\r\n// float s21 = texture2D(tDiffuse, pin.uv + vPixelSize.zy).x;\r\n// float s10 = texture2D(tDiffuse, pin.uv + vPixelSize.yx).x;\r\n// float s12 = texture2D(tDiffuse, pin.uv + vPixelSize.yz).x;\r\n// vec3 n = normalize(vec3((s11-s10) * heightScale, (s11-s01)*heightScale, 2.0));\r\n// pout.color = n*0.5 + 0.5;";
 
 var height2NormalFragPars = "uniform float cHeightScale;";
@@ -5841,6 +5850,9 @@ var ShaderChunk$1 = {
 	gradationLineUniforms: gradationLineUniforms,
 	gradationUniforms: gradationUniforms,
 	gradient: gradient,
+	gradientNoiseFrag: gradientNoiseFrag,
+	gradientNoiseFragPars: gradientNoiseFragPars,
+	gradientNoiseUniforms: gradientNoiseUniforms,
 	height2NormalFrag: height2NormalFrag,
 	height2NormalFragPars: height2NormalFragPars,
 	height2NormalSobelFrag: height2NormalSobelFrag,
@@ -6031,6 +6043,9 @@ function FxgenShader() {
     this.addUniform(uniforms, ["WAVERING"], "waveRingUniforms");
     this.addUniform(uniforms, ["FBMNOISE2"], "fbmNoise2Uniforms");
     this.addUniform(uniforms, ["SEEMLESSNOISE"], "seemlessNoiseUniforms");
+    this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
+    this.addUniform(uniforms, ["TESSNOISE"], "tessNoiseUniforms");
+    this.addUniform(uniforms, ["GRADIENTNOISE"], "gradientNoiseUniforms");
     this.addUniform(uniforms, ["+HEIGHT2NORMAL","+HEIGHT2NORMALSOBEL"], "height2NormalUniforms");
     this.addUniform(uniforms, ["COLORBALANCE"], "colorBalanceUniforms");
     this.addUniform(uniforms, ["SMOKE"], "smokeUniforms");
@@ -6056,8 +6071,6 @@ function FxgenShader() {
     this.addUniform(uniforms, ["MANDARA"], "mandaraUniforms");
     this.addUniform(uniforms, ["TOON"], "toonUniforms");
     this.addUniform(uniforms, ["CHECKER"], "checkerUniforms");
-    this.addUniform(uniforms, ["MARBLENOISE"], "marbleNoiseUniforms");
-    this.addUniform(uniforms, ["TESSNOISE"], "tessNoiseUniforms");
     this.addUniform(uniforms, ["FLAMELANCE"], "flamelanceUniforms");
     this.addUniform(uniforms, ["BONFIRE"], "bonfireUniforms");
     this.addUniform(uniforms, ["SNOW"], "snowUniforms");
@@ -6117,6 +6130,7 @@ function FxgenShader() {
     this.addCode(codes, ["RANDOMNOISE"], "randomNoiseFragPars");
     this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFragPars");
     this.addCode(codes, ["TESSNOISE"], "tessNoiseFragPars");
+    this.addCode(codes, ["GRADIENTNOISE"], "gradientNoiseFragPars");
     this.addCode(codes, ["+HEIGHT2NORMAL","+HEIGHT2NORMALSOBEL"], "height2NormalFragPars");
     this.addCode(codes, ["COLORBALANCE"], "colorBalanceFragPars");
     this.addCode(codes, ["POLARCONVERSION"], "polarConversionFragPars");
@@ -6184,7 +6198,8 @@ function FxgenShader() {
       this.addCode(codes, ["SEEMLESSNOISE"], "seemlessNoiseFrag");
       this.addCode(codes, ["MARBLENOISE"], "marbleNoiseFrag");
       this.addCode(codes, ["TESSNOISE"], "tessNoiseFrag");
-      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE", "+TESSNOISE"], "noiseGraphFrag");
+      this.addCode(codes, ["GRADIENTNOISE"], "gradientNoiseFrag");
+      this.addCode(codes, ["+PERLINNOISE", "+BOOLEANNOISE", "+CELLNOISE", "+FBMNOISE", "+FBMNOISE2", "+VORONOINOISE", "+TURBULENTNOISE", "+SPARKNOISE", "+RANDOMNOISE", "+SEEMLESSNOISE", "+MARBLENOISE", "+TESSNOISE", "+GRADIENTNOISE"], "noiseGraphFrag");
       this.addCode(codes, ["HEIGHT2NORMAL"], "height2NormalFrag");
       this.addCode(codes, ["HEIGHT2NORMALSOBEL"], "height2NormalSobelFrag");
       this.addCode(codes, ["POLARCONVERSION"], "polarConversionFrag");
