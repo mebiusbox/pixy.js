@@ -54,7 +54,8 @@ float fbmHI(vec3 p, float dx) {
   for (int i=0; i<8; i++) {
     if (i >= cNoiseOctave) break;
     a += clamp(2.0 * abs(0.5 - supernoise3dX(p)) * w, 0.0, 1.0);
-    wc += w * cNoiseFrequency;
+    wc += w;
+    w *= cNoiseFrequency;
     p = p * dx;
     a *= cNoiseAmplitude;
   }
