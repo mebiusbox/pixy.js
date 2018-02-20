@@ -36,6 +36,9 @@ import { coronaUniforms } from './ShaderChunk/coronaUniforms.js';
 import crossFrag from './ShaderChunk/crossFrag.glsl';
 import crossFragPars from './ShaderChunk/crossFragPars.glsl';
 import { crossUniforms } from './ShaderChunk/crossUniforms.js';
+import diamondGearFrag from './ShaderChunk/diamondGearFrag.glsl';
+import diamondGearFragPars from './ShaderChunk/diamondGearFragPars.glsl';
+import { diamondGearUniforms } from './ShaderChunk/diamondGearUniforms.js';
 import displacementFrag from './ShaderChunk/displacementFrag.glsl';
 import displacementFragPars from './ShaderChunk/displacementFragPars.glsl';
 import { displacementUniforms } from './ShaderChunk/displacementUniforms.js';
@@ -222,6 +225,9 @@ export var ShaderChunk = {
 	crossFrag: crossFrag,
 	crossFragPars: crossFragPars,
 	crossUniforms: crossUniforms,
+	diamondGearFrag: diamondGearFrag,
+	diamondGearFragPars: diamondGearFragPars,
+	diamondGearUniforms: diamondGearUniforms,
 	displacementFrag: displacementFrag,
 	displacementFragPars: displacementFragPars,
 	displacementUniforms: displacementUniforms,

@@ -4722,7 +4722,7 @@ var UnrealBloomPass = function(resolution, strength, radius, threshold, hdr) {
   var shader = ShaderLib.luminosityHighPass;
   this.highPassUniforms = THREE.UniformsUtils.clone(shader.uniforms);
   this.highPassUniforms.luminosityThreshold.value = this.threshold;
-  this.highPassUniforms.smoothWidth.value = 0.01;
+  this.highPassUniforms.smoothWidth.value = 1.0;
   
   this.highPassMaterial = new THREE.ShaderMaterial({
     uniforms: this.highPassUniforms,
@@ -5317,6 +5317,18 @@ var crossUniforms = {
   cPowerExponent: { value: 1.0 },
 };
 
+var diamondGearFrag = "float g0 = gear(pin.position * mix(8.0, 1.0, cScale), cDiamondGearTeeth, time*0.1);\r\n// float g1 = gear(pin.position*4.0-vec2(2.85,0.0), 9.0, -time*0.2);\r\n// float g3 = gear(pin.position*3.0+vec2(2.35,0.0), 12.0, -time*0.15+0.125);\r\n// float sd = min(min(g0,g1),g3);\r\n// float val = smoothstep(0.0, 0.01, sd);\r\nfloat val = smoothstep(0.0, 0.01, g0);\r\npout.color = vec3(clamp(1.0 - 1.0*val, 0.0, 1.0));";
+
+var diamondGearFragPars = "uniform float cScale;\r\nuniform float cWidth;\r\nuniform float cRadius;\r\nuniform float cDiamondGearTeeth;\r\nuniform float cDiamondGearMid;\r\n\r\nvec2 sd_line(vec2 pos, vec2 a, vec2 b) {\r\n  pos -= a;\r\n  vec2 d = b-a;\r\n  float l = length(d);\r\n  d /= l;\r\n  \r\n  float t = dot(d,pos);\r\n  vec2 p = d * clamp(t, 0.0, l);\r\n  vec2 perp = vec2(d.y, -d.x);\r\n  \r\n  return vec2(length(pos-p), dot(pos,perp));\r\n}\r\n\r\nfloat abs_min(float a, float b) {\r\n  return abs(a) < abs(b) ? a : b;\r\n}\r\n\r\nvec2 lmin(vec2 a, vec2 b) {\r\n  if (abs(a.x-b.x) < 0.0001) {\r\n    return a.y > b.y ? a : b;\r\n  }\r\n  return a.x < b.x ? a : b;\r\n}\r\n\r\nfloat to_sd(vec2 x) {\r\n  return x.x * sign(x.y);\r\n}\r\n\r\nfloat sd_diamond(vec2 pos, vec2 tail, vec2 tip, float width, float mid) {\r\n  vec2 d = tip-tail;\r\n  vec2 p = vec2(d.y,-d.x) * width * 0.5;\r\n  vec2 m = d*mid + tail;\r\n  vec2 la = sd_line(pos, tail, m+p);\r\n  vec2 lb = sd_line(pos, m+p, tip);\r\n  vec2 lc = sd_line(pos, tip, m-p);\r\n  vec2 ld = sd_line(pos, m-p, tail);\r\n  return to_sd(lmin(lmin(la,lb), lmin(lc,ld)));\r\n}\r\n\r\nvec2 to_polar(vec2 x) {\r\n  return vec2(length(x), atan(-x.y,-x.x) + 3.14159);\r\n}\r\n\r\nvec2 from_polar(vec2 x) {\r\n  return vec2(cos(x.y), sin(x.y)) * x.x;\r\n}\r\n\r\nvec2 radial_repeat(vec2 pos, float count) {\r\n  float offset = 0.5/count;\r\n  pos = to_polar(pos);\r\n  pos.y /= 2.0*3.14159;\r\n  pos.y += offset;\r\n  pos.y *= count;\r\n  pos.y = fract(pos.y);\r\n  pos.y /= count;\r\n  pos.y -= offset;\r\n  pos.y *= 2.0*3.14159;\r\n  pos = from_polar(pos);\r\n  return pos;\r\n}\r\n\r\nvec2 rotate(vec2 pos, float turns) {\r\n  pos = to_polar(pos);\r\n  pos.y += turns * 2.0 * 3.14159;\r\n  return from_polar(pos);\r\n}\r\n\r\nfloat gear(vec2 uv, float teeth, float turns) {\r\n  uv = rotate(uv, turns);\r\n  uv = radial_repeat(uv, teeth);\r\n  return sd_diamond(uv, vec2(0.0+cRadius,0.0), vec2(1.0,0.0), cWidth/teeth, cDiamondGearMid);\r\n}\r\n";
+
+var diamondGearUniforms = {
+  cScale: { value: 1.0 },
+  cWidth: { value: 4.0 },
+  cRadius: { value: 0.05 },
+  cDiamondGearMid: { value: 0.8 },
+  cDiamondGearTeeth: { value: 18.0 }
+};
+
 var displacementFrag = "pout.color = vec3(displacement);";
 
 var displacementFragPars = "varying float displacement;";
@@ -5807,6 +5819,9 @@ var ShaderChunk$1 = {
 	crossFrag: crossFrag,
 	crossFragPars: crossFragPars,
 	crossUniforms: crossUniforms,
+	diamondGearFrag: diamondGearFrag,
+	diamondGearFragPars: diamondGearFragPars,
+	diamondGearUniforms: diamondGearUniforms,
 	displacementFrag: displacementFrag,
 	displacementFragPars: displacementFragPars,
 	displacementUniforms: displacementUniforms,
@@ -6087,6 +6102,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["FLAMELANCE"], "flamelanceUniforms");
     this.addUniform(uniforms, ["BONFIRE"], "bonfireUniforms");
     this.addUniform(uniforms, ["SNOW"], "snowUniforms");
+    this.addUniform(uniforms, ["DIAMONDGEAR"], "diamondGearUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6175,6 +6191,7 @@ function FxgenShader() {
     this.addCode(codes, ["FLAMELANCE"], "flamelanceFragPars");
     this.addCode(codes, ["BONFIRE"], "bonfireFragPars");
     this.addCode(codes, ["SNOW"], "snowFragPars");
+    this.addCode(codes, ["DIAMONDGEAR"], "diamondGearFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -6245,6 +6262,7 @@ function FxgenShader() {
       this.addCode(codes, ["FLAMELANCE"], "flamelanceFrag");
       this.addCode(codes, ["BONFIRE"], "bonfireFrag");
       this.addCode(codes, ["SNOW"], "snowFrag");
+      this.addCode(codes, ["DIAMONDGEAR"], "diamondGearFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");

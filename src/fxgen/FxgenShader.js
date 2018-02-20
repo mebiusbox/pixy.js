@@ -132,6 +132,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["FLAMELANCE"], "flamelanceUniforms");
     this.addUniform(uniforms, ["BONFIRE"], "bonfireUniforms");
     this.addUniform(uniforms, ["SNOW"], "snowUniforms");
+    this.addUniform(uniforms, ["DIAMONDGEAR"], "diamondGearUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -220,6 +221,7 @@ function FxgenShader() {
     this.addCode(codes, ["FLAMELANCE"], "flamelanceFragPars");
     this.addCode(codes, ["BONFIRE"], "bonfireFragPars");
     this.addCode(codes, ["SNOW"], "snowFragPars");
+    this.addCode(codes, ["DIAMONDGEAR"], "diamondGearFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -290,6 +292,7 @@ function FxgenShader() {
       this.addCode(codes, ["FLAMELANCE"], "flamelanceFrag");
       this.addCode(codes, ["BONFIRE"], "bonfireFrag");
       this.addCode(codes, ["SNOW"], "snowFrag");
+      this.addCode(codes, ["DIAMONDGEAR"], "diamondGearFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");
