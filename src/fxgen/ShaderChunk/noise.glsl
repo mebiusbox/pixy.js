@@ -8,7 +8,9 @@ uniform bool cNoiseGraphEnable;
 float rand(float x) {
   return fract(sin(x) * 4358.5453123);
 }
-
+float rand3(float n) {
+  return fract(cos(n*89.42) * 343.32);
+}
 float rand(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453);
 }
@@ -174,6 +176,10 @@ float prng(in vec2 seed) {
 float iqhash2(vec2 p) {
   vec2 q = vec2(dot(p, vec2(127.1,311.7)), dot(p, vec2(269.5,183.3)));
   return abs(fract(sin(q.x*q.y)*43758.5453123)-0.5)*2.0;
+}
+vec2 iqhash2vec(vec2 p) {
+  vec2 q = vec2(dot(p, vec2(127.1,311.7)), dot(p, vec2(269.5,183.3)));
+  return -1.0 + 2.0 * fract(sin(q)*43758.5453123);
 }
 
 
