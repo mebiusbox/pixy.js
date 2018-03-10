@@ -18,6 +18,9 @@ import { checkerUniforms } from './ShaderChunk/checkerUniforms.js';
 import circleFrag from './ShaderChunk/circleFrag.glsl';
 import circleFragPars from './ShaderChunk/circleFragPars.glsl';
 import { circleUniforms } from './ShaderChunk/circleUniforms.js';
+import cloud2Frag from './ShaderChunk/cloud2Frag.glsl';
+import cloud2FragPars from './ShaderChunk/cloud2FragPars.glsl';
+import { cloud2Uniforms } from './ShaderChunk/cloud2Uniforms.js';
 import cloudFrag from './ShaderChunk/cloudFrag.glsl';
 import cloudFragPars from './ShaderChunk/cloudFragPars.glsl';
 import cloudsFrag from './ShaderChunk/cloudsFrag.glsl';
@@ -210,6 +213,9 @@ export var ShaderChunk = {
 	circleFrag: circleFrag,
 	circleFragPars: circleFragPars,
 	circleUniforms: circleUniforms,
+	cloud2Frag: cloud2Frag,
+	cloud2FragPars: cloud2FragPars,
+	cloud2Uniforms: cloud2Uniforms,
 	cloudFrag: cloudFrag,
 	cloudFragPars: cloudFragPars,
 	cloudsFrag: cloudsFrag,

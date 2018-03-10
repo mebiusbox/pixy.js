@@ -125,6 +125,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["LASER2"], "laser2Uniforms");
     this.addUniform(uniforms, ["LIGHT"], "lightUniforms");
     this.addUniform(uniforms, ["CLOUD"], "cloudUniforms");
+    this.addUniform(uniforms, ["CLOUD2"], "cloud2Uniforms");
     this.addUniform(uniforms, ["CLOUDS"], "cloudsUniforms");
     this.addUniform(uniforms, ["MANDARA"], "mandaraUniforms");
     this.addUniform(uniforms, ["TOON"], "toonUniforms");
@@ -214,6 +215,7 @@ function FxgenShader() {
     this.addCode(codes, ["LASER2"], "laser2FragPars");
     this.addCode(codes, ["LIGHT"], "lightFragPars");
     this.addCode(codes, ["CLOUD"], "cloudFragPars");
+    this.addCode(codes, ["CLOUD2"], "cloud2FragPars");
     this.addCode(codes, ["CLOUDS"], "cloudsFragPars");
     this.addCode(codes, ["MANDARA"], "mandaraFragPars");
     this.addCode(codes, ["TOON"], "toonFragPars");
@@ -287,6 +289,7 @@ function FxgenShader() {
       this.addCode(codes, ["LASER2"], "laser2Frag");
       this.addCode(codes, ["LIGHT"], "lightFrag");
       this.addCode(codes, ["CLOUD"], "cloudFrag");
+      this.addCode(codes, ["CLOUD2"], "cloud2Frag");
       this.addCode(codes, ["CLOUDS"], "cloudsFrag");
       this.addCode(codes, ["MANDARA"], "mandaraFrag");
       this.addCode(codes, ["COPY"], "copyFrag");
