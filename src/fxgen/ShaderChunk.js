@@ -166,6 +166,9 @@ import sparkFragPars from './ShaderChunk/sparkFragPars.glsl';
 import sparkNoiseFrag from './ShaderChunk/sparkNoiseFrag.glsl';
 import sparkNoiseFragPars from './ShaderChunk/sparkNoiseFragPars.glsl';
 import { sparkUniforms } from './ShaderChunk/sparkUniforms.js';
+import speckleFrag from './ShaderChunk/speckleFrag.glsl';
+import speckleFragPars from './ShaderChunk/speckleFragPars.glsl';
+import { speckleUniforms } from './ShaderChunk/speckleUniforms.js';
 import sunFrag from './ShaderChunk/sunFrag.glsl';
 import sunFragPars from './ShaderChunk/sunFragPars.glsl';
 import { sunUniforms } from './ShaderChunk/sunUniforms.js';
@@ -361,6 +364,9 @@ export var ShaderChunk = {
 	sparkNoiseFrag: sparkNoiseFrag,
 	sparkNoiseFragPars: sparkNoiseFragPars,
 	sparkUniforms: sparkUniforms,
+	speckleFrag: speckleFrag,
+	speckleFragPars: speckleFragPars,
+	speckleUniforms: speckleUniforms,
 	sunFrag: sunFrag,
 	sunFragPars: sunFragPars,
 	sunUniforms: sunUniforms,

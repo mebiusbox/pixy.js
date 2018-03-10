@@ -240,11 +240,11 @@ vec3 permute(in vec3 x) {
   return mod289(((x*34.0)+1.0)*x);
 }
 
-vec4 permute(vec4 x) {
+vec4 permute(in vec4 x) {
   return mod289(((x*34.0)+1.0)*x);
 }
 
-vec4 taylorInvSqrt(vec4 r) {
+vec4 taylorInvSqrt(in vec4 r) {
   return 1.79284291400159 - 0.85373472095314 * r;
 }
 

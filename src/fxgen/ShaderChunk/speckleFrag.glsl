@@ -1,0 +1,9 @@
+float w = 1.0 - dot(pin.position, pin.position) * mix(100.0, 3.0, cRadius);
+vec2 uv = pin.position * mix(48.0, 1.0, cScale);
+vec2 ip = floor(uv);
+vec2 v = cellular2x2x2(vec3(uv, time/2.0));
+float c = v.x; // v.y - v.x
+c -= (0.35 + 1.0*cDensity)*w;
+c = smoothstep(0.0, max(0.1/c, 0.0), c);
+c = mix(0.0, 1.0, c);
+pout.color = vec3(1.0 - sqrt(max(c, 0.0)));
