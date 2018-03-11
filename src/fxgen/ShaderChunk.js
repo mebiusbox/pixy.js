@@ -7,6 +7,9 @@ import booleanNoiseFragPars from './ShaderChunk/booleanNoiseFragPars.glsl';
 import brushStrokeFrag from './ShaderChunk/brushStrokeFrag.glsl';
 import brushStrokeFragPars from './ShaderChunk/brushStrokeFragPars.glsl';
 import { brushStrokeUniforms } from './ShaderChunk/brushStrokeUniforms.js';
+import bubblesFrag from './ShaderChunk/bubblesFrag.glsl';
+import bubblesFragPars from './ShaderChunk/bubblesFragPars.glsl';
+import { bubblesUniforms } from './ShaderChunk/bubblesUniforms.js';
 import cellFrag from './ShaderChunk/cellFrag.glsl';
 import cellFragPars from './ShaderChunk/cellFragPars.glsl';
 import cellNoiseFrag from './ShaderChunk/cellNoiseFrag.glsl';
@@ -205,6 +208,9 @@ export var ShaderChunk = {
 	brushStrokeFrag: brushStrokeFrag,
 	brushStrokeFragPars: brushStrokeFragPars,
 	brushStrokeUniforms: brushStrokeUniforms,
+	bubblesFrag: bubblesFrag,
+	bubblesFragPars: bubblesFragPars,
+	bubblesUniforms: bubblesUniforms,
 	cellFrag: cellFrag,
 	cellFragPars: cellFragPars,
 	cellNoiseFrag: cellNoiseFrag,

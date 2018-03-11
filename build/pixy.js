@@ -5233,6 +5233,18 @@
 	  cColor: { value: 1.0 }
 	};
 
+	var bubblesFrag = "if (cBubblesVariation >= 2.0) {\r\n  float delta = colDelta*2.0;\r\n  float l = length(pin.position);\r\n  float a = mod(atan(pin.position.x, pin.position.y), delta) - delta/4.0;\r\n  float c= clr2(l,a);\r\n  pout.color = c * mix(vec3(1.0), CLR, cColor);\r\n}\r\nelse {\r\n  float c = clr1(pin.position);\r\n  pout.color = c * mix(vec3(1.0), CLR, cColor);\r\n}";
+
+	var bubblesFragPars = "// https://www.shadertoy.com/view/Xl2Bz3\r\nuniform float cRadius;\r\nuniform float cWidth;\r\nuniform float cThickness;\r\nuniform float cColor;\r\nuniform float cBubblesVariation;\r\n#define TAU 6.28318530718\r\n#define CLR vec3(0.388, 0.843, 0.976)\r\n#define ROWS 9\r\n\r\n#define COLS1 20\r\n#define initialRad1 0.125\r\n#define waveCenter1 0.41\r\n#define waveWidth1 0.2\r\n#define es1 0.01\r\n#define dotRad1(x) TAU*x/float(COLS1)*0.4\r\n\r\n#define COLS2 12\r\n#define es2 4.0/resolution.y\r\n#define initialRad2 0.175\r\n#define waveCenter2 0.4325\r\n#define waveWidth2 0.205\r\n#define dotRad2(x) TAU*x/float(COLS2)*0.25\r\n#define colDelta PI/float(COLS2)\r\n\r\nfloat remap(float value, float minValue, float maxValue) {\r\n  return clamp((value - minValue) / (maxValue - minValue), 0.0, 1.0);\r\n}\r\n\r\nfloat calcRowRad1(int rowNum) {\r\n  float rad = initialRad1;\r\n  rad += max(0.0, sin(time*3.0)) * step(0.0, cos(time*3.0)) * 0.0705;\r\n  for (int i=0; i<ROWS; i++) {\r\n    if (i >= rowNum) break;\r\n    rad += dotRad1(rad) * 2.0;\r\n  }\r\n  return rad;\r\n}\r\n\r\nfloat calcRowRad2(int rowNum) {\r\n  float rad = initialRad2;\r\n  rad += max(0.0, sin(time*4.0)) * step(0.0, cos(time*4.0)) * 0.066;\r\n  for (int i=0; i<ROWS; i++) {\r\n    if (i >= rowNum) break;\r\n    rad += dotRad2(rad) * 1.33;\r\n  }\r\n  return rad;\r\n}\r\n\r\nfloat clr1(vec2 st) {\r\n  float clr = 0.0;\r\n  float colStep = TAU/float(COLS1);\r\n  for (int j=0; j<ROWS; j++) {\r\n    float rowRad = calcRowRad1(j);\r\n    for (int i=0; i<COLS1; i++) {\r\n      vec2 dotCenter = vec2(rowRad, 0.0) * rotate2d(float(i) * colStep + (colStep * 0.5 * mod(float(j), 2.0)));\r\n      float dotRad = dotRad1(rowRad);\r\n      float dotClr = 1.0 - smoothstep(dotRad - es1, dotRad, length(st - dotCenter));\r\n      float thickness = pow(remap(abs(length(dotCenter) - waveCenter1 * cRadius), 0.0, waveWidth1 * cWidth), 1.25*cThickness);\r\n      dotClr *= smoothstep(dotRad * thickness - es1, dotRad * thickness, length(st - dotCenter));\r\n      dotClr *= step(es1, 1.0 - thickness);\r\n      clr += dotClr;\r\n    }\r\n  }\r\n  return clr;\r\n}\r\n\r\nfloat clr2(float r, float a) {\r\n  vec2 st = vec2(r*cos(a), r*sin(a));\r\n  float clr = 0.0;\r\n  for (int j=0; j<ROWS; j++) {\r\n    float rowRad = calcRowRad2(j);\r\n    vec2 dotCenter = vec2(rowRad, 0.0) * rotate2d(colDelta * mod(float(j), 2.0));\r\n    float dotRad = dotRad2(rowRad);\r\n    float dotClr = smoothstep(dotRad, dotRad - es2, length(st - dotCenter));\r\n    float thickness = pow(remap(abs(length(dotCenter) - waveCenter2*cRadius), 0.0, waveWidth2*cWidth), 1.25*cThickness);\r\n    dotClr *= smoothstep(dotRad * thickness - es2, dotRad * thickness, length(st - dotCenter));\r\n    dotClr *= step(es2, 1.0 - thickness);\r\n    clr += dotClr;\r\n  }\r\n  return clr;\r\n}";
+
+	var bubblesUniforms = {
+	  cRadius: { value: 1.0 },
+	  cWidth: { value: 1.0 },
+	  cThickness: { value: 1.0 },
+	  cColor: { value: 1.0 },
+	  cBubblesVariation: { value: 1.0 }
+	};
+
 	var cellFrag = "// http://glslsandbox.com/e#37373.0\r\nfloat t = fworley(pin.uv * resolution.xy / 1500.0) * cIntensity;\r\nt = pow(t, cPowerExponent);\r\n// t *= exp(-lengthSqr(abs(0.7 * pin.uv - 1.0)));\r\n// \"pout.color = t * vec3(0.1, 1.5*t, 1.2*t + pow(t, 0.5-t));\"\r\npout.color = vec3(t);";
 
 	var cellFragPars = "// http://glslsandbox.com/e#37373.0\r\nuniform float cIntensity;\r\nuniform float cPowerExponent;\r\nuniform float cSize;\r\n\r\nfloat lengthSqr(vec2 p) { return dot(p,p); }\r\n\r\nfloat cellNoise(vec2 p) {\r\n  return fract(sin(fract(sin(p.x) * 43.13311) + p.y) * 31.0011);\r\n}\r\n\r\nfloat worley(vec2 p) {\r\n  float d = 1e30;\r\n  for (int xo=-1; xo <= 1; ++xo) {\r\n    for (int yo=-1; yo <= 1; ++yo) {\r\n      vec2 tp = floor(p) + vec2(xo, yo);\r\n      d = min(d, lengthSqr(p - tp - vec2(cellNoise(tp))));\r\n    }\r\n  }\r\n  return 5.0 * exp(-4.0 * abs(2.0*d - 1.0));\r\n}\r\n\r\nfloat fworley(vec2 p) {\r\n  return sqrt(sqrt(sqrt(\r\n    1.0 * // light\r\n//     worley(p*5.0 + 0.3 + time * 0.525) * \r\n    sqrt(worley(p * 50.0 / cSize + 0.3 + time * -0.15)) * \r\n//     sqrt(sqrt(worley(p * -10.0 + 9.3))) )));\r\n    1.0 )));\r\n}";
@@ -5834,6 +5846,9 @@
 		brushStrokeFrag: brushStrokeFrag,
 		brushStrokeFragPars: brushStrokeFragPars,
 		brushStrokeUniforms: brushStrokeUniforms,
+		bubblesFrag: bubblesFrag,
+		bubblesFragPars: bubblesFragPars,
+		bubblesUniforms: bubblesUniforms,
 		cellFrag: cellFrag,
 		cellFragPars: cellFragPars,
 		cellNoiseFrag: cellNoiseFrag,
@@ -6159,6 +6174,7 @@
 	    this.addUniform(uniforms, ["DIAMONDGEAR"], "diamondGearUniforms");
 	    this.addUniform(uniforms, ["BRUSHSTROKE"], "brushStrokeUniforms");
 	    this.addUniform(uniforms, ["SPECKLE"], "speckleUniforms");
+	    this.addUniform(uniforms, ["BUBBLES"], "bubblesUniforms");
 	    this.addUniform(uniforms, ["TEST"], "testUniforms");
 	    
 	    return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6251,6 +6267,7 @@
 	    this.addCode(codes, ["DIAMONDGEAR"], "diamondGearFragPars");
 	    this.addCode(codes, ["BRUSHSTROKE"], "brushStrokeFragPars");
 	    this.addCode(codes, ["SPECKLE"], "speckleFragPars");
+	    this.addCode(codes, ["BUBBLES"], "bubblesFragPars");
 	    this.addCode(codes, ["TEST"], "testFragPars");
 	    
 	    codes.push("");
@@ -6325,6 +6342,7 @@
 	      this.addCode(codes, ["DIAMONDGEAR"], "diamondGearFrag");
 	      this.addCode(codes, ["BRUSHSTROKE"], "brushStrokeFrag");
 	      this.addCode(codes, ["SPECKLE"], "speckleFrag");
+	      this.addCode(codes, ["BUBBLES"], "bubblesFrag");
 	      this.addCode(codes, ["TEST"], "testFrag");
 	      
 	      this.addCode(codes, ["TOON"], "toonFrag");
