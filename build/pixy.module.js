@@ -5673,6 +5673,16 @@ var noiseUniforms = {
   cNoiseGraphEnable: { value: false},
 };
 
+var pentagonFrag = "vec2 R = resolution.xy;\r\nvec2 U = pin.coord;\r\nvec2 V = U = (U+U-R) / R.y;\r\nvec3 O = vec3(0.0);\r\n\r\nU = U * rotate2d(0.3+time);\r\n\r\nfloat p = 0.6283; // = 2Pi/10\r\nfloat x,y;\r\nfloat a = mod(atan(U.y,U.x) + p, p+p)-p; // 2Pi/5 symmetry\r\nU = P(length(U), a)*1.25;\r\nx = U.x;\r\ny = U.y = abs(U.y); // mirror symmetry in each fan\r\n\r\n// B S( x-0.6*cSize  - 0.4*y, 0.01+cWidth*0.01); // exterior thin wall\r\nB S( x-cScale*0.5  - cAlpha*y, 0.5*cWidth); // exterior thin wall\r\n// B S( x-0.67 + 1.2*y, 0.01) * S(abs(y), 0.04)*0.6;\r\n\r\n// B S( x-cStarX*0.5  - cStarY*y, 0.5*cWidth) // thick wall\r\n  // * max(S(y,0.45),\r\n  //       C(P(0.83,p), 0.07));\r\n\r\n// B S( x-0.46, 0.06) * S(y, 0.19) // interior bar attached to thick wall\r\n//   * (1.0 - C(vec2(0.477,0.18), 0.045));\r\n\r\n// U *= 0.72;\r\n// B S( U.x-0.5 - 0.4*U.y, 0.05) * 0.3 // exterior pit (by scaling thick wall)\r\n//   * max(S(U.y, 0.45),\r\n//         C(P(0.83,p), 0.07))\r\n//   * (0.6 + 0.4*cos(200.0*a)); // radial strips\r\n\r\n// B S( x-1.7 - 0.4*y, 0.9) * 0.3\r\n//   * max(0.0, cos(200.0*V.y) - 0.6); // background strips (V: before 5-sym)\r\n\r\n// O += (1.0-O)*0.3; // B&W background\r\n//O = mix(vec3(1.0, 0.95, 0.6), vec3(0.6, 0.3, 0.3), O); // background + color scheme\r\npout.color = O;\r\n";
+
+var pentagonFragPars = "// https://www.shadertoy.com/view/MlBfWz\r\nuniform float cScale;\r\nuniform float cAlpha;\r\nuniform float cWidth;\r\n\r\n#define P(r,a) (r)*vec2(cos(a),sin(a)) // to polar\r\n#define S(v,tk) smoothstep(2.0/R.y, -2.0/R.y, abs(v)-(tk)) // darw bar (antialiased)\r\n#define C(p,r) (S(length(U-p), r) + S(length(U-p*vec2(1.0,-1.0)), r)) // draw(2 sym disks)\r\n#define B O += (1.0-O)* // blend";
+
+var pentagonUniforms = {
+  cScale: { value: 1.0 },
+  cAlpha: { value: 1.0 },
+  cWidth: { value: 0.02 }
+};
+
 var perlinNoiseFrag = "vec2 t = pin.coord + vec2(time * 10.0);\r\nfloat n = pnoise(t);\r\npout.color = vec3(n);\r\n\r\nfloat graph = pnoise(t.xx);";
 
 var polarConversionFrag = "vec2 coords = pin.uv - vec2(0.5); // cartesian\r\n// cartesian -> polar\r\nfloat mag = length(coords) * 2.0; // length(coords) / 0.5\r\nif (mag > 1.0) {\r\n  pout.color = vec3(0.0);\r\n} else {\r\n  mag = clamp(mag, 0.0, 1.0);\r\n  float angle = atan(coords.y, coords.x);\r\n  angle -= 1.57079632679;\r\n  if (angle < 0.0) angle += 6.28318530718;\r\n  angle /= 6.28318530718;\r\n  vec4 c = texture2D(tDiffuse, vec2(angle, mag));\r\n  pout.color = c.rgb;\r\n}";
@@ -5974,6 +5984,9 @@ var ShaderChunk$1 = {
 	noise: noise,
 	noiseGraphFrag: noiseGraphFrag,
 	noiseUniforms: noiseUniforms,
+	pentagonFrag: pentagonFrag,
+	pentagonFragPars: pentagonFragPars,
+	pentagonUniforms: pentagonUniforms,
 	perlinNoiseFrag: perlinNoiseFrag,
 	polarConversionFrag: polarConversionFrag,
 	polarConversionFragPars: polarConversionFragPars,
@@ -6169,6 +6182,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["BRUSHSTROKE"], "brushStrokeUniforms");
     this.addUniform(uniforms, ["SPECKLE"], "speckleUniforms");
     this.addUniform(uniforms, ["BUBBLES"], "bubblesUniforms");
+    this.addUniform(uniforms, ["PENTAGON"], "pentagonUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6262,6 +6276,7 @@ function FxgenShader() {
     this.addCode(codes, ["BRUSHSTROKE"], "brushStrokeFragPars");
     this.addCode(codes, ["SPECKLE"], "speckleFragPars");
     this.addCode(codes, ["BUBBLES"], "bubblesFragPars");
+    this.addCode(codes, ["PENTAGON"], "pentagonFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -6337,6 +6352,7 @@ function FxgenShader() {
       this.addCode(codes, ["BRUSHSTROKE"], "brushStrokeFrag");
       this.addCode(codes, ["SPECKLE"], "speckleFrag");
       this.addCode(codes, ["BUBBLES"], "bubblesFrag");
+      this.addCode(codes, ["PENTAGON"], "pentagonFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");

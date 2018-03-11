@@ -141,6 +141,9 @@ import { marbleNoiseUniforms } from './ShaderChunk/marbleNoiseUniforms.js';
 import noise from './ShaderChunk/noise.glsl';
 import noiseGraphFrag from './ShaderChunk/noiseGraphFrag.glsl';
 import { noiseUniforms } from './ShaderChunk/noiseUniforms.js';
+import pentagonFrag from './ShaderChunk/pentagonFrag.glsl';
+import pentagonFragPars from './ShaderChunk/pentagonFragPars.glsl';
+import { pentagonUniforms } from './ShaderChunk/pentagonUniforms.js';
 import perlinNoiseFrag from './ShaderChunk/perlinNoiseFrag.glsl';
 import polarConversionFrag from './ShaderChunk/polarConversionFrag.glsl';
 import polarConversionFragPars from './ShaderChunk/polarConversionFragPars.glsl';
@@ -342,6 +345,9 @@ export var ShaderChunk = {
 	noise: noise,
 	noiseGraphFrag: noiseGraphFrag,
 	noiseUniforms: noiseUniforms,
+	pentagonFrag: pentagonFrag,
+	pentagonFragPars: pentagonFragPars,
+	pentagonUniforms: pentagonUniforms,
 	perlinNoiseFrag: perlinNoiseFrag,
 	polarConversionFrag: polarConversionFrag,
 	polarConversionFragPars: polarConversionFragPars,
