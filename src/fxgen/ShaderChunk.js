@@ -52,6 +52,9 @@ import displacementFrag from './ShaderChunk/displacementFrag.glsl';
 import displacementFragPars from './ShaderChunk/displacementFragPars.glsl';
 import { displacementUniforms } from './ShaderChunk/displacementUniforms.js';
 import displacementVert from './ShaderChunk/displacementVert.glsl';
+import energyFrag from './ShaderChunk/energyFrag.glsl';
+import energyFragPars from './ShaderChunk/energyFragPars.glsl';
+import { energyUniforms } from './ShaderChunk/energyUniforms.js';
 import explosion2Frag from './ShaderChunk/explosion2Frag.glsl';
 import explosion2FragPars from './ShaderChunk/explosion2FragPars.glsl';
 import { explosion2Uniforms } from './ShaderChunk/explosion2Uniforms.js';
@@ -259,6 +262,9 @@ export var ShaderChunk = {
 	displacementFragPars: displacementFragPars,
 	displacementUniforms: displacementUniforms,
 	displacementVert: displacementVert,
+	energyFrag: energyFrag,
+	energyFragPars: energyFragPars,
+	energyUniforms: energyUniforms,
 	explosion2Frag: explosion2Frag,
 	explosion2FragPars: explosion2FragPars,
 	explosion2Uniforms: explosion2Uniforms,
