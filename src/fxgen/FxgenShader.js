@@ -138,6 +138,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["SPECKLE"], "speckleUniforms");
     this.addUniform(uniforms, ["BUBBLES"], "bubblesUniforms");
     this.addUniform(uniforms, ["PENTAGON"], "pentagonUniforms");
+    this.addUniform(uniforms, ["GRUNGE"], "grungeUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -232,6 +233,7 @@ function FxgenShader() {
     this.addCode(codes, ["SPECKLE"], "speckleFragPars");
     this.addCode(codes, ["BUBBLES"], "bubblesFragPars");
     this.addCode(codes, ["PENTAGON"], "pentagonFragPars");
+    this.addCode(codes, ["GRUNGE"], "grungeFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -308,6 +310,7 @@ function FxgenShader() {
       this.addCode(codes, ["SPECKLE"], "speckleFrag");
       this.addCode(codes, ["BUBBLES"], "bubblesFrag");
       this.addCode(codes, ["PENTAGON"], "pentagonFrag");
+      this.addCode(codes, ["GRUNGE"], "grungeFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");

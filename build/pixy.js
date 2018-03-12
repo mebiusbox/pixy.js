@@ -5575,6 +5575,16 @@
 	  cColor: { value: 1.0 }
 	};
 
+	var grungeFrag = "vec2 p = pin.uv;\r\nfloat pixelSize = 1.0;\r\nfloat dx = mod(p.x, pixelSize) - pixelSize*0.5;\r\nfloat dy = mod(p.y, pixelSize) - pixelSize*0.5;\r\np.x -= dx;\r\np.y -= dy;\r\nvec3 col = texture2D(tGrunge, mix(3.0, 0.1, cScale) * pin.uv + vec2(time*0.1)).rgb;\r\nfloat bright = 0.3333*(col.r + col.g + col.b);\r\nfloat dist = sqrt(dx*dx + dy*dy);\r\nfloat rad = bright * pixelSize * 0.8 * cRadius;\r\nfloat m = step(dist, rad);\r\npout.color = mix(vec3(0.0), vec3(1.0), m);";
+
+	var grungeFragPars = "uniform sampler2D tGrunge;\r\nuniform float cRadius;\r\nuniform float cScale;";
+
+	var grungeUniforms = {
+	  tGrunge: { value: null },
+	  cRadius: { value: 1.0 },
+	  cScale: { value: 1.0 }
+	};
+
 	var height2NormalFrag = "//   // Determine the offsets\r\n//   vec3 vPixelSize = vec3(1.0 / resolution.x, 0.0, -1.0 / resolution.x);\r\n//   \r\n//   // Take three samples to determine two vectors that can be\r\n//   // use to generate the normal at this pixel\r\n//   float h0 = texture2D(tDiffuse, pin.uv).r;\r\n//   float h1 = texture2D(tDiffuse, pin.uv + vPixelSize.xy).r;\r\n//   float h2 = texture2D(tDiffuse, pin.uv + vPixelSize.yx).r;\r\n//   \r\n//   vec3 v01 = vec3(vPixelSize.xy, h1-h0);\r\n//   vec3 v02 = vec3(vPixelSize.yx, h2-h0);\r\n//   vec3 n = cross(v01, v02);\r\n//   \r\n//   // Can be useful to scale the Z component to tweak the\r\n//   // amount bumps show up, less than 1.0 will make them\r\n//   // more apparent, greater than 1.0 will smooth them out\r\n//   n.z *= 0.5;\r\n//   \r\n//   pout.color = n;\r\n\r\nconst vec2 size = vec2(2.0, 0.0);\r\nvec3 vPixelSize = vec3(1.0 / resolution.x, 0.0, -1.0 / resolution.x);\r\nfloat s01 = texture2D(tDiffuse, pin.uv + vPixelSize.xy).x;\r\nfloat s21 = texture2D(tDiffuse, pin.uv + vPixelSize.zy).x;\r\nfloat s10 = texture2D(tDiffuse, pin.uv + vPixelSize.yx).x;\r\nfloat s12 = texture2D(tDiffuse, pin.uv + vPixelSize.yz).x;\r\nvec3 va = normalize(vec3(size.xy,(s21-s01)*cHeightScale));\r\nvec3 vb = normalize(vec3(size.yx,(s10-s12)*cHeightScale));\r\nvec3 n = cross(va,vb);\r\npout.color = n*0.5 + 0.5;\r\n\r\n// THREE.JS (NormalMapShader.js)\r\n// vec3 vPixelSize = vec3(1.0 / resolution.x, 0.0, -1.0 / resolution.x);\r\n// float s11 = texture2D(tDiffuse, pin.uv).x;\r\n// float s01 = texture2D(tDiffuse, pin.uv + vPixelSize.xy).x;\r\n// float s10 = texture2D(tDiffuse, pin.uv + vPixelSize.yx).x;\r\n// vec3 n = normalize(vec3((s11-s10) * heightScale, (s11-s01)*heightScale, 2.0));\r\n// pout.color = n*0.5 + 0.5;\r\n\r\n// vec3 vPixelSize = vec3(1.0 / resolution.x, 0.0, -1.0 / resolution.x);\r\n// float s01 = texture2D(tDiffuse, pin.uv + vPixelSize.xy).x;\r\n// float s21 = texture2D(tDiffuse, pin.uv + vPixelSize.zy).x;\r\n// float s10 = texture2D(tDiffuse, pin.uv + vPixelSize.yx).x;\r\n// float s12 = texture2D(tDiffuse, pin.uv + vPixelSize.yz).x;\r\n// vec3 n = normalize(vec3((s11-s10) * heightScale, (s11-s01)*heightScale, 2.0));\r\n// pout.color = n*0.5 + 0.5;";
 
 	var height2NormalFragPars = "uniform float cHeightScale;";
@@ -5955,6 +5965,9 @@
 		gradientNoiseFrag: gradientNoiseFrag,
 		gradientNoiseFragPars: gradientNoiseFragPars,
 		gradientNoiseUniforms: gradientNoiseUniforms,
+		grungeFrag: grungeFrag,
+		grungeFragPars: grungeFragPars,
+		grungeUniforms: grungeUniforms,
 		height2NormalFrag: height2NormalFrag,
 		height2NormalFragPars: height2NormalFragPars,
 		height2NormalSobelFrag: height2NormalSobelFrag,
@@ -6189,6 +6202,7 @@
 	    this.addUniform(uniforms, ["SPECKLE"], "speckleUniforms");
 	    this.addUniform(uniforms, ["BUBBLES"], "bubblesUniforms");
 	    this.addUniform(uniforms, ["PENTAGON"], "pentagonUniforms");
+	    this.addUniform(uniforms, ["GRUNGE"], "grungeUniforms");
 	    this.addUniform(uniforms, ["TEST"], "testUniforms");
 	    
 	    return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6283,6 +6297,7 @@
 	    this.addCode(codes, ["SPECKLE"], "speckleFragPars");
 	    this.addCode(codes, ["BUBBLES"], "bubblesFragPars");
 	    this.addCode(codes, ["PENTAGON"], "pentagonFragPars");
+	    this.addCode(codes, ["GRUNGE"], "grungeFragPars");
 	    this.addCode(codes, ["TEST"], "testFragPars");
 	    
 	    codes.push("");
@@ -6359,6 +6374,7 @@
 	      this.addCode(codes, ["SPECKLE"], "speckleFrag");
 	      this.addCode(codes, ["BUBBLES"], "bubblesFrag");
 	      this.addCode(codes, ["PENTAGON"], "pentagonFrag");
+	      this.addCode(codes, ["GRUNGE"], "grungeFrag");
 	      this.addCode(codes, ["TEST"], "testFrag");
 	      
 	      this.addCode(codes, ["TOON"], "toonFrag");

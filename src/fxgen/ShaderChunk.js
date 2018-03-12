@@ -106,6 +106,9 @@ import gradient from './ShaderChunk/gradient.glsl';
 import gradientNoiseFrag from './ShaderChunk/gradientNoiseFrag.glsl';
 import gradientNoiseFragPars from './ShaderChunk/gradientNoiseFragPars.glsl';
 import { gradientNoiseUniforms } from './ShaderChunk/gradientNoiseUniforms.js';
+import grungeFrag from './ShaderChunk/grungeFrag.glsl';
+import grungeFragPars from './ShaderChunk/grungeFragPars.glsl';
+import { grungeUniforms } from './ShaderChunk/grungeUniforms.js';
 import height2NormalFrag from './ShaderChunk/height2NormalFrag.glsl';
 import height2NormalFragPars from './ShaderChunk/height2NormalFragPars.glsl';
 import height2NormalSobelFrag from './ShaderChunk/height2NormalSobelFrag.glsl';
@@ -310,6 +313,9 @@ export var ShaderChunk = {
 	gradientNoiseFrag: gradientNoiseFrag,
 	gradientNoiseFragPars: gradientNoiseFragPars,
 	gradientNoiseUniforms: gradientNoiseUniforms,
+	grungeFrag: grungeFrag,
+	grungeFragPars: grungeFragPars,
+	grungeUniforms: grungeUniforms,
 	height2NormalFrag: height2NormalFrag,
 	height2NormalFragPars: height2NormalFragPars,
 	height2NormalSobelFrag: height2NormalSobelFrag,
