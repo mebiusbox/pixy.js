@@ -72,6 +72,9 @@ import fbmNoiseFragPars from './ShaderChunk/fbmNoiseFragPars.glsl';
 import fireFrag from './ShaderChunk/fireFrag.glsl';
 import fireFragPars from './ShaderChunk/fireFragPars.glsl';
 import { fireUniforms } from './ShaderChunk/fireUniforms.js';
+import flameEyeFrag from './ShaderChunk/flameEyeFrag.glsl';
+import flameEyeFragPars from './ShaderChunk/flameEyeFragPars.glsl';
+import { flameEyeUniforms } from './ShaderChunk/flameEyeUniforms.js';
 import flameFrag from './ShaderChunk/flameFrag.glsl';
 import flameFragPars from './ShaderChunk/flameFragPars.glsl';
 import flamelanceFrag from './ShaderChunk/flamelanceFrag.glsl';
@@ -282,6 +285,9 @@ export var ShaderChunk = {
 	fireFrag: fireFrag,
 	fireFragPars: fireFragPars,
 	fireUniforms: fireUniforms,
+	flameEyeFrag: flameEyeFrag,
+	flameEyeFragPars: flameEyeFragPars,
+	flameEyeUniforms: flameEyeUniforms,
 	flameFrag: flameFrag,
 	flameFragPars: flameFragPars,
 	flamelanceFrag: flamelanceFrag,

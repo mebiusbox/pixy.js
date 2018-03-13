@@ -109,6 +109,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["SMOKE"], "smokeUniforms");
     this.addUniform(uniforms, ["CELL"], "cellUniforms");
     this.addUniform(uniforms, ["FLAME"], "flameUniforms");
+    this.addUniform(uniforms, ["FLAMEEYE"], "flameEyeUniforms");
     this.addUniform(uniforms, ["FIRE"], "fireUniforms");
     this.addUniform(uniforms, ["LIGHTNING"], "lightningUniforms");
     this.addUniform(uniforms, ["FLARE"], "flareUniforms");
@@ -203,6 +204,7 @@ function FxgenShader() {
     this.addCode(codes, ["POLARCONVERSION"], "polarConversionFragPars");
     this.addCode(codes, ["SMOKE"], "smokeFragPars");
     this.addCode(codes, ["FLAME"], "flameFragPars");
+    this.addCode(codes, ["FLAMEEYE"], "flameEyeFragPars");
     this.addCode(codes, ["FIRE"], "fireFragPars");
     this.addCode(codes, ["CELL"], "cellFragPars");
     this.addCode(codes, ["LIGHTNING"], "lightningFragPars");
@@ -282,6 +284,7 @@ function FxgenShader() {
       this.addCode(codes, ["COLORBALANCE"], "colorBalanceFrag");
       this.addCode(codes, ["SMOKE"], "smokeFrag");
       this.addCode(codes, ["FLAME"], "flameFrag");
+      this.addCode(codes, ["FLAMEEYE"], "flameEyeFrag");
       this.addCode(codes, ["FIRE"], "fireFrag");
       this.addCode(codes, ["CELL"], "cellFrag");
       this.addCode(codes, ["LIGHTNING"], "lightningFrag");

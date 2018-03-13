@@ -5462,6 +5462,18 @@ var fireUniforms = {
   cColor: { value: 1.0 },
 };
 
+var flameEyeFrag = "vec2 uv = pin.position;\r\nfloat f = 0.0;\r\nfloat f2 = 0.0;\r\nfloat t = time * cSpeed;\r\nfloat alpha = light(uv, cSize, cRadius, cFlameEyeInnerFade, cFlameEyeOuterFade);\r\nfloat angle = atan(uv.x, uv.y);\r\nfloat n = flameEyeNoise(vec2(uv.x*20.0+time, uv.y*20.0+time));\r\nfloat l = length(uv);\r\nif (l < cFlameEyeBorder) {\r\n  t *= 0.8;\r\n  alpha = (1.0 - pow(((cFlameEyeBorder-l)/cFlameEyeBorder),0.22)*0.7);\r\n  alpha = clamp(alpha-light(uv, 0.2, 0.0, 1.3, 0.7)*0.55, 0.0, 1.0);\r\n  f = flare(angle*1.0, alpha,-t*0.5+alpha);\r\n  f2 = flare(angle*1.0, alpha,((-t+alpha*0.5+5.38134)));\r\n}\r\nelse if (alpha < 0.001) {\r\n  f = alpha;\r\n}\r\nelse {\r\n  f = flare(angle, alpha, t)*1.3;\r\n}\r\nvec3 col = vec3(f*(1.0 + sin(angle-t*4.0)*0.3) + f2*f2*f2, \r\n  f*alpha + f2*f2*2.0, \r\n  f*alpha*0.5 + f2*(1.0 + sin(angle + t*4.0)*0.3));\r\nfloat gray = rgb2gray(col);\r\npout.color = mix(vec3(gray), col, cColor);";
+
+var flameEyeFragPars = "// https://www.shadertoy.com/view/ltBfDt\r\nconst float cSize = 2.3;\r\nconst float cRadius = 0.099;\r\n// uniform float cSize;\r\n// uniform float cRadius;\r\nuniform float cSpeed;\r\nuniform float cColor;\r\nuniform float cFlameEyeInnerFade;\r\nuniform float cFlameEyeOuterFade;\r\nuniform float cFlameEyeBorder;\r\n\r\nfloat flameEyeNoise(in vec2 st) {\r\n  vec2 i = floor(st);\r\n  vec2 f = fract(st);\r\n  float a = rand(i);\r\n  float b = rand(i + vec2(1.0, 0.0));\r\n  float c = rand(i + vec2(0.0, 1.0));\r\n  float d = rand(i + vec2(1.0, 1.0));\r\n  \r\n  vec2 u = f*f*(3.0-2.0*f);\r\n  return mix(a,b,u.x) + (c-a)*u.y*(1.0-u.x) + (d-b)*u.x*u.y;\r\n}\r\n\r\nfloat light(in vec2 pos, float size, float radius, float inner_fade, float outer_fade) {\r\n  float len = length(pos/size);\r\n  return pow(clamp((1.0 - pow(clamp(len-radius, 0.0, 1.0), 1.0/inner_fade)), 0.0, 1.0), 1.0/outer_fade);\r\n}\r\n\r\nfloat flare(float angle, float alpha, float t) {\r\n  float n = flameEyeNoise(vec2(t+0.5+abs(angle)+pow(alpha,0.6), t-abs(angle)+pow(alpha+0.1,0.6))*7.0);\r\n  float split = (15.0 + sin(t*2.0+n*4.0+angle*20.0+alpha*1.0*n)*(0.3+0.5+alpha*0.6*n));\r\n  float rotate = sin(angle*20.0 + sin(angle*15.0+alpha*4.0+t*30.0+n*5.0+alpha*4.0))*(0.5 + alpha*1.5);\r\n  float g = pow((2.0 + sin(split + n*1.5*alpha+rotate)*1.4)*n*4.0, n*(1.5-0.8*alpha));\r\n  g *= alpha * alpha * alpha * 0.4;\r\n  g += alpha * 0.7 + g*g*g;\r\n  return g;\r\n}";
+
+var flameEyeUniforms = {
+  cSpeed: { value: 0.2 },
+  cColor: { value: 1.0 },
+  cFlameEyeInnerFade: { value: 0.8 },
+  cFlameEyeOuterFade: { value: 0.02 },
+  cFlameEyeBorder: { value: 0.23 }
+};
+
 var flameFrag = "// https://www.shadertoy.com/view/MdX3zr\r\nvec2 v = -1.0 + 2.0 * gl_FragCoord.xy / resolution.xy;\r\nv.x *= resolution.x / resolution.y;\r\n\r\nvec3 org = vec3(0.0, -2.0, 4.0);\r\nvec3 dir = normalize(vec3(v.x*1.6 / cWidth, -v.y, -1.5 * cScale));\r\n\r\nvec4 p = raymarch(org, dir);\r\nfloat glow = p.w;\r\n\r\n// vec4 col = mix(vec4(1.0, 0.5, 0.1, 1.0), vec4(0.1, 0.5, 1.0, 1.0), p.y*0.02 + 0.4);\r\n// col = mix(vec4(0.0), col, pow(glow*2.0, 4.0));\r\nvec4 col = mix(vec4(0.0), vec4(1.0), pow(glow*2.0*cIntensity, 4.0));\r\npout.color = col.xyz;\r\npout.opacity = col.w;";
 
 var flameFragPars = "// https://www.shadertoy.com/view/MdX3zr\r\nuniform float cIntensity;\r\nuniform float cWidth;\r\nuniform float cScale;\r\n\r\nfloat flameNoise(vec3 p) {\r\n  vec3 i = floor(p);\r\n  vec4 a = dot(i, vec3(1.0, 57.0, 21.0)) + vec4(0.0, 57.0, 21.0, 78.0);\r\n  vec3 f = cos((p-i)*acos(-1.0)) * (-0.5) + 0.5;\r\n  a = mix(sin(cos(a)*a), sin(cos(1.0+a)*(1.0+a)), f.x);\r\n  a.xy = mix(a.xz, a.yw, f.y);\r\n  return mix(a.x, a.y, f.z);\r\n}\r\n\r\nfloat sphere(vec3 p, vec4 spr) {\r\n  return length(spr.xyz-p) - spr.w;\r\n}\r\n\r\nfloat flame(vec3 p) {\r\n  float d = sphere(p * vec3(1.0, 0.5, 1.0), vec4(0.0, -1.0, 0.0, 1.0));\r\n  return d + (flameNoise(p + vec3(0.0, time*2.0, 0.0)) + flameNoise(p*3.0)*0.5)*0.25*p.y;\r\n}\r\n\r\nfloat scene(vec3 p) {\r\n  return min(100.0 - length(p), abs(flame(p)));\r\n}\r\n\r\nvec4 raymarch(vec3 org, vec3 dir) {\r\n  float d = 0.0, glow = 0.0, eps = 0.02;\r\n  vec3 p = org;\r\n  bool glowed = false;\r\n  for (int i=0; i<64; i++) {\r\n    d = scene(p) + eps;\r\n    p += d * dir;\r\n    if (d > eps) {\r\n      if (flame(p) < 0.0) {\r\n        glowed = true;\r\n      } else if (glowed) {\r\n        glow = float(i)/64.0;\r\n      }\r\n    }\r\n  }\r\n  return vec4(p, glow);\r\n}";
@@ -5938,6 +5950,9 @@ var ShaderChunk$1 = {
 	fireFrag: fireFrag,
 	fireFragPars: fireFragPars,
 	fireUniforms: fireUniforms,
+	flameEyeFrag: flameEyeFrag,
+	flameEyeFragPars: flameEyeFragPars,
+	flameEyeUniforms: flameEyeUniforms,
 	flameFrag: flameFrag,
 	flameFragPars: flameFragPars,
 	flamelanceFrag: flamelanceFrag,
@@ -6183,6 +6198,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["SMOKE"], "smokeUniforms");
     this.addUniform(uniforms, ["CELL"], "cellUniforms");
     this.addUniform(uniforms, ["FLAME"], "flameUniforms");
+    this.addUniform(uniforms, ["FLAMEEYE"], "flameEyeUniforms");
     this.addUniform(uniforms, ["FIRE"], "fireUniforms");
     this.addUniform(uniforms, ["LIGHTNING"], "lightningUniforms");
     this.addUniform(uniforms, ["FLARE"], "flareUniforms");
@@ -6277,6 +6293,7 @@ function FxgenShader() {
     this.addCode(codes, ["POLARCONVERSION"], "polarConversionFragPars");
     this.addCode(codes, ["SMOKE"], "smokeFragPars");
     this.addCode(codes, ["FLAME"], "flameFragPars");
+    this.addCode(codes, ["FLAMEEYE"], "flameEyeFragPars");
     this.addCode(codes, ["FIRE"], "fireFragPars");
     this.addCode(codes, ["CELL"], "cellFragPars");
     this.addCode(codes, ["LIGHTNING"], "lightningFragPars");
@@ -6356,6 +6373,7 @@ function FxgenShader() {
       this.addCode(codes, ["COLORBALANCE"], "colorBalanceFrag");
       this.addCode(codes, ["SMOKE"], "smokeFrag");
       this.addCode(codes, ["FLAME"], "flameFrag");
+      this.addCode(codes, ["FLAMEEYE"], "flameEyeFrag");
       this.addCode(codes, ["FIRE"], "fireFrag");
       this.addCode(codes, ["CELL"], "cellFrag");
       this.addCode(codes, ["LIGHTNING"], "lightningFrag");
