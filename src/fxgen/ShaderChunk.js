@@ -209,6 +209,10 @@ import { waveRingUniforms } from './ShaderChunk/waveRingUniforms.js';
 import woodFrag from './ShaderChunk/woodFrag.glsl';
 import woodFragPars from './ShaderChunk/woodFragPars.glsl';
 import { woodUniforms } from './ShaderChunk/woodUniforms.js';
+import inksplatFrag from './ShaderChunk/inksplatFrag.glsl';
+import inksplatFragPars from './ShaderChunk/inksplatFragPars.glsl';
+import { inksplatUniforms } from './ShaderChunk/inksplatUniforms.js';
+import derivatives from './ShaderChunk/derivatives.glsl';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
@@ -422,4 +426,8 @@ export var ShaderChunk = {
 	woodFrag: woodFrag,
 	woodFragPars: woodFragPars,
 	woodUniforms: woodUniforms,
+	inksplatFrag: inksplatFrag,
+	inksplatFragPars: inksplatFragPars,
+	inksplatUniforms: inksplatUniforms,
+	derivatives: derivatives,
 };
