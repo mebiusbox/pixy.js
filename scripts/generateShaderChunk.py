@@ -35,7 +35,7 @@ if __name__ == '__main__':
     args = sys.argv
     argc = len(args)
     if (argc != 2):
-        print 'Usage: # python %s <dirname>' % args[0]
+        print('Usage: # python %s <dirname>' % args[0])
         quit()
     
     generate(args[1])
