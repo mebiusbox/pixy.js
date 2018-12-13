@@ -250,7 +250,6 @@ import standardDisneyFragPars from './ShaderChunk/standardDisneyFragPars.glsl';
 import standardFrag from './ShaderChunk/standardFrag.glsl';
 import standardFragPars from './ShaderChunk/standardFragPars.glsl';
 import standardOrenNayarFrag from './ShaderChunk/standardOrenNayarFrag.glsl';
-import standardRectLightFrag from './ShaderChunk/standardRectLightFrag.glsl';
 import standardTubeLightFrag from './ShaderChunk/standardTubeLightFrag.glsl';
 import { standardUniforms } from './ShaderChunk/standardUniforms.js';
 import tangentFragPars from './ShaderChunk/tangentFragPars.glsl';
@@ -287,6 +286,7 @@ import viewFrag from './ShaderChunk/viewFrag.glsl';
 import { viewUniforms } from './ShaderChunk/viewUniforms.js';
 import worldPositionVert from './ShaderChunk/worldPositionVert.glsl';
 import worldPositionVertFragPars from './ShaderChunk/worldPositionVertFragPars.glsl';
+import standardRectLightFrag from './ShaderChunk/standardRectLightFrag.glsl';
 
 export var ShaderChunk = {
 	accumulateFrag: accumulateFrag,
@@ -541,7 +541,6 @@ export var ShaderChunk = {
 	standardFrag: standardFrag,
 	standardFragPars: standardFragPars,
 	standardOrenNayarFrag: standardOrenNayarFrag,
-	standardRectLightFrag: standardRectLightFrag,
 	standardTubeLightFrag: standardTubeLightFrag,
 	standardUniforms: standardUniforms,
 	tangentFragPars: tangentFragPars,
@@ -578,4 +577,5 @@ export var ShaderChunk = {
 	viewUniforms: viewUniforms,
 	worldPositionVert: worldPositionVert,
 	worldPositionVertFragPars: worldPositionVertFragPars,
+	standardRectLightFrag: standardRectLightFrag,
 };
