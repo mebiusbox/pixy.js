@@ -5886,6 +5886,17 @@ var inksplatUniforms = {
 
 var derivatives = "#extension GL_OES_standard_derivatives : enable";
 
+var particleFrag = "vec3 col = vec3(0.);\r\nfor (float i=0.0; i<PARTICLE_COUNT; i++) {\r\n    if (i>=cCount) break;\r\n    float seed = SEED + floor(i/cCount+time);\r\n    vec2 anchor = vec2(0.5, 0.5);\r\n    vec2 velocity = vec2(mix(-.5, .5, rand(vec2(seed,i))),mix(-.5, .5, rand(vec2(i,seed)/3.)));\r\n    float creationTime = time - fract(i/cCount + time);\r\n    col += particle(pin.uv, 0., anchor, velocity, creationTime) * currentColor();\r\n}\r\ncol = smoothstep(.6, .9, col);\r\npout.color = vec3(rgb2gray(col));";
+
+var particleFragPars = "// https://www.shadertoy.com/view/llGBWw\r\nuniform float cSize;\r\nuniform float cLifeTime;\r\nuniform float cGravity;\r\nuniform float cCount;\r\n#define SEED 0.12345679\r\n#define GRAV vec2(0,-.26)\r\n#define SIZE 0.024\r\n#define DIE_TIME 0.9\r\n#define PARTICLE_COUNT 500.0\r\n\r\nfloat particle(vec2 uv, float identifier, vec2 anchor, vec2 velocity, float creationTime) {\r\n    float particleTime = max(0., time - creationTime);\r\n    float size = max(0., cLifeTime - particleTime) * cSize;\r\n    vec2 velocityOffset = velocity * particleTime;\r\n    vec2 gravityOffset = vec2(0,-cGravity) * pow(particleTime, 1.798);\r\n    vec2 point = anchor + velocityOffset + gravityOffset;\r\n    float dist = distance(uv, point);\r\n    float hit = smoothstep(size, 0., dist);\r\n    return hit;\r\n}\r\nvec3 currentColor() {\r\n    float c = time * 0.2;\r\n    float r = sin(c*PI)/2. + .5;\r\n    float g = sin((c+.6)*PI)/2. +.5;\r\n    float b = sin((c+1.2)*PI)/2. + .5;\r\n    return vec3(r,g,b);\r\n}\r\n\r\n";
+
+var particleUniforms = {
+    cSize: { value: 0.024 },
+    cLifeTime: { value: 0.9 },
+    cGravity: { value: 0.26 },
+    cCount: { value: 300.0 }
+  };
+
 var ShaderChunk$1 = {
 	blocksFrag: blocksFrag,
 	bonfireFrag: bonfireFrag,
@@ -6102,6 +6113,9 @@ var ShaderChunk$1 = {
 	inksplatFragPars: inksplatFragPars,
 	inksplatUniforms: inksplatUniforms,
 	derivatives: derivatives,
+	particleFrag: particleFrag,
+	particleFragPars: particleFragPars,
+	particleUniforms: particleUniforms,
 };
 
 function FxgenShader() {
@@ -6246,6 +6260,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["GRUNGE"], "grungeUniforms");
     this.addUniform(uniforms, ["ENERGY"], "energyUniforms");
     this.addUniform(uniforms, ["INKSPLAT"], "inksplatUniforms");
+    this.addUniform(uniforms, ["PARTICLE"], "particleUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6345,6 +6360,7 @@ function FxgenShader() {
     this.addCode(codes, ["GRUNGE"], "grungeFragPars");
     this.addCode(codes, ["ENERGY"], "energyFragPars");
     this.addCode(codes, ["INKSPLAT"], "inksplatFragPars");
+    this.addCode(codes, ["PARTICLE"], "particleFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -6425,6 +6441,7 @@ function FxgenShader() {
       this.addCode(codes, ["GRUNGE"], "grungeFrag");
       this.addCode(codes, ["ENERGY"], "energyFrag");
       this.addCode(codes, ["INKSPLAT"], "inksplatFrag");
+      this.addCode(codes, ["PARTICLE"], "particleFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");

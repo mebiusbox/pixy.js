@@ -213,6 +213,9 @@ import inksplatFrag from './ShaderChunk/inksplatFrag.glsl';
 import inksplatFragPars from './ShaderChunk/inksplatFragPars.glsl';
 import { inksplatUniforms } from './ShaderChunk/inksplatUniforms.js';
 import derivatives from './ShaderChunk/derivatives.glsl';
+import particleFrag from './ShaderChunk/particleFrag.glsl';
+import particleFragPars from './ShaderChunk/particleFragPars.glsl';
+import { particleUniforms } from './ShaderChunk/particleUniforms.js';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
@@ -430,4 +433,7 @@ export var ShaderChunk = {
 	inksplatFragPars: inksplatFragPars,
 	inksplatUniforms: inksplatUniforms,
 	derivatives: derivatives,
+	particleFrag: particleFrag,
+	particleFragPars: particleFragPars,
+	particleUniforms: particleUniforms,
 };
