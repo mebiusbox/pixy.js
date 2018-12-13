@@ -30,7 +30,8 @@
     "build-fxgen": "python scripts/generateShaderChunk.py ./src/fxgen/",
     "dev": "rollup -c -w",
     "lint": "eslint src",
-    "copy:three": "cpx node_modules/three/examples/js/**/*.* samples/js && cpx node_modules/three/build/*.js samples/js"
+    "copy:three": "cpx node_modules/three/examples/js/**/*.* samples/js && cpx node_modules/three/build/*.js samples/js",
+    "serve": "http-server"
   },
   "keywords": [
     "threejs",
