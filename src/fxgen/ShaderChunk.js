@@ -190,8 +190,6 @@ import { sunUniforms } from './ShaderChunk/sunUniforms.js';
 import tessNoiseFrag from './ShaderChunk/tessNoiseFrag.glsl';
 import tessNoiseFragPars from './ShaderChunk/tessNoiseFragPars.glsl';
 import { tessNoiseUniforms } from './ShaderChunk/tessNoiseUniforms.js';
-import testFrag from './ShaderChunk/testFrag.glsl';
-import testFragPars from './ShaderChunk/testFragPars.glsl';
 import { testUniforms } from './ShaderChunk/testUniforms.js';
 import toonFrag from './ShaderChunk/toonFrag.glsl';
 import toonFragPars from './ShaderChunk/toonFragPars.glsl';
@@ -216,6 +214,11 @@ import derivatives from './ShaderChunk/derivatives.glsl';
 import particleFrag from './ShaderChunk/particleFrag.glsl';
 import particleFragPars from './ShaderChunk/particleFragPars.glsl';
 import { particleUniforms } from './ShaderChunk/particleUniforms.js';
+import testFrag from './ShaderChunk/testFrag.glsl';
+import testFragPars from './ShaderChunk/testFragPars.glsl';
+import electricFrag from './ShaderChunk/electricFrag.glsl';
+import electricFragPars from './ShaderChunk/electricFragPars.glsl';
+import { electricUniforms } from './ShaderChunk/electricUniforms.js';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
@@ -410,8 +413,6 @@ export var ShaderChunk = {
 	tessNoiseFrag: tessNoiseFrag,
 	tessNoiseFragPars: tessNoiseFragPars,
 	tessNoiseUniforms: tessNoiseUniforms,
-	testFrag: testFrag,
-	testFragPars: testFragPars,
 	testUniforms: testUniforms,
 	toonFrag: toonFrag,
 	toonFragPars: toonFragPars,
@@ -436,4 +437,9 @@ export var ShaderChunk = {
 	particleFrag: particleFrag,
 	particleFragPars: particleFragPars,
 	particleUniforms: particleUniforms,
+	testFrag: testFrag,
+	testFragPars: testFragPars,
+	electricFrag: electricFrag,
+	electricFragPars: electricFragPars,
+	electricUniforms: electricUniforms,
 };

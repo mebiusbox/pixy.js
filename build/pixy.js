@@ -5828,10 +5828,6 @@
 	  cOffset: { value: 0.5 }
 	};
 
-	var testFrag = "vec2 p = (-resolution + 2.0*pin.coord) / resolution.y;\r\nvec2 m = mouse.xy / resolution.xy;\r\nvec3 ro = 4.0*normalize(vec3(sin(3.0*m.x), 0.4*m.y, cos(3.0*m.x)));\r\nvec3 ta = vec3(0.0,-1.0,0.0);\r\nmat3 ca = setCamera(ro, ta, 0.0);\r\nvec3 rd = ca*normalize(vec3(p.xy,1.5));\r\npout.color = render(ro, rd).xyz;";
-
-	var testFragPars = "uniform sampler2D tNoise;\r\n\r\nfloat noise(in vec3 x) {\r\n  vec3 p = floor(x);\r\n  vec3 f = fract(x);\r\n  f = f*f*(3.0-2.0*f);\r\n  vec2 uv = (p.xy + vec2(37.0, 17.0)*p.z) + f.xy;\r\n  uv = (uv+0.5)/256.0;\r\n  uv = vec2(uv.x, -uv.y);\r\n  vec2 rg = texture2D(tNoise, uv).yx;\r\n  return -1.0 + 2.0*mix(rg.x, rg.y, f.z);\r\n}\r\n\r\nfloat map5(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q); q = q*2.02;\r\n  f += 0.03125*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map4(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map3(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map2(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nvec3 sundir = normalize(vec3(-1.0, 0.0, -1.0));\r\n\r\nvec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {\r\n// lighting\r\n  vec3 lin = vec3(0.65,0.7,0.75)*1.4 + vec3(1.0,0.6,0.3)*dif;\r\n  vec4 col = vec4(mix(vec3(1.0,0.95,0.8), vec3(0.25,0.3,0.35), den), den);\r\n  col.xyz *= lin;\r\n  col.xyz = mix(col.xyz, bgcol, 1.0-exp(-0.003*t*t));\r\n// front to back blending\r\n  col.a *= 0.4;\r\n  col.rgb *= col.a;\r\n  return sum + col*(1.0-sum.a);\r\n}\r\n\r\n#define MARCH(STEPS,MAPLOD) for(int i=0; i<STEPS; i++) { vec3 pos = ro + t*rd; if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break; float den = MAPLOD(pos); if (den>0.01) { float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.05, 0.02*t); }\r\n// for (int i=0; i<STEPS; i++) {\r\n//   vec3 pos = ro + t*rd;\r\n//   if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;\r\n//   float den = MAPLOD(pos);\r\n//   if (den>0.01) {\r\n//     float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0);\r\n//     sum = integrate(sum, dif, den, bgcol, t);\r\n//   }\r\n//   t += max(0.05, 0.02*t);\r\n// }\r\n\r\nvec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {\r\n  vec4 sum = vec4(0.0);\r\n  float t = 0.0;\r\n  MARCH(30,map5);\r\n  MARCH(30,map4);\r\n  MARCH(30,map3);\r\n  MARCH(30,map2);\r\n  return clamp(sum, 0.0, 1.0);\r\n}\r\n\r\nmat3 setCamera(in vec3 ro, in vec3 ta, float cr) {\r\n  vec3 cw = normalize(ta-ro);\r\n  vec3 cp = vec3(sin(cr), cos(cr), 0.0);\r\n  vec3 cu = normalize(cross(cw,cp));\r\n  vec3 cv = normalize(cross(cu,cw));\r\n  return mat3(cu, cv, cw);\r\n}\r\n\r\nvec4 render(in vec3 ro, in vec3 rd) {\r\n// background sky\r\n  float sun = clamp(dot(sundir,rd), 0.0, 1.0);\r\n  vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;\r\n  col += 0.2*vec3(1.0,0.6,0.1)*pow(sun,8.0);\r\n// clouds\r\n  vec4 res = raymarch(ro, rd, col);\r\n  col = col * (1.0-res.w) + res.xyz;\r\n// sun glare\r\n  col += 0.2*vec3(1.0,0.4,0.2)*pow(sun,3.0);\r\n  return vec4(col, 1.0);\r\n}";
-
 	var testUniforms = {
 	  tNoise: { value: null }
 	};
@@ -5901,6 +5897,19 @@
 	    cLifeTime: { value: 0.9 },
 	    cGravity: { value: 0.26 },
 	    cCount: { value: 300.0 }
+	  };
+
+	var testFrag = "vec2 p = (-resolution + 2.0*pin.coord) / resolution.y;\r\nvec2 m = mouse.xy / resolution.xy;\r\nvec3 ro = 4.0*normalize(vec3(sin(3.0*m.x), 0.4*m.y, cos(3.0*m.x)));\r\nvec3 ta = vec3(0.0,-1.0,0.0);\r\nmat3 ca = setCamera(ro, ta, 0.0);\r\nvec3 rd = ca*normalize(vec3(p.xy,1.5));\r\npout.color = render(ro, rd).xyz;";
+
+	var testFragPars = "uniform sampler2D tNoise;\r\n\r\nfloat noise(in vec3 x) {\r\n  vec3 p = floor(x);\r\n  vec3 f = fract(x);\r\n  f = f*f*(3.0-2.0*f);\r\n  vec2 uv = (p.xy + vec2(37.0, 17.0)*p.z) + f.xy;\r\n  uv = (uv+0.5)/256.0;\r\n  uv = vec2(uv.x, -uv.y);\r\n  vec2 rg = texture2D(tNoise, uv).yx;\r\n  return -1.0 + 2.0*mix(rg.x, rg.y, f.z);\r\n}\r\n\r\nfloat map5(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q); q = q*2.02;\r\n  f += 0.03125*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map4(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map3(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map2(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nvec3 sundir = normalize(vec3(-1.0, 0.0, -1.0));\r\n\r\nvec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {\r\n// lighting\r\n  vec3 lin = vec3(0.65,0.7,0.75)*1.4 + vec3(1.0,0.6,0.3)*dif;\r\n  vec4 col = vec4(mix(vec3(1.0,0.95,0.8), vec3(0.25,0.3,0.35), den), den);\r\n  col.xyz *= lin;\r\n  col.xyz = mix(col.xyz, bgcol, 1.0-exp(-0.003*t*t));\r\n// front to back blending\r\n  col.a *= 0.4;\r\n  col.rgb *= col.a;\r\n  return sum + col*(1.0-sum.a);\r\n}\r\n\r\n#define MARCH(STEPS,MAPLOD) for(int i=0; i<STEPS; i++) { vec3 pos = ro + t*rd; if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break; float den = MAPLOD(pos); if (den>0.01) { float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.05, 0.02*t); }\r\n// for (int i=0; i<STEPS; i++) {\r\n//   vec3 pos = ro + t*rd;\r\n//   if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;\r\n//   float den = MAPLOD(pos);\r\n//   if (den>0.01) {\r\n//     float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0);\r\n//     sum = integrate(sum, dif, den, bgcol, t);\r\n//   }\r\n//   t += max(0.05, 0.02*t);\r\n// }\r\n\r\nvec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {\r\n  vec4 sum = vec4(0.0);\r\n  float t = 0.0;\r\n  MARCH(30,map5);\r\n  MARCH(30,map4);\r\n  MARCH(30,map3);\r\n  MARCH(30,map2);\r\n  return clamp(sum, 0.0, 1.0);\r\n}\r\n\r\nmat3 setCamera(in vec3 ro, in vec3 ta, float cr) {\r\n  vec3 cw = normalize(ta-ro);\r\n  vec3 cp = vec3(sin(cr), cos(cr), 0.0);\r\n  vec3 cu = normalize(cross(cw,cp));\r\n  vec3 cv = normalize(cross(cu,cw));\r\n  return mat3(cu, cv, cw);\r\n}\r\n\r\nvec4 render(in vec3 ro, in vec3 rd) {\r\n// background sky\r\n  float sun = clamp(dot(sundir,rd), 0.0, 1.0);\r\n  vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;\r\n  col += 0.2*vec3(1.0,0.6,0.1)*pow(sun,8.0);\r\n// clouds\r\n  vec4 res = raymarch(ro, rd, col);\r\n  col = col * (1.0-res.w) + res.xyz;\r\n// sun glare\r\n  col += 0.2*vec3(1.0,0.4,0.2)*pow(sun,3.0);\r\n  return vec4(col, 1.0);\r\n}";
+
+	var electricFrag = "float pauseFreq = cFrequency;\r\nfloat pauseScale = 1.0;\r\nfloat scaledTime = time * 0.5;\r\nscaledTime += 0.05 * pin.uv.x;\r\nfloat sinTime = sin(pauseFreq*scaledTime);\r\nfloat sinTimeOffset = sin(pauseFreq*scaledTime - 0.5*3.141);\r\nfloat timeStep = scaledTime + pauseScale * (sinTime/pauseFreq);\r\n\r\nvec2 p = pin.uv;\r\nvec4 c;\r\n\r\np *= 4.0;\r\np.x = 0.5 - timeStep*3.0;\r\np.y = 0.5 - timeStep*3.0;\r\nc = voronoi(p);\r\n\r\nfloat cellPos = (p.y+c.z) + timeStep * 3.0;\r\nvec2 uv = pin.uv;\r\nuv.x += 1.5*(2.0*c.x-0.33) * (uv.y-0.5);\r\nuv.x *= cScale;\r\n\r\np = uv;\r\np.y = max(p.y, 0.5);\r\np *= 12.0; // higher values zoom out further - don't go too high or the sine waves will become quite obvious...\r\np.x += timeStep*16.0;\r\np.y += timeStep*32.0;\r\nc = voronoi(p);\r\n\r\n// pout.color = 0.5*vec4(c.x);\r\n\r\nfloat d= 0.0;\r\nfloat edgeScale = 1.0-2.0*abs(pin.uv.x-0.5);\r\nfloat scaleMulti = pow(0.5*sinTime + 0.5, 2.0);\r\nfloat dScale = 2.0*edgeScale*(0.25+0.75*pow(0.5*sinTimeOffset+0.5,2.0));\r\n\r\np.y = 0.5*12.0 - timeStep*6.0;\r\nc = dScale * voronoi(p);\r\nd = (uv.y + c.x-0.75);\r\n\r\np.x = uv.x*12.0 - timeStep*6.0;\r\np.y = 4.5*12.0 - timeStep*3.0;\r\nc = dScale*voronoi(p);\r\nd = mix(d, (uv.y-c.x-0.25), 0.5);\r\nd = 1.0-abs(d);\r\n\r\n// pout.color = vec3(d);\r\n\r\nfloat lineWidth = d+0.025*scaleMulti*edgeScale;\r\nvec4 outcolor = mix(vec4(0,1,1.5,1), vec4(1,2,2.0,1), scaleMulti)*smoothstep(1.0, 1.005, lineWidth);\r\noutcolor += edgeScale*pow(scaleMulti*smoothstep(0.75, 1.005, lineWidth), 16.0) * 0.5*vec4(.8,1,2.0,1);\r\noutcolor += 0.5*vec4(.1, 0.05, 0.2, 1);\r\n\r\npout.color = outcolor.xyz;";
+
+	var electricFragPars = "uniform float cFrequency;\r\nuniform float cScale;\r\n\r\nvec2 hash2(vec2 p) {\r\n    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);\r\n}\r\n\r\nvec4 voronoi(in vec2 x) {\r\n    vec2 n = floor(x);\r\n    vec2 f = fract(x);\r\n    vec2 o;\r\n    // first pass: regular voronoi\r\n    vec2 mg, mr;\r\n    float oldDist;\r\n\r\n    float md = 8.0;\r\n    for (int j=-1;j<=1; j++) {\r\n        for (int i=-1; i<=1; i++) {\r\n            vec2 g = vec2(float(i), float(j));\r\n            o = hash2(n+g);\r\n            vec2 r = g + o - f;\r\n            float d = dot(r,r);\r\n            if (d<md) {\r\n                md = d;\r\n                mr = r;\r\n                mg = g;\r\n            }\r\n        }\r\n    }\r\n\r\n    oldDist = md;\r\n\r\n    // second pass: distance to borders\r\n    md = 8.0;\r\n    for (int j=-2;j<=2; j++) {\r\n        for (int i=-2; i<=2; i++) {\r\n            vec2 g = vec2(float(i), float(j));\r\n            o = hash2(n+g);\r\n            vec2 r = g + o - f;\r\n            if (dot(mr-r,mr-r)>0.0001) {\r\n                md = min(md, dot(0.5*(mr+r), normalize(r-mr)));\r\n            }\r\n        }\r\n    }\r\n\r\n    return vec4(md, mr, oldDist);\r\n}";
+
+	var electricUniforms = {
+	    cFrequency: { value: 20.0 },
+	    cScale: { value: 0.25 }
 	  };
 
 	var ShaderChunk$1 = {
@@ -6096,8 +6105,6 @@
 		tessNoiseFrag: tessNoiseFrag,
 		tessNoiseFragPars: tessNoiseFragPars,
 		tessNoiseUniforms: tessNoiseUniforms,
-		testFrag: testFrag,
-		testFragPars: testFragPars,
 		testUniforms: testUniforms,
 		toonFrag: toonFrag$1,
 		toonFragPars: toonFragPars$1,
@@ -6122,6 +6129,11 @@
 		particleFrag: particleFrag,
 		particleFragPars: particleFragPars,
 		particleUniforms: particleUniforms,
+		testFrag: testFrag,
+		testFragPars: testFragPars,
+		electricFrag: electricFrag,
+		electricFragPars: electricFragPars,
+		electricUniforms: electricUniforms,
 	};
 
 	function FxgenShader() {
@@ -6267,6 +6279,7 @@
 	    this.addUniform(uniforms, ["ENERGY"], "energyUniforms");
 	    this.addUniform(uniforms, ["INKSPLAT"], "inksplatUniforms");
 	    this.addUniform(uniforms, ["PARTICLE"], "particleUniforms");
+	    this.addUniform(uniforms, ["ELECTRIC"], "electricUniforms");
 	    this.addUniform(uniforms, ["TEST"], "testUniforms");
 	    
 	    return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6367,6 +6380,7 @@
 	    this.addCode(codes, ["ENERGY"], "energyFragPars");
 	    this.addCode(codes, ["INKSPLAT"], "inksplatFragPars");
 	    this.addCode(codes, ["PARTICLE"], "particleFragPars");
+	    this.addCode(codes, ["ELECTRIC"], "electricFragPars");
 	    this.addCode(codes, ["TEST"], "testFragPars");
 	    
 	    codes.push("");
@@ -6448,6 +6462,7 @@
 	      this.addCode(codes, ["ENERGY"], "energyFrag");
 	      this.addCode(codes, ["INKSPLAT"], "inksplatFrag");
 	      this.addCode(codes, ["PARTICLE"], "particleFrag");
+	      this.addCode(codes, ["ELECTRIC"], "electricFrag");
 	      this.addCode(codes, ["TEST"], "testFrag");
 	      
 	      this.addCode(codes, ["TOON"], "toonFrag");
