@@ -219,6 +219,9 @@ import testFragPars from './ShaderChunk/testFragPars.glsl';
 import electricFrag from './ShaderChunk/electricFrag.glsl';
 import electricFragPars from './ShaderChunk/electricFragPars.glsl';
 import { electricUniforms } from './ShaderChunk/electricUniforms.js';
+import tilingFrag from './ShaderChunk/tilingFrag.glsl';
+import tilingFragPars from './ShaderChunk/tilingFragPars.glsl';
+import { tilingUniforms } from './ShaderChunk/tilingUniforms.js';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
@@ -442,4 +445,7 @@ export var ShaderChunk = {
 	electricFrag: electricFrag,
 	electricFragPars: electricFragPars,
 	electricUniforms: electricUniforms,
+	tilingFrag: tilingFrag,
+	tilingFragPars: tilingFragPars,
+	tilingUniforms: tilingUniforms,
 };

@@ -5912,6 +5912,14 @@
 	    cScale: { value: 0.25 }
 	  };
 
+	var tilingFrag = "vec4 c1 = texture2D(tDiffuse, pin.uv);\r\nvec4 c2 = texture2D(tDiffuse, pin.uv+vec2(0.5));\r\nfloat a1 = radialMask(pin.uv);\r\nfloat rm2 = radialMask(pin.uv+vec2(0.5));\r\nfloat lm2 = linearMask(pin.uv+vec2(0.5));\r\nfloat a2 = mix(lm2, rm2, cRadialMask);\r\nfloat a = a1+a2;\r\nfloat r = a1*c1.r/a + a2*c2.r/a;\r\nfloat g = a1*c1.g/a + a2*c2.g/a;\r\nfloat b = a1*c1.b/a + a2*c2.b/a;\r\npout.color = vec3(r,g,b);\r\n";
+
+	var tilingFragPars = "uniform float cRadialMask;\r\nfloat radialMask(in vec2 uv) {\r\n    vec2 p = abs(fract(uv) - vec2(0.5)) * 2.0;\r\n    return max(1.0-dot(p,p), 0.0001);\r\n}\r\nfloat linearMask(in vec2 uv) {\r\n    vec2 p = abs(fract(uv) - vec2(0.5));\r\n    return max((0.5-max(p.x,p.y)) / 0.5, 0.0001);\r\n}";
+
+	var tilingUniforms = {
+	    cRadialMask: { value: 1.0 }
+	  };
+
 	var ShaderChunk$1 = {
 		blocksFrag: blocksFrag,
 		bonfireFrag: bonfireFrag,
@@ -6134,6 +6142,9 @@
 		electricFrag: electricFrag,
 		electricFragPars: electricFragPars,
 		electricUniforms: electricUniforms,
+		tilingFrag: tilingFrag,
+		tilingFragPars: tilingFragPars,
+		tilingUniforms: tilingUniforms,
 	};
 
 	function FxgenShader() {
@@ -6280,6 +6291,7 @@
 	    this.addUniform(uniforms, ["INKSPLAT"], "inksplatUniforms");
 	    this.addUniform(uniforms, ["PARTICLE"], "particleUniforms");
 	    this.addUniform(uniforms, ["ELECTRIC"], "electricUniforms");
+	    this.addUniform(uniforms, ["TILING"], "tilingUniforms");
 	    this.addUniform(uniforms, ["TEST"], "testUniforms");
 	    
 	    return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6381,6 +6393,7 @@
 	    this.addCode(codes, ["INKSPLAT"], "inksplatFragPars");
 	    this.addCode(codes, ["PARTICLE"], "particleFragPars");
 	    this.addCode(codes, ["ELECTRIC"], "electricFragPars");
+	    this.addCode(codes, ["TILING"], "tilingFragPars");
 	    this.addCode(codes, ["TEST"], "testFragPars");
 	    
 	    codes.push("");
@@ -6463,6 +6476,7 @@
 	      this.addCode(codes, ["INKSPLAT"], "inksplatFrag");
 	      this.addCode(codes, ["PARTICLE"], "particleFrag");
 	      this.addCode(codes, ["ELECTRIC"], "electricFrag");
+	      this.addCode(codes, ["TILING"], "tilingFrag");
 	      this.addCode(codes, ["TEST"], "testFrag");
 	      
 	      this.addCode(codes, ["TOON"], "toonFrag");

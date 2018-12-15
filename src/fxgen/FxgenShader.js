@@ -144,6 +144,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["INKSPLAT"], "inksplatUniforms");
     this.addUniform(uniforms, ["PARTICLE"], "particleUniforms");
     this.addUniform(uniforms, ["ELECTRIC"], "electricUniforms");
+    this.addUniform(uniforms, ["TILING"], "tilingUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -245,6 +246,7 @@ function FxgenShader() {
     this.addCode(codes, ["INKSPLAT"], "inksplatFragPars");
     this.addCode(codes, ["PARTICLE"], "particleFragPars");
     this.addCode(codes, ["ELECTRIC"], "electricFragPars");
+    this.addCode(codes, ["TILING"], "tilingFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -327,6 +329,7 @@ function FxgenShader() {
       this.addCode(codes, ["INKSPLAT"], "inksplatFrag");
       this.addCode(codes, ["PARTICLE"], "particleFrag");
       this.addCode(codes, ["ELECTRIC"], "electricFrag");
+      this.addCode(codes, ["TILING"], "tilingFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");

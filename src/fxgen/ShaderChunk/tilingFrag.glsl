@@ -1,0 +1,11 @@
+vec4 c1 = texture2D(tDiffuse, pin.uv);
+vec4 c2 = texture2D(tDiffuse, pin.uv+vec2(0.5));
+float a1 = radialMask(pin.uv);
+float rm2 = radialMask(pin.uv+vec2(0.5));
+float lm2 = linearMask(pin.uv+vec2(0.5));
+float a2 = mix(lm2, rm2, cRadialMask);
+float a = a1+a2;
+float r = a1*c1.r/a + a2*c2.r/a;
+float g = a1*c1.g/a + a2*c2.g/a;
+float b = a1*c1.b/a + a2*c2.b/a;
+pout.color = vec3(r,g,b);
