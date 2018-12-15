@@ -222,6 +222,9 @@ import { electricUniforms } from './ShaderChunk/electricUniforms.js';
 import tilingFrag from './ShaderChunk/tilingFrag.glsl';
 import tilingFragPars from './ShaderChunk/tilingFragPars.glsl';
 import { tilingUniforms } from './ShaderChunk/tilingUniforms.js';
+import causticsFrag from './ShaderChunk/causticsFrag.glsl';
+import causticsFragPars from './ShaderChunk/causticsFragPars.glsl';
+import { causticsUniforms } from './ShaderChunk/causticsUniforms.js';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
@@ -448,4 +451,7 @@ export var ShaderChunk = {
 	tilingFrag: tilingFrag,
 	tilingFragPars: tilingFragPars,
 	tilingUniforms: tilingUniforms,
+	causticsFrag: causticsFrag,
+	causticsFragPars: causticsFragPars,
+	causticsUniforms: causticsUniforms,
 };

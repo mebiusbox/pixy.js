@@ -5914,6 +5914,16 @@ var tilingUniforms = {
     cRadialMask: { value: 1.0 }
   };
 
+var causticsFrag = "mat3 m = mat3(-2,-1,2,3,-2,1,1,2,2);\r\nvec3 a = vec3(pin.coord/vec2(100.0*cScale), time/(max(4.5-cSpeed,0.001)))*m;\r\nvec3 b = a * m * .4;\r\nvec3 c = b * m * .3;\r\npout.color = vec3(pow(min(\r\n    min(length(.5-fract(a)), length(.5-fract(b))),\r\n    length(.5-fract(c))),7.0) * 25.0);\r\npout.color += mix(vec3(.0), vec3(.0,.35,.5), cColor);\r\n";
+
+var causticsFragPars = "// https://www.shadertoy.com/view/MdKXDm\r\nuniform float cScale;\r\nuniform float cSpeed;\r\nuniform float cColor;";
+
+var causticsUniforms = {
+    cScale: { value: 4.0 },
+    cSpeed: { value: 2.0 },
+    cColor: { value: 1.0 }
+  };
+
 var ShaderChunk$1 = {
 	blocksFrag: blocksFrag,
 	bonfireFrag: bonfireFrag,
@@ -6139,6 +6149,9 @@ var ShaderChunk$1 = {
 	tilingFrag: tilingFrag,
 	tilingFragPars: tilingFragPars,
 	tilingUniforms: tilingUniforms,
+	causticsFrag: causticsFrag,
+	causticsFragPars: causticsFragPars,
+	causticsUniforms: causticsUniforms,
 };
 
 function FxgenShader() {
@@ -6286,6 +6299,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["PARTICLE"], "particleUniforms");
     this.addUniform(uniforms, ["ELECTRIC"], "electricUniforms");
     this.addUniform(uniforms, ["TILING"], "tilingUniforms");
+    this.addUniform(uniforms, ["CAUSTICS"], "causticsUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6388,6 +6402,7 @@ function FxgenShader() {
     this.addCode(codes, ["PARTICLE"], "particleFragPars");
     this.addCode(codes, ["ELECTRIC"], "electricFragPars");
     this.addCode(codes, ["TILING"], "tilingFragPars");
+    this.addCode(codes, ["CAUSTICS"], "causticsFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -6471,6 +6486,7 @@ function FxgenShader() {
       this.addCode(codes, ["PARTICLE"], "particleFrag");
       this.addCode(codes, ["ELECTRIC"], "electricFrag");
       this.addCode(codes, ["TILING"], "tilingFrag");
+      this.addCode(codes, ["CAUSTICS"], "causticsFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");
