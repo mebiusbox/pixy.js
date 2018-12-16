@@ -5930,6 +5930,16 @@
 	    cColor: { value: 1.0 }
 	  };
 
+	var squigglesFrag = "vec3 color = vec3(0.0);\r\nfloat s = 1.0;\r\nfor (int i=0; i<numLayers; ++i) {\r\n    if (float(i)>=cDensity) break;\r\n    float sn = 0.0;\r\n    float y = 0.0;\r\n    \r\n    vec2 deriv;\r\n    float nx = smplxNoise2D(pin.position*s*mix(10., 1., cScale), deriv, 0.1+1./s, 0.0);\r\n    float ny = smplxNoise2D(pin.position*s*mix(10., 1., cScale), deriv, 0.11+1./s, 0.0);\r\n    for (int j=0; j<wormLength; ++j) {\r\n        if (float(j)>=cSize) break;\r\n        sn += smplxNoise2D(pin.position*s+vec2(1./s,0.)+vec2(nx,ny)*4., deriv, 0.2+1./s, y);\r\n        color += vec3(norm(deriv).z)/s;\r\n        y += 0.1;\r\n    }\r\n    s *= 1.1;\r\n}\r\ncolor /= 4.;\r\n\r\nvec2 deriv;\r\nfloat delay = smplxNoise2D(pin.position*s*1., deriv, 0.111, 0.);\r\npout.color = mix(color, vec3(1.0)-color, clamp(sin(time*0.25+pin.position.x*.5+delay*32.)*32., 0.0, 1.0));";
+
+	var squigglesFragPars = "uniform float cDensity;\r\nuniform float cSize;\r\nuniform float cScale;\r\n\r\n// https://www.shadertoy.com/view/MstBD4\r\n// Number of layars.\r\n// Higher value shows more layers of effects\r\n// Lower value higer FPS.\r\nconst int numLayers = 16;\r\n\r\n//Length of worm\r\nconst int wormLength = 8;\r\n\r\nfloat squigglesRand(vec3 pos) {\r\n    vec3 p = pos + vec3(2.);\r\n    vec3 fp = fract(p*p.yzx*222.)+vec3(2.);\r\n    p.y *= p.z * fp.x;\r\n    p.x *= p.y * fp.y;\r\n    return fract(p.x*p.x);\r\n}\r\n\r\nfloat skewF(float n) {\r\n    return (sqrt(n+1.0)-1.0)/n;\r\n}\r\n\r\nfloat unskewG(float n) {\r\n    return (1.0/sqrt(n+1.0)-1.0)/n;\r\n}\r\n\r\nvec2 smplxNoise2DDeriv(vec2 x, float m, vec2 g) {\r\n    vec2 dmdxy = min(dot(x,x)-vec2(0.5), 0.0);\r\n    dmdxy = 8.*x*dmdxy*dmdxy*dmdxy;\r\n    return dmdxy*dot(x,g) + m*g;\r\n}\r\n\r\nfloat smplxNoise2D(vec2 p, out vec2 deriv, float randKey, float roffset) {\r\n    // i is a skewed coordinate of a bottom vertex of a simplex where p is in.\r\n    vec2 i0 = floor(p+vec2(p.x+p.y)*skewF(2.0));\r\n    // x0, x1, x2 are unskewed displacement vectors.\r\n    float unskew = unskewG(2.0);\r\n    vec2 x0 = p-(i0+vec2((i0.x+i0.y)*unskew));\r\n\r\n    vec2 ii1 = x0.x > x0.y ? vec2(1.0,0.0) : vec2(0.0,1.0);\r\n    vec2 ii2 = vec2(1.0);\r\n    vec2 x1 = x0 - ii1 - vec2(unskew);\r\n    vec2 x2 = x0 - ii2 - vec2(2.0*unskew);\r\n\r\n    vec3 m = max(vec3(0.5)-vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0);\r\n    m = m*m;\r\n    m = m*m;\r\n\r\n    float r0 = 3.1416*2.0*squigglesRand(vec3(mod(i0, 16.0)/16.0, randKey));\r\n    float r1 = 3.1416*2.0*squigglesRand(vec3(mod(i0+ii1, 16.0)/16.0, randKey));\r\n    float r2 = 3.1416*2.0*squigglesRand(vec3(mod(i0+ii2, 16.0)/16.0, randKey));\r\n\r\n    float randKey2 = randKey + 0.01;\r\n    float spmin = 0.5;\r\n    float sps = 2.0;\r\n    float sp0 = spmin + sps*squigglesRand(vec3(mod(i0, 16.0)/16.0, randKey2));\r\n    float sp1 = spmin + sps*squigglesRand(vec3(mod(i0+ii1, 16.0)/16.0, randKey2));\r\n    float sp2 = spmin + sps*squigglesRand(vec3(mod(i0+ii2, 16.0)/16.0, randKey2));\r\n\r\n    r0 += time*sp0 + roffset;\r\n    r1 += time*sp1 + roffset;\r\n    r2 += time*sp2 + roffset;\r\n\r\n    // Gradients\r\n    vec2 g0 = vec2(cos(r0), sin(r0));\r\n    vec2 g1 = vec2(cos(r1), sin(r1));\r\n    vec2 g2 = vec2(cos(r2), sin(r2));\r\n\r\n    deriv = smplxNoise2DDeriv(x0, m.x, g0);\r\n    deriv += smplxNoise2DDeriv(x1, m.y, g1);\r\n    deriv += smplxNoise2DDeriv(x2, m.z, g2);\r\n\r\n    return dot(m*vec3(dot(x0,g0), dot(x1,g1), dot(x2,g2)), vec3(1.0));\r\n}\r\n\r\nvec3 norm(vec2 deriv) {\r\n    deriv *= 2000.0;\r\n    vec3 tx = vec3(1.0, 0.0, deriv.x);\r\n    vec3 ty = vec3(0.0, 1.0, deriv.y);\r\n    return normalize(cross(tx,ty));\r\n}\r\n";
+
+	var squigglesUniforms = {
+	    cSize: { value: 8.0 },
+	    cScale: { value: 0.5 },
+	    cDensity: { value: 16.0 }
+	  };
+
 	var ShaderChunk$1 = {
 		blocksFrag: blocksFrag,
 		bonfireFrag: bonfireFrag,
@@ -6158,6 +6168,9 @@
 		causticsFrag: causticsFrag,
 		causticsFragPars: causticsFragPars,
 		causticsUniforms: causticsUniforms,
+		squigglesFrag: squigglesFrag,
+		squigglesFragPars: squigglesFragPars,
+		squigglesUniforms: squigglesUniforms,
 	};
 
 	function FxgenShader() {
@@ -6306,6 +6319,7 @@
 	    this.addUniform(uniforms, ["ELECTRIC"], "electricUniforms");
 	    this.addUniform(uniforms, ["TILING"], "tilingUniforms");
 	    this.addUniform(uniforms, ["CAUSTICS"], "causticsUniforms");
+	    this.addUniform(uniforms, ["SQUIGGLES"], "squigglesUniforms");
 	    this.addUniform(uniforms, ["TEST"], "testUniforms");
 	    
 	    return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6409,6 +6423,7 @@
 	    this.addCode(codes, ["ELECTRIC"], "electricFragPars");
 	    this.addCode(codes, ["TILING"], "tilingFragPars");
 	    this.addCode(codes, ["CAUSTICS"], "causticsFragPars");
+	    this.addCode(codes, ["SQUIGGLES"], "squigglesFragPars");
 	    this.addCode(codes, ["TEST"], "testFragPars");
 	    
 	    codes.push("");
@@ -6493,6 +6508,7 @@
 	      this.addCode(codes, ["ELECTRIC"], "electricFrag");
 	      this.addCode(codes, ["TILING"], "tilingFrag");
 	      this.addCode(codes, ["CAUSTICS"], "causticsFrag");
+	      this.addCode(codes, ["SQUIGGLES"], "squigglesFrag");
 	      this.addCode(codes, ["TEST"], "testFrag");
 	      
 	      this.addCode(codes, ["TOON"], "toonFrag");
