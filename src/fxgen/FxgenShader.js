@@ -147,6 +147,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["TILING"], "tilingUniforms");
     this.addUniform(uniforms, ["CAUSTICS"], "causticsUniforms");
     this.addUniform(uniforms, ["SQUIGGLES"], "squigglesUniforms");
+    this.addUniform(uniforms, ["WATERTURBULENCE"], "waterTurbulenceUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -251,6 +252,7 @@ function FxgenShader() {
     this.addCode(codes, ["TILING"], "tilingFragPars");
     this.addCode(codes, ["CAUSTICS"], "causticsFragPars");
     this.addCode(codes, ["SQUIGGLES"], "squigglesFragPars");
+    this.addCode(codes, ["WATERTURBULENCE"], "waterTurbulenceFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -336,6 +338,7 @@ function FxgenShader() {
       this.addCode(codes, ["TILING"], "tilingFrag");
       this.addCode(codes, ["CAUSTICS"], "causticsFrag");
       this.addCode(codes, ["SQUIGGLES"], "squigglesFrag");
+      this.addCode(codes, ["WATERTURBULENCE"], "waterTurbulenceFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");

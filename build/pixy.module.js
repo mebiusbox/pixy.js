@@ -5934,6 +5934,15 @@ var squigglesUniforms = {
     cDensity: { value: 16.0 }
   };
 
+var waterTurbulenceFrag = "vec2 p = pin.position * mix(2.0,15.0,cScale);\r\nfloat c = Turb(p);\r\npout.color = vec3(c);";
+
+var waterTurbulenceFragPars = "uniform float cScale;\r\nuniform float cIntensity;\r\n\r\n#define MAX_ITER 2.0\r\n\r\nfloat Turb(vec2 p) {\r\n    vec2 i = p;\r\n    float c = 0.0;\r\n    float inten = cIntensity;\r\n    float r = length(p + vec2(sin(time), sin(time*0.433+2.))*3.);\r\n    for (float n=0.0; n<MAX_ITER; n++) {\r\n        float t = r-time * (1.0 - (1.9/(n+1.)));\r\n        t = r-time/(n+.6);//r-time*(1.+.5/float(n+1.)));\r\n        i -= p + vec2(\r\n            cos(t-i.x-r)+sin(t+i.y),\r\n            sin(t-i.y)+cos(t+i.x)+r);\r\n            c += 1./length(vec2(sin(i.x+t)/inten, cos(i.y+t)/inten));\r\n    }\r\n    c /= float(MAX_ITER);\r\n    c = clamp(c,-1.,1.);\r\n    return c;\r\n}";
+
+var waterTurbulenceUniforms = {
+    cScale: { value: 0.5 },
+    cIntensity: { value: 0.15 }
+};
+
 var ShaderChunk$1 = {
 	blocksFrag: blocksFrag,
 	bonfireFrag: bonfireFrag,
@@ -6165,6 +6174,9 @@ var ShaderChunk$1 = {
 	squigglesFrag: squigglesFrag,
 	squigglesFragPars: squigglesFragPars,
 	squigglesUniforms: squigglesUniforms,
+	waterTurbulenceFrag: waterTurbulenceFrag,
+	waterTurbulenceFragPars: waterTurbulenceFragPars,
+	waterTurbulenceUniforms: waterTurbulenceUniforms,
 };
 
 function FxgenShader() {
@@ -6314,6 +6326,7 @@ function FxgenShader() {
     this.addUniform(uniforms, ["TILING"], "tilingUniforms");
     this.addUniform(uniforms, ["CAUSTICS"], "causticsUniforms");
     this.addUniform(uniforms, ["SQUIGGLES"], "squigglesUniforms");
+    this.addUniform(uniforms, ["WATERTURBULENCE"], "waterTurbulenceUniforms");
     this.addUniform(uniforms, ["TEST"], "testUniforms");
     
     return THREE.UniformsUtils.clone(THREE.UniformsUtils.merge(uniforms));
@@ -6418,6 +6431,7 @@ function FxgenShader() {
     this.addCode(codes, ["TILING"], "tilingFragPars");
     this.addCode(codes, ["CAUSTICS"], "causticsFragPars");
     this.addCode(codes, ["SQUIGGLES"], "squigglesFragPars");
+    this.addCode(codes, ["WATERTURBULENCE"], "waterTurbulenceFragPars");
     this.addCode(codes, ["TEST"], "testFragPars");
     
     codes.push("");
@@ -6503,6 +6517,7 @@ function FxgenShader() {
       this.addCode(codes, ["TILING"], "tilingFrag");
       this.addCode(codes, ["CAUSTICS"], "causticsFrag");
       this.addCode(codes, ["SQUIGGLES"], "squigglesFrag");
+      this.addCode(codes, ["WATERTURBULENCE"], "waterTurbulenceFrag");
       this.addCode(codes, ["TEST"], "testFrag");
       
       this.addCode(codes, ["TOON"], "toonFrag");

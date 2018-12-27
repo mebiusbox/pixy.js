@@ -228,6 +228,9 @@ import { causticsUniforms } from './ShaderChunk/causticsUniforms.js';
 import squigglesFrag from './ShaderChunk/squigglesFrag.glsl';
 import squigglesFragPars from './ShaderChunk/squigglesFragPars.glsl';
 import { squigglesUniforms } from './ShaderChunk/squigglesUniforms.js';
+import waterTurbulenceFrag from './ShaderChunk/waterTurbulenceFrag.glsl';
+import waterTurbulenceFragPars from './ShaderChunk/waterTurbulenceFragPars.glsl';
+import { waterTurbulenceUniforms } from './ShaderChunk/waterTurbulenceUniforms.js';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
@@ -460,4 +463,7 @@ export var ShaderChunk = {
 	squigglesFrag: squigglesFrag,
 	squigglesFragPars: squigglesFragPars,
 	squigglesUniforms: squigglesUniforms,
+	waterTurbulenceFrag: waterTurbulenceFrag,
+	waterTurbulenceFragPars: waterTurbulenceFragPars,
+	waterTurbulenceUniforms: waterTurbulenceUniforms,
 };
