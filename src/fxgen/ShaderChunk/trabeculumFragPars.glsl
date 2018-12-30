@@ -1,4 +1,5 @@
 uniform float cDensity;
+uniform float cScale;
 uniform float cTrabeculumVariation;
 uniform float cCameraTilt;
 uniform float cCameraPan;
@@ -44,7 +45,7 @@ float tweaknoise(vec3 p, bool step) {
     if (cTrabeculumVariation >= 2.) d = d2;
     if (d < .5) return 0.;
     grad=.8;
-    scale = 10.;
+    scale = mix(2.,10.,cScale);
     thresh = .5+.5*(cos(.5*time)+.36*cos(.5*3.*time))/1.36;
     vec4 w = scale*worley(scale*p-vec3(0.,0.,3.*time));
     float v = 1.-1./(1./(w.z-w.x)+1./(w.a-w.x));

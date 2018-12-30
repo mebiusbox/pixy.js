@@ -985,6 +985,7 @@
           },
           Trabeculum: {
             cDensity: { minValue: 0.0, maxValue: 1.0, defaultValue: 1.0 },
+            cScale: { minValue: 0.01, maxValue: 1.0, defaultValue: 1.0 },
             cCameraPan: { minValue: 0.0, maxValue: 1.0, defaultValue: 0.5 },
             cCameraTilt: { minValue: 0.0, maxValue: 1.0, defaultValue: 0.5 }
           }
@@ -1071,7 +1072,7 @@
           Caustics: ["cScale", "cSpeed", "cColor"],
           Squiggles: ["cSize", "cScale", "cDensity"],
           WaterTurbulence: ["cScale", "cIntensity"],
-          Trabeculum: ["cDensity", "cTrabeculumVariation", "cCameraTilt", "cCameraPan", "cColor"],
+          Trabeculum: ["cDensity", "cScale", "cTrabeculumVariation", "cCameraTilt", "cCameraPan", "cColor"],
           //MARK: add new pars here
           
           Test: [],
