@@ -231,6 +231,9 @@ import { squigglesUniforms } from './ShaderChunk/squigglesUniforms.js';
 import waterTurbulenceFrag from './ShaderChunk/waterTurbulenceFrag.glsl';
 import waterTurbulenceFragPars from './ShaderChunk/waterTurbulenceFragPars.glsl';
 import { waterTurbulenceUniforms } from './ShaderChunk/waterTurbulenceUniforms.js';
+import trabeculumFrag from './ShaderChunk/trabeculumFrag.glsl';
+import trabeculumFragPars from './ShaderChunk/trabeculumFragPars.glsl';
+import { trabeculumUniforms } from './ShaderChunk/trabeculumUniforms.js';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
@@ -466,4 +469,7 @@ export var ShaderChunk = {
 	waterTurbulenceFrag: waterTurbulenceFrag,
 	waterTurbulenceFragPars: waterTurbulenceFragPars,
 	waterTurbulenceUniforms: waterTurbulenceUniforms,
+	trabeculumFrag: trabeculumFrag,
+	trabeculumFragPars: trabeculumFragPars,
+	trabeculumUniforms: trabeculumUniforms,
 };
