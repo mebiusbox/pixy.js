@@ -1,5 +1,6 @@
 uniform float cDensity;
 uniform float cScale;
+uniform float cIntensity;
 uniform float cTrabeculumVariation;
 uniform float cCameraTilt;
 uniform float cCameraPan;
@@ -50,5 +51,9 @@ float tweaknoise(vec3 p, bool step) {
     vec4 w = scale*worley(scale*p-vec3(0.,0.,3.*time));
     float v = 1.-1./(1./(w.z-w.x)+1./(w.a-w.x));
 
-    return smoothstep(thresh-grad/2., thresh+grad/2., v*d);
+    if (cIntensity < 1.) {
+        return v*d*cIntensity;
+    } else {
+        return smoothstep(thresh-grad/2., thresh+grad/2., v*d);
+    }
 }
