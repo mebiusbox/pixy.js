@@ -290,6 +290,7 @@ Object.assign(Shader.prototype, {
     this._addUniform(result, ["NORMALMAP"], "normalMapUniforms");
     this._addUniform(result, ["BUMPMAP"], "bumpMapUniforms");
     this._addUniform(result, ["+BUMPOFFSET","+PARALLAXMAP"], "parallaxMapUniforms");
+    this._addUniform(result, ["PARALLAXOCCLUSIONMAP"], "parallaxOcclusionMapUniforms");
     this._addUniform(result, ["DISTORTION"], "distortionUniforms");
     this._addUniform(result, ["+UVSCROLL","+UVSCROLL2"], "uvScrollUniforms");
     this._addUniform(result, ["UVSCALE"], "uvScaleUniforms");
@@ -363,7 +364,7 @@ Object.assign(Shader.prototype, {
     codes.push("");
     
     this._addCode(codes, ["+COLORMAP","+NORMALMAP","+BUMPMAP","+PROJECTIONMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS", "+VIEW", "+EMISSIVEMAP"], "uvVertFragPars");
-    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+ANISOTROPY","+OVERLAYNORMAL"], "tangentVertPars");
+    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP", "+ANISOTROPY","+OVERLAYNORMAL"], "tangentVertPars");
     this._addCode(codes, ["+UVSCROLL","+UVSCROLL2"], "uvScrollVertPars");
     this._addCode(codes, ["+GLASS","+DITHER"], "screenVertPars");
     this._addCode(codes, ["DISTORTION"], "distortionVertPars");
@@ -419,7 +420,7 @@ Object.assign(Shader.prototype, {
       this._addCode(codes, ["UVSCROLL2"], "uvScroll2Vert");
     }
     
-    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+ANISOTROPY","+OVERLAYNORMAL"], "tangentVert");
+    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP", "+ANISOTROPY","+OVERLAYNORMAL"], "tangentVert");
     this._addCode(codes, ["+GLASS","+DITHER"], "screenVert");
     this._addCode(codes, ["GLASS"], "glassVert");
     this._addCode(codes, ["ANISOTRPY"], "anisotropyVert");
@@ -541,9 +542,10 @@ Object.assign(Shader.prototype, {
     this._addCode(codes, ["+COLORMAP","+NORMALMAP","+PROJECTIONMAP","+OVERLAY","+CLOUDS","+EMISSIVEMAP"], "uvVertFragPars");
     this._addCode(codes, ["UVSCALE"], "uvScaleFragPars");
     this._addCode(codes, ["COLORMAP"], "colorMapFragPars");
-    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+ANISOTROPY","+OVERLAYNORMAL"], "tangentFragPars");
+    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP", "+ANISOTROPY","+OVERLAYNORMAL"], "tangentFragPars");
     this._addCode(codes, ["NORMALMAP"], "normalMapFragPars");
     this._addCode(codes, ["+BUMPOFFSET", "+PARALLAXMAP"], "parallaxMapFragPars");
+    this._addCode(codes, ["PARALLAXOCCLUSIONMAP"], "parallaxOcclusionMapFragPars");
     this._addCode(codes, ["BUMPMAP"], "bumpMapFragPars");
     this._addCode(codes, ["PROJECTIONMAP"], "projectionMapFragPars");
     this._addCode(codes, ["DISTORTION"], "distortionFragPars");
@@ -610,6 +612,7 @@ Object.assign(Shader.prototype, {
     
       this._addCode(codes, ["CLIPPINGPLANE"], "clippingPlaneFrag");
       this._addCode(codes, [], "beginFrag");
+      this._addCode(codes, ["DEBUG"], "beginFragDebug");
       // this._addCode(codes, ["CLIPPINGPLANEALPHA"], "clippingPlaneFrag");
       
       // chunk here
@@ -620,6 +623,7 @@ Object.assign(Shader.prototype, {
       this._addCode(codes, ["UVHEMISPHERICAL"], "uvHemiSphericalFrag");
       this._addCode(codes, ["UVSCALE"], "uvScaleFrag");
       this._addCode(codes, ["PARALLAXMAP"], "parallaxMapFrag");
+      this._addCode(codes, ["PARALLAXOCCLUSIONMAP"], "parallaxOcclusionMapFrag");
       this._addCode(codes, ["BUMPOFFSET"], "parallaxFrag");
       this._addCode(codes, ["DISTORTION"], "distortionFrag");
       this._addCode(codes, ["COLORMAP"], "colorMapFrag");
@@ -668,6 +672,7 @@ Object.assign(Shader.prototype, {
       this._addCode(codes, ["TONEMAPPING"], "toneMappingFrag");
       
       this._addCode(codes, [], "endFrag");
+      this._addCode(codes, ["DEBUG"], "endFragDebug");
     codes.push("}");
     
     return codes.join("\n");
@@ -813,11 +818,11 @@ Object.assign(Shader.prototype, {
     
     this.material = new THREE.ShaderMaterial(Object.assign(params, options));
     
-    if (/* this.isEnable('NORMALMAP') || */this.isEnable('BUMPMAP')) {
+    if (/* this.isEnable('NORMALMAP') || */this.isEnable('BUMPMAP') || this.isEnable('PARALLAXOCCLUSIONMAP')) {
       this.material.extensions.derivatives = true;
     };
     
-    if (this.isEnable(['STANDARD', 'REFLECTION'])) {
+    if (this.isEnable(['STANDARD', 'REFLECTION']) || this.isEnable('PARALLAXOCCLUSIONMAP')) {
       this.material.extensions.shaderTextureLOD = true;
     };
   }

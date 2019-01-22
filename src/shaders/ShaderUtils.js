@@ -141,7 +141,7 @@ export var ShaderUtils = {
       h.add(parameters, "emissiveB", 0.0, 5.0, 0.01).onChange(emissiveCallback);
     }
     
-    if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP'])) {
+    if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP', '+PARALLAXOCCLUSIONMAP'])) {
       h = gui.addFolder("Bump");
       
       if (shader.isEnable(['+NORMALMAP', '+BUMPMAP'])) {
@@ -154,6 +154,11 @@ export var ShaderUtils = {
         parameters.parallaxScale = shader.uniforms.parallaxScale.value;
         h.add(parameters, "parallaxHeight", -1.0, 1.0, 0.025).onChange(function(value) { updateCallback("parallaxHeight", value); });
         h.add(parameters, "parallaxScale", -1.0, 1.0, 0.025).onChange(function(value) { updateCallback("parallaxScale", value); });
+      }
+
+      if (shader.isEnable('PARALLAXOCCLUSIONMAP')) {
+        parameters.parallaxScale = shader.uniforms.parallaxScale.value;
+        h.add(parameters, "parallaxScale", 0, 0.2, 0.001).onChange(function(value) { updateCallback("parallaxScale", value); });
       }
     }
     

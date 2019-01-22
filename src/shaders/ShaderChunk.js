@@ -287,6 +287,11 @@ import { viewUniforms } from './ShaderChunk/viewUniforms.js';
 import worldPositionVert from './ShaderChunk/worldPositionVert.glsl';
 import worldPositionVertFragPars from './ShaderChunk/worldPositionVertFragPars.glsl';
 import standardRectLightFrag from './ShaderChunk/standardRectLightFrag.glsl';
+import parallaxOcclusionMapFrag from './ShaderChunk/parallaxOcclusionMapFrag.glsl';
+import parallaxOcclusionMapFragPars from './ShaderChunk/parallaxOcclusionMapFragPars.glsl';
+import { parallaxOcclusionMapUniforms } from './ShaderChunk/parallaxOcclusionMapUniforms.js';
+import beginFragDebug from './ShaderChunk/beginFragDebug.glsl';
+import endFragDebug from './ShaderChunk/endFragDebug.glsl';
 
 export var ShaderChunk = {
 	accumulateFrag: accumulateFrag,
@@ -578,4 +583,9 @@ export var ShaderChunk = {
 	worldPositionVert: worldPositionVert,
 	worldPositionVertFragPars: worldPositionVertFragPars,
 	standardRectLightFrag: standardRectLightFrag,
+	parallaxOcclusionMapFrag: parallaxOcclusionMapFrag,
+	parallaxOcclusionMapFragPars: parallaxOcclusionMapFragPars,
+	parallaxOcclusionMapUniforms: parallaxOcclusionMapUniforms,
+	beginFragDebug: beginFragDebug,
+	endFragDebug: endFragDebug,
 };

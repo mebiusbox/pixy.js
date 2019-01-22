@@ -1,0 +1,1 @@
+vec3 debugColor = vec3(1.0, 0.0, 0.0);
