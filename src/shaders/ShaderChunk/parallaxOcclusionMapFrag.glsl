@@ -23,7 +23,8 @@
     if (float(nCurrSample) > nNumSamples) break;
     // fCurrSampledHeight = textureGrad(tDiffuse, uv + vCurrOffset, dPdx, dPdy).a;
     // fCurrSampledHeight = texture2DGradEXT(tDiffuse, uv + vCurrOffset, dPdx, dPdy).a;
-    fCurrSampledHeight = texture2D(tDiffuse, uv + vCurrOffset).a;
+    // fCurrSampledHeight = texture2D(tDiffuse, uv + vCurrOffset).a;
+    fCurrSampledHeight = texture2D(tHeightMap, uv + vCurrOffset).r;
     if (fCurrSampledHeight > fCurrRayHeight) {
       float delta1 = fCurrSampledHeight - fCurrRayHeight;
       float delta2 = (fCurrRayHeight + fStepSize) - fLastSampledHeight;

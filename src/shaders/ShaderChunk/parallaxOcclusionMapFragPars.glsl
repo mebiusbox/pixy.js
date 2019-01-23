@@ -1,4 +1,5 @@
 uniform float parallaxScale;
+uniform sampler2D tHeightMap;
 
 // vec3 perturbUv( vec3 surfPosition, vec3 surfNormal, vec3 viewPosition ) {
 
