@@ -34,15 +34,15 @@
     </div>
     
     <script src="js/three.min.js"></script>
+    <script src="js/WebGL.js"></script>
     <script src="js/controls/OrbitControls.js"></script>
-    <script src="js/Detector.js"></script>
     <script src="js/libs/dat.gui.min.js"></script>
     <script src="js/libs/stats.min.js"></script>
-    <script src="js/geometries/TeapotBufferGeometry.js"></script>
-    <script src="js/BufferGeometryUtils.js"></script>
     <script src="../build/pixy.js"></script>
     <script>
-      if (!Detector.webgl) Detector.addGetWebGLMessage();
+      if (WEBGL.isWebGLAvailable() === false) {
+        document.body.appendChild(WEBGL.getWebGLErrorMessage());
+      }
       
       var camera, controls, scene, renderer;
       var stats, clock = new THREE.Clock();
@@ -176,8 +176,8 @@
         scene.add(objects.sky);
         
         // object
-        var loader = new THREE.JSONLoader();
-        loader.load('assets/models/animated/flamingo.js', function(geometry) {
+        var loader = new THREE.ObjectLoader();
+        loader.load('assets/models/animated/flamingo.json', function(geometry) {
           // var material = new THREE.MeshBasicMaterial({color: 0x0, morphTargets: true, vertexColors: THREE.FaceColors});
           var material = new THREE.MeshPhongMaterial({color: 0xffffff, specular: 0xffffff, shininess: 20, morphTargets: true, vertexColors: THREE.FaceColors, shading: THREE.FlatShading});
           var mesh = new THREE.Mesh(geometry, material);
