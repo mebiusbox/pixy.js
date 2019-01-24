@@ -934,13 +934,22 @@ var parallaxOcclusionMapFrag = "  vec3 vv = -geometry.viewDir * mat3(vTangent, v
 var parallaxOcclusionMapFragPars = "uniform float parallaxScale;\r\nuniform sampler2D tHeightMap;\r\n\r\n// vec3 perturbUv( vec3 surfPosition, vec3 surfNormal, vec3 viewPosition ) {\r\n\r\n//     vec2 texDx = dFdx( vUv );\r\n//     vec2 texDy = dFdy( vUv );\r\n\r\n//     vec3 vSigmaX = dFdx( surfPosition );\r\n//     vec3 vSigmaY = dFdy( surfPosition );\r\n//     vec3 vR1 = cross( vSigmaY, surfNormal );\r\n//     vec3 vR2 = cross( surfNormal, vSigmaX );\r\n//     float fDet = dot( vSigmaX, vR1 );\r\n\r\n//     vec2 vProjVscr = ( 1.0 / fDet ) * vec2( dot( vR1, viewPosition ), dot( vR2, viewPosition ) );\r\n//     vec3 vProjVtex;\r\n//     vProjVtex.xy = texDx * vProjVscr.x + texDy * vProjVscr.y;\r\n//     vProjVtex.z = dot( surfNormal, viewPosition );\r\n//     return vProjVtex;\r\n// }";
 
 var parallaxOcclusionMapUniforms = {
-  parallaxScale: { value: -0.03 },
+  parallaxScale: { value: 0.03 },
   tHeightMap: { value: null }
 };
 
 var beginFragDebug = "vec3 debugColor = vec3(1.0, 0.0, 0.0);";
 
 var endFragDebug = "gl_FragColor.rgb = debugColor;";
+
+var reliefMapFrag = "  vec3 vv = -geometry.viewDir * mat3(vTangent, vBinormal, vNormal);\r\n  float parallaxLimit = -length(vv.xy) / vv.z;\r\n  parallaxLimit *= parallaxScale;\r\n\r\n  vec2 vOffsetDir = normalize(vv.xy);\r\n  vec2 vMaxOffset = vOffsetDir * parallaxLimit;\r\n\r\n  float nNumSamples = mix(20.0, 10.0, dot(geometry.viewDir,vNormal));\r\n  float fStepSize = 1.0 / nNumSamples;\r\n\r\n  float fCurrRayHeight = 1.0;\r\n  vec2 vCurrOffset = vec2(0,0);\r\n  float fCurrSampledHeight = 1.;\r\n  for (int nCurrSample = 0; nCurrSample < 50; nCurrSample++) {\r\n    if (float(nCurrSample) > nNumSamples) break;\r\n    fCurrSampledHeight = texture2D(tHeightMap, uv + vCurrOffset).r;\r\n    if (fCurrSampledHeight > fCurrRayHeight) {\r\n\r\n      vec2 deltaOffset = vMaxOffset * fStepSize * 0.5;\r\n      float deltaHeight = fStepSize * 0.5;\r\n\r\n      vCurrOffset -= deltaOffset;\r\n      fCurrRayHeight += deltaHeight;\r\n\r\n      const int numSearches = 5;\r\n      for (int i=0; i<numSearches; i+=1) {\r\n        deltaOffset *= 0.5;\r\n        deltaHeight *= 0.5;\r\n        float fCurrSampledHeight = texture2D(tHeightMap, uv + vCurrOffset).r;\r\n        if (fCurrSampledHeight > fCurrRayHeight) {\r\n          // below the surface\r\n          vCurrOffset -= deltaOffset;\r\n          fCurrRayHeight += deltaHeight;\r\n        } else {\r\n          // above the surface\r\n          vCurrOffset += deltaOffset;\r\n          fCurrRayHeight -= deltaHeight;\r\n        }\r\n      }\r\n      break;\r\n    } else {\r\n      fCurrRayHeight -= fStepSize;\r\n      vCurrOffset += fStepSize * vMaxOffset;\r\n    }\r\n  }\r\n\r\n  uv += vCurrOffset;";
+
+var reliefMapFragPars = "uniform float parallaxScale;\r\nuniform sampler2D tHeightMap;";
+
+var reliefMapUniforms = {
+  parallaxScale: { value: 0.03 },
+  tHeightMap: { value: null }
+};
 
 var ShaderChunk = {
 	accumulateFrag: accumulateFrag,
@@ -1237,6 +1246,9 @@ var ShaderChunk = {
 	parallaxOcclusionMapUniforms: parallaxOcclusionMapUniforms,
 	beginFragDebug: beginFragDebug,
 	endFragDebug: endFragDebug,
+	reliefMapFrag: reliefMapFrag,
+	reliefMapFragPars: reliefMapFragPars,
+	reliefMapUniforms: reliefMapUniforms,
 };
 
 var ShaderUtils = {
@@ -1382,7 +1394,7 @@ var ShaderUtils = {
       h.add(parameters, "emissiveB", 0.0, 5.0, 0.01).onChange(emissiveCallback);
     }
     
-    if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP', '+PARALLAXOCCLUSIONMAP'])) {
+    if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP'])) {
       h = gui.addFolder("Bump");
       
       if (shader.isEnable(['+NORMALMAP', '+BUMPMAP'])) {
@@ -1396,17 +1408,18 @@ var ShaderUtils = {
         h.add(parameters, "parallaxHeight", -1.0, 1.0, 0.025).onChange(function(value) { updateCallback("parallaxHeight", value); });
         h.add(parameters, "parallaxScale", -1.0, 1.0, 0.025).onChange(function(value) { updateCallback("parallaxScale", value); });
       }
-
-      if (shader.isEnable('PARALLAXOCCLUSIONMAP')) {
+    }
+    
+    if (shader.isEnable(['+BUMPOFFSET','+PARALLAXOCCLUSIONMAP','+RELIEFMAP'])) {
+      h = gui.addFolder("Parallax");
+      if (shader.isEnable('BUMPOFFSET')) {
+        parameters.parallaxHeight = shader.uniforms.parallaxHeight.value;
+        h.add(parameters, "parallaxHeight", 0.0, 0.5, 0.001).onChange(function(value) { updateCallback("parallaxHeight", value); });
+      }
+      if (shader.isEnable(['+PARALLAXOCCLUSIONMAP','+RELIEFMAP'])) {
         parameters.parallaxScale = shader.uniforms.parallaxScale.value;
         h.add(parameters, "parallaxScale", 0, 0.2, 0.001).onChange(function(value) { updateCallback("parallaxScale", value); });
       }
-    }
-    
-    if (shader.isEnable(['BUMPOFFSET'])) {
-      h = gui.addFolder("Parallax");
-      parameters.parallaxHeight = shader.uniforms.parallaxHeight.value;
-      h.add(parameters, "parallaxHeight", 0.0, 0.5, 0.001).onChange(function(value) { updateCallback("parallaxHeight", value); });
     }
     
     if (shader.isEnable("AOMAP")) {
@@ -2094,6 +2107,7 @@ Object.assign(Shader.prototype, {
     this._addUniform(result, ["BUMPMAP"], "bumpMapUniforms");
     this._addUniform(result, ["+BUMPOFFSET","+PARALLAXMAP"], "parallaxMapUniforms");
     this._addUniform(result, ["PARALLAXOCCLUSIONMAP"], "parallaxOcclusionMapUniforms");
+    this._addUniform(result, ["RELIEFMAP"], "reliefMapUniforms");
     this._addUniform(result, ["DISTORTION"], "distortionUniforms");
     this._addUniform(result, ["+UVSCROLL","+UVSCROLL2"], "uvScrollUniforms");
     this._addUniform(result, ["UVSCALE"], "uvScaleUniforms");
@@ -2167,7 +2181,7 @@ Object.assign(Shader.prototype, {
     codes.push("");
     
     this._addCode(codes, ["+COLORMAP","+NORMALMAP","+BUMPMAP","+PROJECTIONMAP","+OVERLAY","+DEPTHSHADOW","+CLOUDS", "+VIEW", "+EMISSIVEMAP"], "uvVertFragPars");
-    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP", "+ANISOTROPY","+OVERLAYNORMAL"], "tangentVertPars");
+    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP","+RELIEFMAP","+ANISOTROPY","+OVERLAYNORMAL"], "tangentVertPars");
     this._addCode(codes, ["+UVSCROLL","+UVSCROLL2"], "uvScrollVertPars");
     this._addCode(codes, ["+GLASS","+DITHER"], "screenVertPars");
     this._addCode(codes, ["DISTORTION"], "distortionVertPars");
@@ -2223,7 +2237,7 @@ Object.assign(Shader.prototype, {
       this._addCode(codes, ["UVSCROLL2"], "uvScroll2Vert");
     }
     
-    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP", "+ANISOTROPY","+OVERLAYNORMAL"], "tangentVert");
+    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP","+RELIEFMAP","+ANISOTROPY","+OVERLAYNORMAL"], "tangentVert");
     this._addCode(codes, ["+GLASS","+DITHER"], "screenVert");
     this._addCode(codes, ["GLASS"], "glassVert");
     this._addCode(codes, ["ANISOTRPY"], "anisotropyVert");
@@ -2345,10 +2359,11 @@ Object.assign(Shader.prototype, {
     this._addCode(codes, ["+COLORMAP","+NORMALMAP","+PROJECTIONMAP","+OVERLAY","+CLOUDS","+EMISSIVEMAP"], "uvVertFragPars");
     this._addCode(codes, ["UVSCALE"], "uvScaleFragPars");
     this._addCode(codes, ["COLORMAP"], "colorMapFragPars");
-    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP", "+ANISOTROPY","+OVERLAYNORMAL"], "tangentFragPars");
+    this._addCode(codes, ["+NORMALMAP","+BUMPOFFSET","+PARALLAXOCCLUSIONMAP","+RELIEFMAP","+ANISOTROPY","+OVERLAYNORMAL"], "tangentFragPars");
     this._addCode(codes, ["NORMALMAP"], "normalMapFragPars");
     this._addCode(codes, ["+BUMPOFFSET", "+PARALLAXMAP"], "parallaxMapFragPars");
     this._addCode(codes, ["PARALLAXOCCLUSIONMAP"], "parallaxOcclusionMapFragPars");
+    this._addCode(codes, ["RELIEFMAP"], "reliefMapFragPars");
     this._addCode(codes, ["BUMPMAP"], "bumpMapFragPars");
     this._addCode(codes, ["PROJECTIONMAP"], "projectionMapFragPars");
     this._addCode(codes, ["DISTORTION"], "distortionFragPars");
@@ -2427,6 +2442,7 @@ Object.assign(Shader.prototype, {
       this._addCode(codes, ["UVSCALE"], "uvScaleFrag");
       this._addCode(codes, ["PARALLAXMAP"], "parallaxMapFrag");
       this._addCode(codes, ["PARALLAXOCCLUSIONMAP"], "parallaxOcclusionMapFrag");
+      this._addCode(codes, ["RELIEFMAP"], "reliefMapFrag");
       this._addCode(codes, ["BUMPOFFSET"], "parallaxFrag");
       this._addCode(codes, ["DISTORTION"], "distortionFrag");
       this._addCode(codes, ["COLORMAP"], "colorMapFrag");
@@ -2621,11 +2637,11 @@ Object.assign(Shader.prototype, {
     
     this.material = new THREE.ShaderMaterial(Object.assign(params, options));
     
-    if (/* this.isEnable('NORMALMAP') || */this.isEnable('BUMPMAP') || this.isEnable('PARALLAXOCCLUSIONMAP')) {
+    if (/* this.isEnable('NORMALMAP') || */this.isEnable('BUMPMAP')/* || this.isEnable('PARALLAXOCCLUSIONMAP')*/) {
       this.material.extensions.derivatives = true;
     }
     
-    if (this.isEnable(['STANDARD', 'REFLECTION']) || this.isEnable('PARALLAXOCCLUSIONMAP')) {
+    if (this.isEnable(['STANDARD', 'REFLECTION'])/* || this.isEnable('PARALLAXOCCLUSIONMAP')*/) {
       this.material.extensions.shaderTextureLOD = true;
     }
   }

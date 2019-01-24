@@ -141,7 +141,7 @@ export var ShaderUtils = {
       h.add(parameters, "emissiveB", 0.0, 5.0, 0.01).onChange(emissiveCallback);
     }
     
-    if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP', '+PARALLAXOCCLUSIONMAP'])) {
+    if (shader.isEnable(['+NORMALMAP', '+BUMPMAP', '+PARALLAXMAP'])) {
       h = gui.addFolder("Bump");
       
       if (shader.isEnable(['+NORMALMAP', '+BUMPMAP'])) {
@@ -155,17 +155,18 @@ export var ShaderUtils = {
         h.add(parameters, "parallaxHeight", -1.0, 1.0, 0.025).onChange(function(value) { updateCallback("parallaxHeight", value); });
         h.add(parameters, "parallaxScale", -1.0, 1.0, 0.025).onChange(function(value) { updateCallback("parallaxScale", value); });
       }
-
-      if (shader.isEnable('PARALLAXOCCLUSIONMAP')) {
+    }
+    
+    if (shader.isEnable(['+BUMPOFFSET','+PARALLAXOCCLUSIONMAP','+RELIEFMAP'])) {
+      h = gui.addFolder("Parallax");
+      if (shader.isEnable('BUMPOFFSET')) {
+        parameters.parallaxHeight = shader.uniforms.parallaxHeight.value;
+        h.add(parameters, "parallaxHeight", 0.0, 0.5, 0.001).onChange(function(value) { updateCallback("parallaxHeight", value); });
+      }
+      if (shader.isEnable(['+PARALLAXOCCLUSIONMAP','+RELIEFMAP'])) {
         parameters.parallaxScale = shader.uniforms.parallaxScale.value;
         h.add(parameters, "parallaxScale", 0, 0.2, 0.001).onChange(function(value) { updateCallback("parallaxScale", value); });
       }
-    }
-    
-    if (shader.isEnable(['BUMPOFFSET'])) {
-      h = gui.addFolder("Parallax");
-      parameters.parallaxHeight = shader.uniforms.parallaxHeight.value;
-      h.add(parameters, "parallaxHeight", 0.0, 0.5, 0.001).onChange(function(value) { updateCallback("parallaxHeight", value); });
     }
     
     if (shader.isEnable("AOMAP")) {

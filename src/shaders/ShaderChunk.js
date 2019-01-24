@@ -292,6 +292,9 @@ import parallaxOcclusionMapFragPars from './ShaderChunk/parallaxOcclusionMapFrag
 import { parallaxOcclusionMapUniforms } from './ShaderChunk/parallaxOcclusionMapUniforms.js';
 import beginFragDebug from './ShaderChunk/beginFragDebug.glsl';
 import endFragDebug from './ShaderChunk/endFragDebug.glsl';
+import reliefMapFrag from './ShaderChunk/reliefMapFrag.glsl';
+import reliefMapFragPars from './ShaderChunk/reliefMapFragPars.glsl';
+import { reliefMapUniforms } from './ShaderChunk/reliefMapUniforms.js';
 
 export var ShaderChunk = {
 	accumulateFrag: accumulateFrag,
@@ -588,4 +591,7 @@ export var ShaderChunk = {
 	parallaxOcclusionMapUniforms: parallaxOcclusionMapUniforms,
 	beginFragDebug: beginFragDebug,
 	endFragDebug: endFragDebug,
+	reliefMapFrag: reliefMapFrag,
+	reliefMapFragPars: reliefMapFragPars,
+	reliefMapUniforms: reliefMapUniforms,
 };
