@@ -48,7 +48,7 @@
     "three": "^0.84.0"
   },
   "devDependencies": {
-    "eslint": "^3.10.1",
+    "eslint": "^6.8.0",
     "eslint-config-mdcs": "^4.2.2",
     "qunitjs": "^2.1.1",
     "rollup": "^0.36.3",
