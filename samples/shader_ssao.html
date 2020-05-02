@@ -68,15 +68,12 @@
     
     <script src="js/three.min.js"></script>
     <script src="js/controls/OrbitControls.js"></script>
-    <script src="js/Detector.js"></script>
     <script src="js/libs/dat.gui.min.js"></script>
     <script src="js/libs/stats.min.js"></script>
     <script src="js/geometries/TeapotBufferGeometry.js"></script>
-    <script src="js/BufferGeometryUtils.js"></script>
+    <script src="js/utils/BufferGeometryUtils.js"></script>
     <script src="../build/pixy.js"></script>
     <script>
-      if (!Detector.webgl) Detector.addGetWebGLMessage();
-      
       var NUM_LIGHTS = 10;
       var camera, controls, scene, postScene, renderer, canvas;
       var deferred = {};
@@ -330,62 +327,36 @@
         results = PIXY.ShaderUtils.GenerateShaderParametersGUI(shader);
         gui = results.gui;
         parameters = results.parameters;
+        parameters.depthView = false;
         
-        // parameters.ssaoLumInfluence = post.ssaoPass.uniforms.lumInfluence.value;
-        // parameters.ssaoRadius = post.ssaoPass.uniforms.radius.value;
-        // parameters.ssaoDiffArea = post.ssaoPass.uniforms.diffArea.value;
-        // parameters.ssaoGDisplace = post.ssaoPass.uniforms.gDisplace.value;
-        
-        parameters.ssaoRadius = post.ssaoPass.radius;
-        parameters.ssaoAngleBias = post.ssaoPass.angleBias;
-        parameters.ssaoStrength = post.ssaoPass.strength;
-        parameters.ssaoMaxRadius = post.ssaoPass.maxRadius;
-        // parameters.ssaoRadius = post.ssaoPass.uniforms.radius.value;
-        // parameters.ssaoAngleBias = post.ssaoPass.uniforms.angleBias.value;
-        // parameters.ssaoStrength = post.ssaoPass.uniforms.strength.value;
-        
+        parameters.ssaoLumInfluence = post.ssaoPass.uniforms.lumInfluence.value;
+        parameters.ssaoRadius = post.ssaoPass.uniforms.radius.value;
+        parameters.ssaoDiffArea = post.ssaoPass.uniforms.diffArea.value;
+        parameters.ssaoGDisplace = post.ssaoPass.uniforms.gDisplace.value;
+
         parameters.ssao = true;
         parameters.ssaoOnly = false;
         var h = gui.addFolder("SSAO");
         h.add(parameters, "ssao").onChange(function(value) {
           post.ssaoPass.enabled = value;
           post.copyPass.enabled = !value;
-          // post.copyPass.enabled = value;
-          // post.viewPass.enabled = !value;
         });
         h.add(parameters, "ssaoOnly").onChange(function(value) {
-          // post.ssaoPass.uniforms.onlyAO.value = value;
-          post.ssaoPass.ssaoOnly = value;
+          post.ssaoPass.uniforms.onlyAO.value = value;
         });
-        // h.add(parameters, "ssaoLumInfluence", 0.1, 1.0, 0.01).name("lumInfluence").onChange(function(value) {
-        //   post.ssaoPass.uniforms.lumInfluence.value = value;
-        // });
-        h.add(parameters, "ssaoRadius", 0.1, 10.0, 0.01).name("radius").onChange(function(value) {
-          post.ssaoPass.radius = value;
-          // post.ssaoPass.uniforms.radius.value = value;
-          // updateSSAO();
+        h.add(parameters, "depthView").onChange(function(value) {
+          post.ssaoPass.enabled = !value;
+          post.viewPass.enabled = value;
         });
-        h.add(parameters, "ssaoMaxRadius", 0.0, 1.0, 0.01).name("maxRadius").onChange(function(value) {
-          post.ssaoPass.maxRadius = value;
-          // post.ssaoPass.uniforms.radius.value = value;
-          // updateSSAO();
+        h.add(parameters, "ssaoLumInfluence", 0.1, 1.0, 0.01).name("lumInfluence").onChange(function(value) {
+          post.ssaoPass.uniforms.lumInfluence.value = value;
         });
-        h.add(parameters, "ssaoAngleBias", 0.1, 90.0, 0.01).name("angleBias").onChange(function(value) {
-          post.ssaoPass.angleBias = value;
-          // post.ssaoPass.uniforms.angleBias.value = value;
-          // updateSSAO();
+        h.add(parameters, "ssaoDiffArea", 0.1, 1.0, 0.01).name("diffArea").onChange(function(value) {
+          post.ssaoPass.uniforms.diffArea.value = value;
         });
-        h.add(parameters, "ssaoStrength", 0.1, 10.0, 0.01).name("strength").onChange(function(value) {
-          post.ssaoPass.strength = value;
-          // post.ssaoPass.uniforms.strength.value = value;
-          // updateSSAO();
+        h.add(parameters, "ssaoGDisplace", 0.1, 1.0, 0.01).name("gDisplace").onChange(function(value) {
+          post.ssaoPass.uniforms.gDisplace.value = value;
         });
-        // h.add(parameters, "ssaoDiffArea", 0.1, 1.0, 0.01).name("diffArea").onChange(function(value) {
-        //   post.ssaoPass.uniforms.diffArea.value = value;
-        // });
-        // h.add(parameters, "ssaoGDisplace", 0.1, 1.0, 0.01).name("gDisplace").onChange(function(value) {
-        //   post.ssaoPass.uniforms.gDisplace.value = value;
-        // });
       }
       
       function initPost() {
@@ -414,11 +385,11 @@
         // 
         
         post.rtScene = new THREE.WebGLRenderTarget(canvas.width, canvas.height, pars);
-        // post.ssaoPass = new PIXY.ShaderPass(PIXY.ShaderLib.ssao);
-        // post.ssaoPass.uniforms.tDepth.value = post.depthTexture;
-        // post.ssaoPass.uniforms.size.value.set(canvas.width, canvas.height);
-        post.ssaoPass = new PIXY.SSAOPass({depthTexture: post.depthTexture, resolution: new THREE.Vector2(canvas.width, canvas.height), camera: camera, downsampling:2});
-        // post.ssaoPass.enabled = false;
+        post.ssaoPass = new PIXY.ShaderPass(PIXY.ShaderLib.ssao, "tDiffuse");
+        post.ssaoPass.uniforms.tDepth.value = post.depthTexture;
+        post.ssaoPass.uniforms.size.value = new THREE.Vector2(canvas.width, canvas.height);
+        post.ssaoPass.uniforms.cameraNear.value = camera.near;
+        post.ssaoPass.uniforms.cameraFar.value = camera.far;
         post.copyPass = new PIXY.CopyPass();
         post.copyPass.enabled = false;
         post.copyPass.uniforms.tDiffuse.value = post.depthTexture;
@@ -433,18 +404,6 @@
         post.composer.addPass(post.copyPass, post.rtScene, null);
         post.composer.addPass(post.ssaoPass, post.rtScene, null);
         post.composer.addPass(post.viewPass, post.rtScene, null);
-        // post.composer.addPass(new PIXY.CopyPass(), post.rtBlur1, null, false, false);
-      
-        // post.rtBloom = new THREE.WebGLRenderTarget(canvas.width, canvas.height, parsF);
-        // post.copyPass = new PIXY.CopyPass();
-        // post.copyPass.uniforms.tDiffuse.value = post.rtScene.texture;
-        // post.bloomPass = new PIXY.UnrealBloomPass(new THREE.Vector2(canvas.width, canvas.height), 1.5, 0.4, 0.85);
-        // post.toneMapPass = new PIXY.ShaderPass(PIXY.ShaderLib.toneMap);
-        // post.toneMapPass.uniforms.tDiffuse.value = post.rtScene.texture;
-        // post.composer = new PIXY.Composer(renderer);
-        // post.composer.addPass(post.bloomPass, post.rtScene, post.rtScene);
-        // post.composer.addPass(post.toneMapPass, post.rtScene, null);
-        // post.composer.addPass(post.copyPass, post.rtScene, null);
       }
       
       // function updateSSAO() {

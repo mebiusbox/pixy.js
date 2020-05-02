@@ -48,7 +48,11 @@ ShaderPass.prototype = Object.assign(Object.create(Pass.prototype), {
     if (this.renderToScreen) {
       renderer.render(this.scene, this.camera);
     } else {
-      renderer.render(this.scene, this.camera, writeBuffer, this.clear);
+      var oldRenderTarget = renderer.getRenderTarget();
+      renderer.setRenderTarget(writeBuffer);
+      if (this.clear) renderer.clear();
+      renderer.render(this.scene, this.camera);
+      renderer.setRenderTarget(oldRenderTarget);
     }
     
     if (this.colorMask) {

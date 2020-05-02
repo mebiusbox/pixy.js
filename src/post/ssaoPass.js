@@ -124,17 +124,24 @@ SSAOPass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
     this.makeUniforms.focalParams.value.set(focal1, focal2, invFocal1, invFocal2);
     this.makeUniforms.cameraParams.value.set(this.sceneCamera.near, this.sceneCamera.far);
     this.makeUniforms.tDepth.value = this.depthTexture;
+
+    var oldRenderTarget = renderer.getRenderTarget();
+    var oldAutoClear = renderer.autoClear;
+    renderer.autoClear = false;
     
     // MAKE SSAO
     this.quad.material = this.makeMaterial;
-    renderer.render(this.scene, this.camera, this.rtBlur1, false);
+    renderer.setRenderTarget(this.rtBlur1);
+    renderer.render(this.scene, this.camera);
     
     for (var i=0; i<2; ++i) {
       this.quad.material = this.blurXMaterial;
-      renderer.render(this.scene, this.camera, this.rtBlur2, false);
+      renderer.setRenderTarget(this.rtBlur2);
+      renderer.render(this.scene, this.camera);
       
       this.quad.material = this.blurYMaterial;
-      renderer.render(this.scene, this.camera, this.rtBlur1, false);
+      renderer.setRenderTarget(this.rtBlur1);
+      renderer.render(this.scene, this.camera);
     }
     
     var target = this.rtBlur1;
@@ -149,7 +156,10 @@ SSAOPass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
       this.compositeUniforms.tAO.value = target.texture;
     }
     
-    renderer.render(this.scene, this.camera, writeBuffer, false);
+    renderer.setRenderTarget(writeBuffer);
+    renderer.render(this.scene, this.camera);
+    renderer.setRenderTarget(oldRenderTarget);
+    renderer.autoClear = oldAutoClear;
   }
 });
 

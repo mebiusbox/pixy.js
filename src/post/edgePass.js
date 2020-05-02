@@ -54,18 +54,24 @@ EdgePass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
   
   render: function(renderer, writeBuffer, readBuffer, delta, maskActive) {
     
+    var oldRenderTarget = renderer.getRenderTarget();
+    var oldAutoClear = renderer.autoClear;
+    renderer.autoClear = false;
+
     if (this.idedge) {
       this.idUniforms.aspect.value = this.aspect;
       this.idUniforms.step.value = 1.0;
       this.idUniforms.tDiffuse.value = this.source;
       this.quad.material = this.idMaterial;
-      renderer.render(this.scene, this.camera, this.edgeBuffer);
+      renderer.setRenderTarget(this.edgeBuffer);
+      renderer.render(this.scene, this.camera);
       this.quad.material = null;
     } else {
       this.edgeUniforms.aspect.value = this.aspect;
       this.edgeUniforms.tDiffuse.value = this.source;
       this.quad.material = this.edgeMaterial;
-      renderer.render(this.scene, this.camera, this.edgeBuffer);
+      renderer.setRenderTarget(this.edgeBuffer);
+      renderer.render(this.scene, this.camera);
       this.quad.material = null;
     }
     
@@ -75,7 +81,8 @@ EdgePass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
       this.edgeExpandUniforms.strength.value = this.strength;
       this.edgeExpandUniforms.tDiffuse.value = this.edgeBuffer.texture;
       this.quad.material = this.edgeExpandMaterial;
-      renderer.render(this.scene, this.camera, this.edgeExpandBuffer);
+      renderer.setRenderTarget(this.edgeExpandBuffer);
+      renderer.render(this.scene, this.camera);
       this.quad.material = null;
       edgeTexture = this.edgeExpandBuffer.texture;
     }
@@ -86,13 +93,18 @@ EdgePass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
     this.compositeUniforms.tEdge.value = edgeTexture;
     this.compositeUniforms.tDiffuse.value = readBuffer.texture;
     this.quad.material = this.compositeMaterial;
-    renderer.render(this.scene, this.camera, writeBuffer, this.clear);
+    renderer.setRenderTargeT(writeBuffer);
+    if (this.clear) renderer.clear();
+    renderer.render(this.scene, this.camera);
     this.quad.material = null;
     
     // this.quad.material = new THREE.MeshBasicMaterial({map: this.edgeBuffer.texture});
     // this.quad.material = new THREE.MeshBasicMaterial({map: this.source});
     // renderer.render(this.scene, this.camera, writeBuffer, this.clear);
     // this.quad.material = null;
+
+    renderer.setRenderTarget(oldRenderTarget);
+    renderer.autoClear = oldAutoClear;
   }
 });
 

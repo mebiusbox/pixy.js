@@ -51,8 +51,14 @@ MaskPass.prototype = Object.assign(Object.create(Pass.prototype), {
     
     // draw into the stencil buffer
     
-    // renderer.render(this.scene, this.camera, readBuffer, this.clear);
-    renderer.render(this.scene, this.camera, writeBuffer, this.clear);
+    var oldRenderTarget = renderer.getRenderTarget();
+    var oldAutoClear = renderer.autoClear;
+    renderer.autoClear = false;
+    renderer.setRenderTarget(writeBuffer);
+    if (this.clear) renderer.clear();
+    renderer.render(this.scene, this.camera);
+    renderer.setRenderTarget(oldRenderTarget);
+    renderer.autoClear = oldAutoClear;
     
     // only render where stencil is set to 1
     

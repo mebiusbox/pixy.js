@@ -296,7 +296,10 @@ Ocean.prototype.render = function() {
     // We can't render ourself to ourself
     var visible = this.material.visible;
     this.material.visible = false;
-    this.renderer.render(scene, this.mirrorCamera, this.renderTarget, true);
+    this.renderer.setRenderTarget(this.renderTarget);
+    this.renderer.clear();
+    this.renderer.render(scene, this.mirrorCamera);
+    this.renderer.setRenderTarget(null);
     this.material.visible = visible;
   }
 };

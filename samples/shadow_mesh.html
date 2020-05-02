@@ -40,8 +40,8 @@
     <script src="js/libs/stats.min.js"></script>
     <script src="../build/pixy.js"></script>
     <script>
-      if (WEBGL.isWebGLAvailable() === false) {
-        document.body.appendChild(WEBGL.getWebGLErrorMessage());
+      if (THREE.WEBGL.isWebGLAvailable() === false) {
+        document.body.appendChild(THREE.WEBGL.getWebGLErrorMessage());
       }
       
       var camera, controls, scene, renderer;

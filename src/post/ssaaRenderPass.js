@@ -64,6 +64,7 @@ SSAARenderPass.prototype = Object.assign(Object.create(Pass.prototype), {
     var autoClear = renderer.autoClear;
     renderer.autoClear = false;
     
+    var oldRenderTarget = renderer.getRenderTarget();
     var oldClearColor = renderer.getClearColor().getHex();
     var oldClearAlpha = renderer.getClearAlpha();
     
@@ -92,12 +93,16 @@ SSAARenderPass.prototype = Object.assign(Object.create(Pass.prototype), {
       
       this.copyUniforms["opacity"].value = sampleWeight;
       renderer.setClearColor(this.clearColor, this.clearAlpha);
-      renderer.render(this.scene, this.camera, this.sampleRenderTarget, true);
+      renderer.setRenderTargeT(this.sampleRenderTarget);
+      renderer.clear();
+      renderer.render(this.scene, this.camera);
 
       if (i === 0) {
         renderer.setClearColor(0x000000, 1.0);
       }
-      renderer.render(this.scene2, this.camera2, writeBuffer, (i === 0));
+      renderer.setRenderTarget(writeBuffer);
+      if (i === 0) renderer.clear();
+      renderer.render(this.scene2, this.camera2);
     }
     
     
@@ -107,6 +112,7 @@ SSAARenderPass.prototype = Object.assign(Object.create(Pass.prototype), {
     
     renderer.autoClear = autoClear;
     renderer.setClearColor(oldClearColor, oldClearAlpha);
+    renderer.setRenderTarget(oldRenderTarget);
   }
 });
 

@@ -46,6 +46,7 @@ TAARenderPass.prototype = Object.assign(Object.create(SSAARenderPass.prototype),
       this.accumulateIndex = 0;
     }
     
+    var oldRenderTarget = renderer.getRenderTarget();
     var autoClear = renderer.autoClear;
     renderer.autoClear = false;
     
@@ -65,8 +66,13 @@ TAARenderPass.prototype = Object.assign(Object.create(SSAARenderPass.prototype),
             readBuffer.width, readBuffer.height);
         }
         
-        renderer.render(this.scene, this.camera, writeBuffer, true);
-        renderer.render(this.scene2, this.camera2, this.sampleRenderTarget, (this.accumulateIndex === 0));
+        renderer.setRenderTarget(writeBuffer);
+        renderer.clear();
+        renderer.render(this.scene, this.camera);
+
+        renderer.setRenderTarget(this.sampleRenderTarget);
+        if (this.accumulateIndex === 0) renderer.clear();
+        renderer.render(this.scene2, this.camera2);
         
         this.accumulateIndex++;
         if (this.accumulateIndex >= jitterOffsets.length) {
@@ -83,14 +89,19 @@ TAARenderPass.prototype = Object.assign(Object.create(SSAARenderPass.prototype),
     if (accumulationWeight > 0) {
       this.copyUniforms["opacity"].value = 1.0;
       this.copyUniforms["tDiffuse"].value = this.sampleRenderTarget.texture;
-      renderer.render(this.scene2, this.camera2, writeBuffer, true);
+      renderer.setRenderTarget(writeBuffer);
+      renderer.clear();
+      renderer.render(this.scene2, this.camera2);
     }
     if (accumulationWeight < 1.0) {
       this.copyUniforms["opacity"].value = 1.0 - accumulationWeight;
       this.copyUniforms["tDiffuse"].value = this.holdRenderTarget.texture;
-      renderer.render(this.scene2, this.camera2, writeBuffer, (accumulationWeight === 0));
+      renderer.setRenderTarget(writeBuffer);
+      if (accumulationWeight === 0) renderer.clear();
+      renderer.render(this.scene2, this.camera2);
     }
     
+    renderer.setRenderTarget(oldRenderTarget);
     renderer.autoClear = autoClear;
   }
 });

@@ -15,6 +15,7 @@ import aoMapFrag from './ShaderChunk/aoMapFrag.glsl';
 import aoMapFragPars from './ShaderChunk/aoMapFragPars.glsl';
 import { aoMapUniforms } from './ShaderChunk/aoMapUniforms.js';
 import beginFrag from './ShaderChunk/beginFrag.glsl';
+import beginFragDebug from './ShaderChunk/beginFragDebug.glsl';
 import billboardDefaultVert from './ShaderChunk/billboardDefaultVert.glsl';
 import billboardRotZVertEnd from './ShaderChunk/billboardRotZVertEnd.glsl';
 import { billboardUniforms } from './ShaderChunk/billboardUniforms.js';
@@ -98,6 +99,7 @@ import emissiveMapFragPars from './ShaderChunk/emissiveMapFragPars.glsl';
 import { emissiveMapUniforms } from './ShaderChunk/emissiveMapUniforms.js';
 import { emissiveUniforms } from './ShaderChunk/emissiveUniforms.js';
 import endFrag from './ShaderChunk/endFrag.glsl';
+import endFragDebug from './ShaderChunk/endFragDebug.glsl';
 import fakeSunFrag from './ShaderChunk/fakeSunFrag.glsl';
 import { fakeSunUniforms } from './ShaderChunk/fakeSunUniforms.js';
 import fakeSunVert from './ShaderChunk/fakeSunVert.glsl';
@@ -197,6 +199,9 @@ import parallaxFrag from './ShaderChunk/parallaxFrag.glsl';
 import parallaxMapFrag from './ShaderChunk/parallaxMapFrag.glsl';
 import parallaxMapFragPars from './ShaderChunk/parallaxMapFragPars.glsl';
 import { parallaxMapUniforms } from './ShaderChunk/parallaxMapUniforms.js';
+import parallaxOcclusionMapFrag from './ShaderChunk/parallaxOcclusionMapFrag.glsl';
+import parallaxOcclusionMapFragPars from './ShaderChunk/parallaxOcclusionMapFragPars.glsl';
+import { parallaxOcclusionMapUniforms } from './ShaderChunk/parallaxOcclusionMapUniforms.js';
 import phongFrag from './ShaderChunk/phongFrag.glsl';
 import phongFragPars from './ShaderChunk/phongFragPars.glsl';
 import { phongUniforms } from './ShaderChunk/phongUniforms.js';
@@ -214,6 +219,9 @@ import reflectionFrag from './ShaderChunk/reflectionFrag.glsl';
 import reflectionFragPars from './ShaderChunk/reflectionFragPars.glsl';
 import reflectionStandardFrag from './ShaderChunk/reflectionStandardFrag.glsl';
 import { reflectionUniforms } from './ShaderChunk/reflectionUniforms.js';
+import reliefMapFrag from './ShaderChunk/reliefMapFrag.glsl';
+import reliefMapFragPars from './ShaderChunk/reliefMapFragPars.glsl';
+import { reliefMapUniforms } from './ShaderChunk/reliefMapUniforms.js';
 import rimLightFrag from './ShaderChunk/rimLightFrag.glsl';
 import rimLightFragPars from './ShaderChunk/rimLightFragPars.glsl';
 import { rimLightUniforms } from './ShaderChunk/rimLightUniforms.js';
@@ -250,6 +258,7 @@ import standardDisneyFragPars from './ShaderChunk/standardDisneyFragPars.glsl';
 import standardFrag from './ShaderChunk/standardFrag.glsl';
 import standardFragPars from './ShaderChunk/standardFragPars.glsl';
 import standardOrenNayarFrag from './ShaderChunk/standardOrenNayarFrag.glsl';
+import standardRectLightFrag from './ShaderChunk/standardRectLightFrag.glsl';
 import standardTubeLightFrag from './ShaderChunk/standardTubeLightFrag.glsl';
 import { standardUniforms } from './ShaderChunk/standardUniforms.js';
 import tangentFragPars from './ShaderChunk/tangentFragPars.glsl';
@@ -286,15 +295,6 @@ import viewFrag from './ShaderChunk/viewFrag.glsl';
 import { viewUniforms } from './ShaderChunk/viewUniforms.js';
 import worldPositionVert from './ShaderChunk/worldPositionVert.glsl';
 import worldPositionVertFragPars from './ShaderChunk/worldPositionVertFragPars.glsl';
-import standardRectLightFrag from './ShaderChunk/standardRectLightFrag.glsl';
-import parallaxOcclusionMapFrag from './ShaderChunk/parallaxOcclusionMapFrag.glsl';
-import parallaxOcclusionMapFragPars from './ShaderChunk/parallaxOcclusionMapFragPars.glsl';
-import { parallaxOcclusionMapUniforms } from './ShaderChunk/parallaxOcclusionMapUniforms.js';
-import beginFragDebug from './ShaderChunk/beginFragDebug.glsl';
-import endFragDebug from './ShaderChunk/endFragDebug.glsl';
-import reliefMapFrag from './ShaderChunk/reliefMapFrag.glsl';
-import reliefMapFragPars from './ShaderChunk/reliefMapFragPars.glsl';
-import { reliefMapUniforms } from './ShaderChunk/reliefMapUniforms.js';
 
 export var ShaderChunk = {
 	accumulateFrag: accumulateFrag,
@@ -314,6 +314,7 @@ export var ShaderChunk = {
 	aoMapFragPars: aoMapFragPars,
 	aoMapUniforms: aoMapUniforms,
 	beginFrag: beginFrag,
+	beginFragDebug: beginFragDebug,
 	billboardDefaultVert: billboardDefaultVert,
 	billboardRotZVertEnd: billboardRotZVertEnd,
 	billboardUniforms: billboardUniforms,
@@ -397,6 +398,7 @@ export var ShaderChunk = {
 	emissiveMapUniforms: emissiveMapUniforms,
 	emissiveUniforms: emissiveUniforms,
 	endFrag: endFrag,
+	endFragDebug: endFragDebug,
 	fakeSunFrag: fakeSunFrag,
 	fakeSunUniforms: fakeSunUniforms,
 	fakeSunVert: fakeSunVert,
@@ -496,6 +498,9 @@ export var ShaderChunk = {
 	parallaxMapFrag: parallaxMapFrag,
 	parallaxMapFragPars: parallaxMapFragPars,
 	parallaxMapUniforms: parallaxMapUniforms,
+	parallaxOcclusionMapFrag: parallaxOcclusionMapFrag,
+	parallaxOcclusionMapFragPars: parallaxOcclusionMapFragPars,
+	parallaxOcclusionMapUniforms: parallaxOcclusionMapUniforms,
 	phongFrag: phongFrag,
 	phongFragPars: phongFragPars,
 	phongUniforms: phongUniforms,
@@ -513,6 +518,9 @@ export var ShaderChunk = {
 	reflectionFragPars: reflectionFragPars,
 	reflectionStandardFrag: reflectionStandardFrag,
 	reflectionUniforms: reflectionUniforms,
+	reliefMapFrag: reliefMapFrag,
+	reliefMapFragPars: reliefMapFragPars,
+	reliefMapUniforms: reliefMapUniforms,
 	rimLightFrag: rimLightFrag,
 	rimLightFragPars: rimLightFragPars,
 	rimLightUniforms: rimLightUniforms,
@@ -549,6 +557,7 @@ export var ShaderChunk = {
 	standardFrag: standardFrag,
 	standardFragPars: standardFragPars,
 	standardOrenNayarFrag: standardOrenNayarFrag,
+	standardRectLightFrag: standardRectLightFrag,
 	standardTubeLightFrag: standardTubeLightFrag,
 	standardUniforms: standardUniforms,
 	tangentFragPars: tangentFragPars,
@@ -585,13 +594,4 @@ export var ShaderChunk = {
 	viewUniforms: viewUniforms,
 	worldPositionVert: worldPositionVert,
 	worldPositionVertFragPars: worldPositionVertFragPars,
-	standardRectLightFrag: standardRectLightFrag,
-	parallaxOcclusionMapFrag: parallaxOcclusionMapFrag,
-	parallaxOcclusionMapFragPars: parallaxOcclusionMapFragPars,
-	parallaxOcclusionMapUniforms: parallaxOcclusionMapUniforms,
-	beginFragDebug: beginFragDebug,
-	endFragDebug: endFragDebug,
-	reliefMapFrag: reliefMapFrag,
-	reliefMapFragPars: reliefMapFragPars,
-	reliefMapUniforms: reliefMapUniforms,
 };

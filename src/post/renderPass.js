@@ -42,7 +42,11 @@ RenderPass.prototype = Object.assign(Object.create(Pass.prototype), {
       renderer.getContext().colorMask(this.colorMask[0], this.colorMask[1], this.colorMask[2], this.colorMask[3]);
     }
     
-    renderer.render(this.scene, this.camera, this.renderToScreen ? null : writeBuffer, this.clear);
+    var oldRenderTarget = renderer.getRenderTarget();
+    renderer.setRenderTarget(this.renderToScreen ? null : writeBuffer);
+    if (this.clear) renderer.clear();
+    renderer.render(this.scene, this.camera);
+    renderer.setRenderTarget(oldRenderTarget);
     
     if (this.clearColor) {
       renderer.setClearColor(oldClearColor, oldClearAlpha);

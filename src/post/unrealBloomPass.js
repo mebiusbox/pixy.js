@@ -141,6 +141,7 @@ UnrealBloomPass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
     this.oldClearColor.copy(renderer.getClearColor());
     this.oldClearAlpha = renderer.getClearAlpha();
     
+    var oldRenderTarget = renderer.getRenderTarget();
     var oldAutoClear = renderer.autoClear;
     renderer.autoClear = false;
     renderer.setClearColor(new THREE.Color(0,0,0), 0);
@@ -153,7 +154,9 @@ UnrealBloomPass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
     this.highPassUniforms.tDiffuse.value = readBuffer.texture;
     this.highPassUniforms.luminosityThreshold.value = this.threshold;
     this.quad.material = this.highPassMaterial;
-    renderer.render(this.scene, this.camera, this.rtBright, true);
+    renderer.setRenderTarget(this.rtBright);
+    renderer.clear();
+    renderer.render(this.scene, this.camera);
     
     // 2. Blur All the mips progressively
     var inputRenderTarget = this.rtBright;
@@ -163,11 +166,15 @@ UnrealBloomPass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
       this.quad.material = this.separableBlurMaterials[i];
       this.separableBlurMaterials[i].uniforms.tDiffuse.value = inputRenderTarget.texture;
       this.separableBlurMaterials[i].uniforms.direction.value = UnrealBloomPass.BlurDirectionX;
-      renderer.render(this.scene, this.camera, this.rtHori[i], true);
+      renderer.setRenderTarget(this.rtHori[i]);
+      renderer.clear();
+      renderer.render(this.scene, this.camera);
       
       this.separableBlurMaterials[i].uniforms.tDiffuse.value = this.rtHori[i].texture;
       this.separableBlurMaterials[i].uniforms.direction.value = UnrealBloomPass.BlurDirectionY;
-      renderer.render(this.scene, this.camera, this.rtVert[i], true);
+      renderer.setRenderTarget(this.rtVert[i]);
+      renderer.clear();
+      renderer.render(this.scene, this.camera);
       
       inputRenderTarget = this.rtVert[i];
     }
@@ -177,7 +184,9 @@ UnrealBloomPass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
     this.compositeMaterial.uniforms.bloomStrength.value = this.strength;
     this.compositeMaterial.uniforms.bloomRadius.value = this.radius;
     this.compositeMaterial.uniforms.bloomTintColors.value = this.bloomTintColors;
-    renderer.render(this.scene, this.camera, this.rtHori[0], true);
+    renderer.setRenderTarget(this.rtHori[0]);
+    renderer.clear();
+    renderer.render(this.scene, this.camera);
     
     // Blend it additively over the input texture
     this.quad.material = this.copyMaterial;
@@ -187,9 +196,11 @@ UnrealBloomPass.prototype = Object.assign(Object.create(ScreenPass.prototype), {
       renderer.context.enable(renderer.context.STENCIL_TEST);
     }
     
-    renderer.render(this.scene, this.camera, writeBuffer, false);
+    renderer.setRenderTarget(writeBuffer);
+    renderer.render(this.scene, this.camera);
     
     renderer.setClearColor(this.oldClearColor, this.oldClearAlpha);
+    renderer.setRenderTarget(oldRenderTarget);
     renderer.autoClear = oldAutoClear;
   },
   
