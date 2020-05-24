@@ -10,6 +10,9 @@ import { brushStrokeUniforms } from './ShaderChunk/brushStrokeUniforms.js';
 import bubblesFrag from './ShaderChunk/bubblesFrag.glsl';
 import bubblesFragPars from './ShaderChunk/bubblesFragPars.glsl';
 import { bubblesUniforms } from './ShaderChunk/bubblesUniforms.js';
+import causticsFrag from './ShaderChunk/causticsFrag.glsl';
+import causticsFragPars from './ShaderChunk/causticsFragPars.glsl';
+import { causticsUniforms } from './ShaderChunk/causticsUniforms.js';
 import cellFrag from './ShaderChunk/cellFrag.glsl';
 import cellFragPars from './ShaderChunk/cellFragPars.glsl';
 import cellNoiseFrag from './ShaderChunk/cellNoiseFrag.glsl';
@@ -45,6 +48,7 @@ import { coronaUniforms } from './ShaderChunk/coronaUniforms.js';
 import crossFrag from './ShaderChunk/crossFrag.glsl';
 import crossFragPars from './ShaderChunk/crossFragPars.glsl';
 import { crossUniforms } from './ShaderChunk/crossUniforms.js';
+import derivatives from './ShaderChunk/derivatives.glsl';
 import diamondGearFrag from './ShaderChunk/diamondGearFrag.glsl';
 import diamondGearFragPars from './ShaderChunk/diamondGearFragPars.glsl';
 import { diamondGearUniforms } from './ShaderChunk/diamondGearUniforms.js';
@@ -52,6 +56,9 @@ import displacementFrag from './ShaderChunk/displacementFrag.glsl';
 import displacementFragPars from './ShaderChunk/displacementFragPars.glsl';
 import { displacementUniforms } from './ShaderChunk/displacementUniforms.js';
 import displacementVert from './ShaderChunk/displacementVert.glsl';
+import electricFrag from './ShaderChunk/electricFrag.glsl';
+import electricFragPars from './ShaderChunk/electricFragPars.glsl';
+import { electricUniforms } from './ShaderChunk/electricUniforms.js';
 import energyFrag from './ShaderChunk/energyFrag.glsl';
 import energyFragPars from './ShaderChunk/energyFragPars.glsl';
 import { energyUniforms } from './ShaderChunk/energyUniforms.js';
@@ -119,6 +126,9 @@ import height2NormalFrag from './ShaderChunk/height2NormalFrag.glsl';
 import height2NormalFragPars from './ShaderChunk/height2NormalFragPars.glsl';
 import height2NormalSobelFrag from './ShaderChunk/height2NormalSobelFrag.glsl';
 import { height2NormalUniforms } from './ShaderChunk/height2NormalUniforms.js';
+import inksplatFrag from './ShaderChunk/inksplatFrag.glsl';
+import inksplatFragPars from './ShaderChunk/inksplatFragPars.glsl';
+import { inksplatUniforms } from './ShaderChunk/inksplatUniforms.js';
 import julia from './ShaderChunk/julia.glsl';
 import kochCurveFrag from './ShaderChunk/kochCurveFrag.glsl';
 import kochCurveFragPars from './ShaderChunk/kochCurveFragPars.glsl';
@@ -150,6 +160,9 @@ import { marbleNoiseUniforms } from './ShaderChunk/marbleNoiseUniforms.js';
 import noise from './ShaderChunk/noise.glsl';
 import noiseGraphFrag from './ShaderChunk/noiseGraphFrag.glsl';
 import { noiseUniforms } from './ShaderChunk/noiseUniforms.js';
+import particleFrag from './ShaderChunk/particleFrag.glsl';
+import particleFragPars from './ShaderChunk/particleFragPars.glsl';
+import { particleUniforms } from './ShaderChunk/particleUniforms.js';
 import pentagonFrag from './ShaderChunk/pentagonFrag.glsl';
 import pentagonFragPars from './ShaderChunk/pentagonFragPars.glsl';
 import { pentagonUniforms } from './ShaderChunk/pentagonUniforms.js';
@@ -184,16 +197,27 @@ import { sparkUniforms } from './ShaderChunk/sparkUniforms.js';
 import speckleFrag from './ShaderChunk/speckleFrag.glsl';
 import speckleFragPars from './ShaderChunk/speckleFragPars.glsl';
 import { speckleUniforms } from './ShaderChunk/speckleUniforms.js';
+import squigglesFrag from './ShaderChunk/squigglesFrag.glsl';
+import squigglesFragPars from './ShaderChunk/squigglesFragPars.glsl';
+import { squigglesUniforms } from './ShaderChunk/squigglesUniforms.js';
 import sunFrag from './ShaderChunk/sunFrag.glsl';
 import sunFragPars from './ShaderChunk/sunFragPars.glsl';
 import { sunUniforms } from './ShaderChunk/sunUniforms.js';
 import tessNoiseFrag from './ShaderChunk/tessNoiseFrag.glsl';
 import tessNoiseFragPars from './ShaderChunk/tessNoiseFragPars.glsl';
 import { tessNoiseUniforms } from './ShaderChunk/tessNoiseUniforms.js';
+import testFrag from './ShaderChunk/testFrag.glsl';
+import testFragPars from './ShaderChunk/testFragPars.glsl';
 import { testUniforms } from './ShaderChunk/testUniforms.js';
+import tilingFrag from './ShaderChunk/tilingFrag.glsl';
+import tilingFragPars from './ShaderChunk/tilingFragPars.glsl';
+import { tilingUniforms } from './ShaderChunk/tilingUniforms.js';
 import toonFrag from './ShaderChunk/toonFrag.glsl';
 import toonFragPars from './ShaderChunk/toonFragPars.glsl';
 import { toonUniforms } from './ShaderChunk/toonUniforms.js';
+import trabeculumFrag from './ShaderChunk/trabeculumFrag.glsl';
+import trabeculumFragPars from './ShaderChunk/trabeculumFragPars.glsl';
+import { trabeculumUniforms } from './ShaderChunk/trabeculumUniforms.js';
 import turbulentNoiseFrag from './ShaderChunk/turbulentNoiseFrag.glsl';
 import turbulentNoiseFragPars from './ShaderChunk/turbulentNoiseFragPars.glsl';
 import vert from './ShaderChunk/vert.glsl';
@@ -201,39 +225,15 @@ import voronoiNoiseFrag from './ShaderChunk/voronoiNoiseFrag.glsl';
 import voronoiNoiseFragPars from './ShaderChunk/voronoiNoiseFragPars.glsl';
 import waterCircleWaveFrag from './ShaderChunk/waterCircleWaveFrag.glsl';
 import waterPlaneWaveFrag from './ShaderChunk/waterPlaneWaveFrag.glsl';
+import waterTurbulenceFrag from './ShaderChunk/waterTurbulenceFrag.glsl';
+import waterTurbulenceFragPars from './ShaderChunk/waterTurbulenceFragPars.glsl';
+import { waterTurbulenceUniforms } from './ShaderChunk/waterTurbulenceUniforms.js';
 import waveRingFrag from './ShaderChunk/waveRingFrag.glsl';
 import waveRingFragPars from './ShaderChunk/waveRingFragPars.glsl';
 import { waveRingUniforms } from './ShaderChunk/waveRingUniforms.js';
 import woodFrag from './ShaderChunk/woodFrag.glsl';
 import woodFragPars from './ShaderChunk/woodFragPars.glsl';
 import { woodUniforms } from './ShaderChunk/woodUniforms.js';
-import inksplatFrag from './ShaderChunk/inksplatFrag.glsl';
-import inksplatFragPars from './ShaderChunk/inksplatFragPars.glsl';
-import { inksplatUniforms } from './ShaderChunk/inksplatUniforms.js';
-import derivatives from './ShaderChunk/derivatives.glsl';
-import particleFrag from './ShaderChunk/particleFrag.glsl';
-import particleFragPars from './ShaderChunk/particleFragPars.glsl';
-import { particleUniforms } from './ShaderChunk/particleUniforms.js';
-import testFrag from './ShaderChunk/testFrag.glsl';
-import testFragPars from './ShaderChunk/testFragPars.glsl';
-import electricFrag from './ShaderChunk/electricFrag.glsl';
-import electricFragPars from './ShaderChunk/electricFragPars.glsl';
-import { electricUniforms } from './ShaderChunk/electricUniforms.js';
-import tilingFrag from './ShaderChunk/tilingFrag.glsl';
-import tilingFragPars from './ShaderChunk/tilingFragPars.glsl';
-import { tilingUniforms } from './ShaderChunk/tilingUniforms.js';
-import causticsFrag from './ShaderChunk/causticsFrag.glsl';
-import causticsFragPars from './ShaderChunk/causticsFragPars.glsl';
-import { causticsUniforms } from './ShaderChunk/causticsUniforms.js';
-import squigglesFrag from './ShaderChunk/squigglesFrag.glsl';
-import squigglesFragPars from './ShaderChunk/squigglesFragPars.glsl';
-import { squigglesUniforms } from './ShaderChunk/squigglesUniforms.js';
-import waterTurbulenceFrag from './ShaderChunk/waterTurbulenceFrag.glsl';
-import waterTurbulenceFragPars from './ShaderChunk/waterTurbulenceFragPars.glsl';
-import { waterTurbulenceUniforms } from './ShaderChunk/waterTurbulenceUniforms.js';
-import trabeculumFrag from './ShaderChunk/trabeculumFrag.glsl';
-import trabeculumFragPars from './ShaderChunk/trabeculumFragPars.glsl';
-import { trabeculumUniforms } from './ShaderChunk/trabeculumUniforms.js';
 
 export var ShaderChunk = {
 	blocksFrag: blocksFrag,
@@ -248,6 +248,9 @@ export var ShaderChunk = {
 	bubblesFrag: bubblesFrag,
 	bubblesFragPars: bubblesFragPars,
 	bubblesUniforms: bubblesUniforms,
+	causticsFrag: causticsFrag,
+	causticsFragPars: causticsFragPars,
+	causticsUniforms: causticsUniforms,
 	cellFrag: cellFrag,
 	cellFragPars: cellFragPars,
 	cellNoiseFrag: cellNoiseFrag,
@@ -283,6 +286,7 @@ export var ShaderChunk = {
 	crossFrag: crossFrag,
 	crossFragPars: crossFragPars,
 	crossUniforms: crossUniforms,
+	derivatives: derivatives,
 	diamondGearFrag: diamondGearFrag,
 	diamondGearFragPars: diamondGearFragPars,
 	diamondGearUniforms: diamondGearUniforms,
@@ -290,6 +294,9 @@ export var ShaderChunk = {
 	displacementFragPars: displacementFragPars,
 	displacementUniforms: displacementUniforms,
 	displacementVert: displacementVert,
+	electricFrag: electricFrag,
+	electricFragPars: electricFragPars,
+	electricUniforms: electricUniforms,
 	energyFrag: energyFrag,
 	energyFragPars: energyFragPars,
 	energyUniforms: energyUniforms,
@@ -357,6 +364,9 @@ export var ShaderChunk = {
 	height2NormalFragPars: height2NormalFragPars,
 	height2NormalSobelFrag: height2NormalSobelFrag,
 	height2NormalUniforms: height2NormalUniforms,
+	inksplatFrag: inksplatFrag,
+	inksplatFragPars: inksplatFragPars,
+	inksplatUniforms: inksplatUniforms,
 	julia: julia,
 	kochCurveFrag: kochCurveFrag,
 	kochCurveFragPars: kochCurveFragPars,
@@ -388,6 +398,9 @@ export var ShaderChunk = {
 	noise: noise,
 	noiseGraphFrag: noiseGraphFrag,
 	noiseUniforms: noiseUniforms,
+	particleFrag: particleFrag,
+	particleFragPars: particleFragPars,
+	particleUniforms: particleUniforms,
 	pentagonFrag: pentagonFrag,
 	pentagonFragPars: pentagonFragPars,
 	pentagonUniforms: pentagonUniforms,
@@ -422,16 +435,27 @@ export var ShaderChunk = {
 	speckleFrag: speckleFrag,
 	speckleFragPars: speckleFragPars,
 	speckleUniforms: speckleUniforms,
+	squigglesFrag: squigglesFrag,
+	squigglesFragPars: squigglesFragPars,
+	squigglesUniforms: squigglesUniforms,
 	sunFrag: sunFrag,
 	sunFragPars: sunFragPars,
 	sunUniforms: sunUniforms,
 	tessNoiseFrag: tessNoiseFrag,
 	tessNoiseFragPars: tessNoiseFragPars,
 	tessNoiseUniforms: tessNoiseUniforms,
+	testFrag: testFrag,
+	testFragPars: testFragPars,
 	testUniforms: testUniforms,
+	tilingFrag: tilingFrag,
+	tilingFragPars: tilingFragPars,
+	tilingUniforms: tilingUniforms,
 	toonFrag: toonFrag,
 	toonFragPars: toonFragPars,
 	toonUniforms: toonUniforms,
+	trabeculumFrag: trabeculumFrag,
+	trabeculumFragPars: trabeculumFragPars,
+	trabeculumUniforms: trabeculumUniforms,
 	turbulentNoiseFrag: turbulentNoiseFrag,
 	turbulentNoiseFragPars: turbulentNoiseFragPars,
 	vert: vert,
@@ -439,37 +463,13 @@ export var ShaderChunk = {
 	voronoiNoiseFragPars: voronoiNoiseFragPars,
 	waterCircleWaveFrag: waterCircleWaveFrag,
 	waterPlaneWaveFrag: waterPlaneWaveFrag,
+	waterTurbulenceFrag: waterTurbulenceFrag,
+	waterTurbulenceFragPars: waterTurbulenceFragPars,
+	waterTurbulenceUniforms: waterTurbulenceUniforms,
 	waveRingFrag: waveRingFrag,
 	waveRingFragPars: waveRingFragPars,
 	waveRingUniforms: waveRingUniforms,
 	woodFrag: woodFrag,
 	woodFragPars: woodFragPars,
 	woodUniforms: woodUniforms,
-	inksplatFrag: inksplatFrag,
-	inksplatFragPars: inksplatFragPars,
-	inksplatUniforms: inksplatUniforms,
-	derivatives: derivatives,
-	particleFrag: particleFrag,
-	particleFragPars: particleFragPars,
-	particleUniforms: particleUniforms,
-	testFrag: testFrag,
-	testFragPars: testFragPars,
-	electricFrag: electricFrag,
-	electricFragPars: electricFragPars,
-	electricUniforms: electricUniforms,
-	tilingFrag: tilingFrag,
-	tilingFragPars: tilingFragPars,
-	tilingUniforms: tilingUniforms,
-	causticsFrag: causticsFrag,
-	causticsFragPars: causticsFragPars,
-	causticsUniforms: causticsUniforms,
-	squigglesFrag: squigglesFrag,
-	squigglesFragPars: squigglesFragPars,
-	squigglesUniforms: squigglesUniforms,
-	waterTurbulenceFrag: waterTurbulenceFrag,
-	waterTurbulenceFragPars: waterTurbulenceFragPars,
-	waterTurbulenceUniforms: waterTurbulenceUniforms,
-	trabeculumFrag: trabeculumFrag,
-	trabeculumFragPars: trabeculumFragPars,
-	trabeculumUniforms: trabeculumUniforms,
 };

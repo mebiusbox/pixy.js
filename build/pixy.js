@@ -5363,6 +5363,16 @@
 	  cBubblesVariation: { value: 1.0 }
 	};
 
+	var causticsFrag = "mat3 m = mat3(-2,-1,2,3,-2,1,1,2,2);\r\nvec3 a = vec3(pin.coord/vec2(100.0*cScale), time/(max(4.5-cSpeed,0.001)))*m;\r\nvec3 b = a * m * .4;\r\nvec3 c = b * m * .3;\r\npout.color = vec3(pow(min(\r\n    min(length(.5-fract(a)), length(.5-fract(b))),\r\n    length(.5-fract(c))),7.0) * 25.0);\r\npout.color += mix(vec3(.0), vec3(.0,.35,.5), cColor);\r\n";
+
+	var causticsFragPars = "// https://www.shadertoy.com/view/MdKXDm\r\nuniform float cScale;\r\nuniform float cSpeed;\r\nuniform float cColor;";
+
+	var causticsUniforms = {
+	    cScale: { value: 4.0 },
+	    cSpeed: { value: 2.0 },
+	    cColor: { value: 1.0 }
+	  };
+
 	var cellFrag = "// http://glslsandbox.com/e#37373.0\r\nfloat t = fworley(pin.uv * resolution.xy / 1500.0) * cIntensity;\r\nt = pow(t, cPowerExponent);\r\n// t *= exp(-lengthSqr(abs(0.7 * pin.uv - 1.0)));\r\n// \"pout.color = t * vec3(0.1, 1.5*t, 1.2*t + pow(t, 0.5-t));\"\r\npout.color = vec3(t);";
 
 	var cellFragPars = "// http://glslsandbox.com/e#37373.0\r\nuniform float cIntensity;\r\nuniform float cPowerExponent;\r\nuniform float cSize;\r\n\r\nfloat lengthSqr(vec2 p) { return dot(p,p); }\r\n\r\nfloat cellNoise(vec2 p) {\r\n  return fract(sin(fract(sin(p.x) * 43.13311) + p.y) * 31.0011);\r\n}\r\n\r\nfloat worley(vec2 p) {\r\n  float d = 1e30;\r\n  for (int xo=-1; xo <= 1; ++xo) {\r\n    for (int yo=-1; yo <= 1; ++yo) {\r\n      vec2 tp = floor(p) + vec2(xo, yo);\r\n      d = min(d, lengthSqr(p - tp - vec2(cellNoise(tp))));\r\n    }\r\n  }\r\n  return 5.0 * exp(-4.0 * abs(2.0*d - 1.0));\r\n}\r\n\r\nfloat fworley(vec2 p) {\r\n  return sqrt(sqrt(sqrt(\r\n    1.0 * // light\r\n//     worley(p*5.0 + 0.3 + time * 0.525) * \r\n    sqrt(worley(p * 50.0 / cSize + 0.3 + time * -0.15)) * \r\n//     sqrt(sqrt(worley(p * -10.0 + 9.3))) )));\r\n    1.0 )));\r\n}";
@@ -5481,6 +5491,8 @@
 	  cPowerExponent: { value: 1.0 },
 	};
 
+	var derivatives = "#extension GL_OES_standard_derivatives : enable";
+
 	var diamondGearFrag = "float g0 = gear(pin.position * mix(8.0, 1.0, cScale), cDiamondGearTeeth, time*0.1);\r\n// float g1 = gear(pin.position*4.0-vec2(2.85,0.0), 9.0, -time*0.2);\r\n// float g3 = gear(pin.position*3.0+vec2(2.35,0.0), 12.0, -time*0.15+0.125);\r\n// float sd = min(min(g0,g1),g3);\r\n// float val = smoothstep(0.0, 0.01, sd);\r\nfloat val = smoothstep(0.0, 0.01, g0);\r\npout.color = vec3(clamp(1.0 - 1.0*val, 0.0, 1.0));";
 
 	var diamondGearFragPars = "uniform float cScale;\r\nuniform float cWidth;\r\nuniform float cRadius;\r\nuniform float cDiamondGearTeeth;\r\nuniform float cDiamondGearMid;\r\n\r\nvec2 sd_line(vec2 pos, vec2 a, vec2 b) {\r\n  pos -= a;\r\n  vec2 d = b-a;\r\n  float l = length(d);\r\n  d /= l;\r\n  \r\n  float t = dot(d,pos);\r\n  vec2 p = d * clamp(t, 0.0, l);\r\n  vec2 perp = vec2(d.y, -d.x);\r\n  \r\n  return vec2(length(pos-p), dot(pos,perp));\r\n}\r\n\r\nfloat abs_min(float a, float b) {\r\n  return abs(a) < abs(b) ? a : b;\r\n}\r\n\r\nvec2 lmin(vec2 a, vec2 b) {\r\n  if (abs(a.x-b.x) < 0.0001) {\r\n    return a.y > b.y ? a : b;\r\n  }\r\n  return a.x < b.x ? a : b;\r\n}\r\n\r\nfloat to_sd(vec2 x) {\r\n  return x.x * sign(x.y);\r\n}\r\n\r\nfloat sd_diamond(vec2 pos, vec2 tail, vec2 tip, float width, float mid) {\r\n  vec2 d = tip-tail;\r\n  vec2 p = vec2(d.y,-d.x) * width * 0.5;\r\n  vec2 m = d*mid + tail;\r\n  vec2 la = sd_line(pos, tail, m+p);\r\n  vec2 lb = sd_line(pos, m+p, tip);\r\n  vec2 lc = sd_line(pos, tip, m-p);\r\n  vec2 ld = sd_line(pos, m-p, tail);\r\n  return to_sd(lmin(lmin(la,lb), lmin(lc,ld)));\r\n}\r\n\r\nvec2 to_polar(vec2 x) {\r\n  return vec2(length(x), atan(-x.y,-x.x) + 3.14159);\r\n}\r\n\r\nvec2 from_polar(vec2 x) {\r\n  return vec2(cos(x.y), sin(x.y)) * x.x;\r\n}\r\n\r\nvec2 radial_repeat(vec2 pos, float count) {\r\n  float offset = 0.5/count;\r\n  pos = to_polar(pos);\r\n  pos.y /= 2.0*3.14159;\r\n  pos.y += offset;\r\n  pos.y *= count;\r\n  pos.y = fract(pos.y);\r\n  pos.y /= count;\r\n  pos.y -= offset;\r\n  pos.y *= 2.0*3.14159;\r\n  pos = from_polar(pos);\r\n  return pos;\r\n}\r\n\r\nvec2 rotate(vec2 pos, float turns) {\r\n  pos = to_polar(pos);\r\n  pos.y += turns * 2.0 * 3.14159;\r\n  return from_polar(pos);\r\n}\r\n\r\nfloat gear(vec2 uv, float teeth, float turns) {\r\n  uv = rotate(uv, turns);\r\n  uv = radial_repeat(uv, teeth);\r\n  return sd_diamond(uv, vec2(0.0+cRadius,0.0), vec2(1.0,0.0), cWidth/teeth, cDiamondGearMid);\r\n}\r\n";
@@ -5502,6 +5514,15 @@
 	};
 
 	var displacementVert = "// attribute vec3 position;\r\n// attribute vec3 normal;\r\n// attribute vec3 uv;\r\nvarying float displacement;\r\nuniform sampler2D tDisplacement;\r\nvoid main() {\r\n  displacement = texture2D(tDisplacement, uv).x;\r\n  vec3 transformed = position + normal * displacement * 0.1;\r\n//   vec3 transformed = position;\r\n  vec4 hpos = projectionMatrix * modelViewMatrix * vec4(transformed, 1.0);\r\n  gl_Position = hpos;\r\n}";
+
+	var electricFrag = "float pauseFreq = cFrequency;\r\nfloat pauseScale = 1.0;\r\nfloat scaledTime = time * 0.5;\r\nscaledTime += 0.05 * pin.uv.x;\r\nfloat sinTime = sin(pauseFreq*scaledTime);\r\nfloat sinTimeOffset = sin(pauseFreq*scaledTime - 0.5*3.141);\r\nfloat timeStep = scaledTime + pauseScale * (sinTime/pauseFreq);\r\n\r\nvec2 p = pin.uv;\r\nvec4 c;\r\n\r\np *= 4.0;\r\np.x = 0.5 - timeStep*3.0;\r\np.y = 0.5 - timeStep*3.0;\r\nc = voronoi(p);\r\n\r\nfloat cellPos = (p.y+c.z) + timeStep * 3.0;\r\nvec2 uv = pin.uv;\r\nuv.x += 1.5*(2.0*c.x-0.33) * (uv.y-0.5);\r\nuv.x *= cScale;\r\n\r\np = uv;\r\np.y = max(p.y, 0.5);\r\np *= 12.0; // higher values zoom out further - don't go too high or the sine waves will become quite obvious...\r\np.x += timeStep*16.0;\r\np.y += timeStep*32.0;\r\nc = voronoi(p);\r\n\r\n// pout.color = 0.5*vec4(c.x);\r\n\r\nfloat d= 0.0;\r\nfloat edgeScale = 1.0-2.0*abs(pin.uv.x-0.5);\r\nfloat scaleMulti = pow(0.5*sinTime + 0.5, 2.0);\r\nfloat dScale = 2.0*edgeScale*(0.25+0.75*pow(0.5*sinTimeOffset+0.5,2.0));\r\n\r\np.y = 0.5*12.0 - timeStep*6.0;\r\nc = dScale * voronoi(p);\r\nd = (uv.y + c.x-0.75);\r\n\r\np.x = uv.x*12.0 - timeStep*6.0;\r\np.y = 4.5*12.0 - timeStep*3.0;\r\nc = dScale*voronoi(p);\r\nd = mix(d, (uv.y-c.x-0.25), 0.5);\r\nd = 1.0-abs(d);\r\n\r\n// pout.color = vec3(d);\r\n\r\nfloat lineWidth = d+0.025*scaleMulti*edgeScale;\r\nvec4 outcolor = mix(vec4(0,1,1.5,1), vec4(1,2,2.0,1), scaleMulti)*smoothstep(1.0, 1.005, lineWidth);\r\noutcolor += edgeScale*pow(scaleMulti*smoothstep(0.75, 1.005, lineWidth), 16.0) * 0.5*vec4(.8,1,2.0,1);\r\noutcolor += 0.5*vec4(.1, 0.05, 0.2, 1);\r\n\r\npout.color = outcolor.xyz;";
+
+	var electricFragPars = "uniform float cFrequency;\r\nuniform float cScale;\r\n\r\nvec2 hash2(vec2 p) {\r\n    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);\r\n}\r\n\r\nvec4 voronoi(in vec2 x) {\r\n    vec2 n = floor(x);\r\n    vec2 f = fract(x);\r\n    vec2 o;\r\n    // first pass: regular voronoi\r\n    vec2 mg, mr;\r\n    float oldDist;\r\n\r\n    float md = 8.0;\r\n    for (int j=-1;j<=1; j++) {\r\n        for (int i=-1; i<=1; i++) {\r\n            vec2 g = vec2(float(i), float(j));\r\n            o = hash2(n+g);\r\n            vec2 r = g + o - f;\r\n            float d = dot(r,r);\r\n            if (d<md) {\r\n                md = d;\r\n                mr = r;\r\n                mg = g;\r\n            }\r\n        }\r\n    }\r\n\r\n    oldDist = md;\r\n\r\n    // second pass: distance to borders\r\n    md = 8.0;\r\n    for (int j=-2;j<=2; j++) {\r\n        for (int i=-2; i<=2; i++) {\r\n            vec2 g = vec2(float(i), float(j));\r\n            o = hash2(n+g);\r\n            vec2 r = g + o - f;\r\n            if (dot(mr-r,mr-r)>0.0001) {\r\n                md = min(md, dot(0.5*(mr+r), normalize(r-mr)));\r\n            }\r\n        }\r\n    }\r\n\r\n    return vec4(md, mr, oldDist);\r\n}";
+
+	var electricUniforms = {
+	    cFrequency: { value: 20.0 },
+	    cScale: { value: 0.25 }
+	  };
 
 	var energyFrag = "vec2 uv = pin.position;\r\nvec3 ro = vec3(uv, sin(time)*2.0-mix(100.0, 20.0, cScale));\r\nvec3 rd = vec3(uv, 1.0);\r\nvec3 mp = ro;\r\nfloat shade = 0.0;\r\nconst vec4 shadow = vec4(0.3);\r\nfloat t = time;\r\nfloat cnt = 0.0;\r\nfor (int i=0; i<50; ++i) {\r\n  float md = map(mp);\r\n  if (md < 0.0001) {\r\n    break;\r\n  }\r\n  mp += rd*md*mix(2.0, 0.25, cDensity);\r\n  cnt += 1.0;\r\n}\r\n\r\nif (length(mp) > mix(10.0, 20.0, cThickness)) {\r\n  pout.color = vec3(0.0);\r\n} else {\r\n  float r = cnt/50.0;\r\n  vec3 col = vec3(hsv(vec3(st(length(mp)*0.01-time*0.2,6.0), 0.8, 1.0)));\r\n  col *= 1.0 - r*(1.0-r)*-1.0;\r\n  col *= length(mp-ro)*0.02;\r\n  col = 1.0 - col;\r\n  float gray = rgb2gray(col);\r\n  pout.color = mix(vec3(gray), col, cColor);\r\n}";
 
@@ -5738,6 +5759,15 @@
 	  cHeightScale: { value: 10.0 },
 	};
 
+	var inksplatFrag = "// vec2 uv = 12.0 * (pin.coord - 0.5*resolution.xy) / resolution.x;\r\n// float v = length(uv);\r\n// vec2 h = vec2(ceil(3.0*time));\r\n// float a, w;\r\n// \r\n// // lines\r\n// for (int i=0; i<21; i++) {\r\n//   h = splatHash(h);\r\n//   w = 0.03;\r\n//   a = (atan(uv.x, uv.y)+3.14)/6.28*(1.0+w);\r\n//   v -= sin(smoothstep(h.x, h.x+w, a)*3.14);\r\n// }\r\n// \r\n// // spots\r\n// for (float s = 3.0; s>0.5; s -= 0.04) {\r\n//   h = (splatHash(h)*2.0-1.0)*s;\r\n//   v -= (1.01-smoothstep(0.0,0.5*(3.0-s), length(uv-h)));\r\n// }\r\n\r\nvec2 uv = 6.0*pin.position;\r\nfloat v = splat(splat_uv(pin.coord));\r\n// float w = 0.75 * splat_fwidth(pin.coord, v);\r\nfloat w = 0.75*fwidth(v);\r\nv = 1.0 - smoothstep(-w,w,v);\r\npout.color = vec3(v,v,v);";
+
+	var inksplatFragPars = "uniform int cSplatLines;\r\nuniform float cSplatSpotStep;\r\n\r\nvec2 splatHash(in vec2 p) {\r\n  return fract(sin(p*mat2(63.31,127.63,395.467,213.799))*43141.59265);\r\n}\r\n\r\nfloat splat(in vec2 p) {\r\n  float v = length(p);\r\n  vec2 h = vec2(ceil(3.0*time));\r\n  float a, w;\r\n\r\n  // lines\r\n  for (int i=0; i<100; i++) {\r\n    if (i>=cSplatLines) break;\r\n    h = splatHash(h);\r\n    w = 0.03;\r\n    a = (atan(p.x, p.y)+3.14)/6.28*(1.0+w);\r\n    v -= sin(smoothstep(h.x, h.x+w, a)*3.14);\r\n  }\r\n\r\n  // spots\r\n  // for (float s = 3.0; s>0.5; s -= cSplatSpotStep) {\r\n  float s = 3.0;\r\n  for (int i=0; i<100; i++) {\r\n    h = (splatHash(h)*2.0-1.0)*s;\r\n    v -= (1.01-smoothstep(0.0,0.5*(3.0-s), length(p-h)));\r\n    s -= cSplatSpotStep;\r\n    if (s <= 0.5) break;\r\n  }\r\n  \r\n  return v;\r\n}\r\n\r\nvec2 splat_uv(in vec2 coord) {\r\n  return 8.0 * (coord - 0.5*resolution.xy) / min(resolution.x, resolution.y);\r\n}\r\n\r\nfloat splat_fwidth(in vec2 coord, in float v11) {\r\n  float v10 = splat(splat_uv(coord + vec2(0.0,1.0)));\r\n  float v01 = splat(splat_uv(coord + vec2(-1.0,0.0)));\r\n  return abs(v11-v01) + abs(v10-v11);\r\n}\r\n";
+
+	var inksplatUniforms = {
+	  cSplatLines: { value: 20 },
+	  cSplatSpotStep: { value: 0.04 }
+	};
+
 	var julia = "int j=0;\r\nvec2 x = vec2(-0.345, 0.654);\r\nvec2 y = vec2(time * 0.005, 0.0);\r\nvec2 z = pin.position;\r\n\r\nfor (int i=0; i<360; i++) {\r\n  j++;\r\n  if (length(z) > 2.0) break;\r\n  z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + x + y;\r\n}\r\n\r\nfloat h = abs(mod(time * 15.0 - float(j), 360.0) / 360.0);\r\nvec3 color = hsv2rgb(vec3(h, 1.0, 1.0));\r\n\r\nfloat t = float(j) / 360.0;\r\npout.color = color * t;";
 
 	var kochCurveFrag = "// https://www.shadertoy.com/view/XdcGzH\r\nAngle = 90.0 * 0.5 * (1.0 + sin(time + 0.1 * PI));\r\nfloat ang = A2B * Angle;\r\nca = cos(ang);\r\nsa = sin(ang);\r\ncsa = vec2(ca, -sa);\r\nlambda = 0.5 / (ca*ca);\r\nlscl = 2.0 / lambda;\r\n\r\nconst float scaleFactor = 1.4;\r\nvec2 uv = scaleFactor * (gl_FragCoord.xy - 0.5 * resolution.xy) / resolution.y;\r\nuv.y += 0.5;\r\npout.color = color(uv);";
@@ -5831,6 +5861,17 @@
 	  cNoisePersistence: { value: 0.5 },
 	  cNoiseGraphEnable: { value: false},
 	};
+
+	var particleFrag = "vec3 col = vec3(0.);\r\nfor (float i=0.0; i<PARTICLE_COUNT; i++) {\r\n    if (i>=cCount) break;\r\n    float seed = SEED + floor(i/cCount+time);\r\n    vec2 anchor = vec2(0.5, 0.5);\r\n    vec2 velocity = vec2(mix(-.5, .5, rand(vec2(seed,i))),mix(-.5, .5, rand(vec2(i,seed)/3.)));\r\n    float creationTime = time - fract(i/cCount + time);\r\n    col += particle(pin.uv, 0., anchor, velocity, creationTime) * currentColor();\r\n}\r\ncol = smoothstep(.6, .9, col);\r\npout.color = vec3(rgb2gray(col));";
+
+	var particleFragPars = "// https://www.shadertoy.com/view/llGBWw\r\nuniform float cSize;\r\nuniform float cLifeTime;\r\nuniform float cGravity;\r\nuniform float cCount;\r\n#define SEED 0.12345679\r\n#define GRAV vec2(0,-.26)\r\n#define SIZE 0.024\r\n#define DIE_TIME 0.9\r\n#define PARTICLE_COUNT 500.0\r\n\r\nfloat particle(vec2 uv, float identifier, vec2 anchor, vec2 velocity, float creationTime) {\r\n    float particleTime = max(0., time - creationTime);\r\n    float size = max(0., cLifeTime - particleTime) * cSize;\r\n    vec2 velocityOffset = velocity * particleTime;\r\n    vec2 gravityOffset = vec2(0,-cGravity) * pow(particleTime, 1.798);\r\n    vec2 point = anchor + velocityOffset + gravityOffset;\r\n    float dist = distance(uv, point);\r\n    float hit = smoothstep(size, 0., dist);\r\n    return hit;\r\n}\r\nvec3 currentColor() {\r\n    float c = time * 0.2;\r\n    float r = sin(c*PI)/2. + .5;\r\n    float g = sin((c+.6)*PI)/2. +.5;\r\n    float b = sin((c+1.2)*PI)/2. + .5;\r\n    return vec3(r,g,b);\r\n}\r\n\r\n";
+
+	var particleUniforms = {
+	    cSize: { value: 0.024 },
+	    cLifeTime: { value: 0.9 },
+	    cGravity: { value: 0.26 },
+	    cCount: { value: 300.0 }
+	  };
 
 	var pentagonFrag = "vec2 R = resolution.xy;\r\nvec2 U = pin.coord;\r\nvec2 V = U = (U+U-R) / R.y;\r\nvec3 O = vec3(0.0);\r\n\r\nU = U * rotate2d(0.3+time);\r\n\r\nfloat p = 0.6283; // = 2Pi/10\r\nfloat x,y;\r\nfloat a = mod(atan(U.y,U.x) + p, p+p)-p; // 2Pi/5 symmetry\r\nU = P(length(U), a)*1.25;\r\nx = U.x;\r\ny = U.y = abs(U.y); // mirror symmetry in each fan\r\n\r\n// B S( x-0.6*cSize  - 0.4*y, 0.01+cWidth*0.01); // exterior thin wall\r\nB S( x-cScale*0.5  - cAlpha*y, 0.5*cWidth); // exterior thin wall\r\n// B S( x-0.67 + 1.2*y, 0.01) * S(abs(y), 0.04)*0.6;\r\n\r\n// B S( x-cStarX*0.5  - cStarY*y, 0.5*cWidth) // thick wall\r\n  // * max(S(y,0.45),\r\n  //       C(P(0.83,p), 0.07));\r\n\r\n// B S( x-0.46, 0.06) * S(y, 0.19) // interior bar attached to thick wall\r\n//   * (1.0 - C(vec2(0.477,0.18), 0.045));\r\n\r\n// U *= 0.72;\r\n// B S( U.x-0.5 - 0.4*U.y, 0.05) * 0.3 // exterior pit (by scaling thick wall)\r\n//   * max(S(U.y, 0.45),\r\n//         C(P(0.83,p), 0.07))\r\n//   * (0.6 + 0.4*cos(200.0*a)); // radial strips\r\n\r\n// B S( x-1.7 - 0.4*y, 0.9) * 0.3\r\n//   * max(0.0, cos(200.0*V.y) - 0.6); // background strips (V: before 5-sym)\r\n\r\n// O += (1.0-O)*0.3; // B&W background\r\n//O = mix(vec3(1.0, 0.95, 0.6), vec3(0.6, 0.3, 0.3), O); // background + color scheme\r\npout.color = O;\r\n";
 
@@ -5929,6 +5970,16 @@
 	  cDensity: { value: 1.0 }
 	};
 
+	var squigglesFrag = "vec3 color = vec3(0.0);\r\nfloat s = 1.0;\r\nfor (int i=0; i<numLayers; ++i) {\r\n    if (float(i)>=cDensity) break;\r\n    float sn = 0.0;\r\n    float y = 0.0;\r\n    \r\n    vec2 deriv;\r\n    float nx = smplxNoise2D(pin.position*s*mix(10., 1., cScale), deriv, 0.1+1./s, 0.0);\r\n    float ny = smplxNoise2D(pin.position*s*mix(10., 1., cScale), deriv, 0.11+1./s, 0.0);\r\n    for (int j=0; j<wormLength; ++j) {\r\n        if (float(j)>=cSize) break;\r\n        sn += smplxNoise2D(pin.position*s+vec2(1./s,0.)+vec2(nx,ny)*4., deriv, 0.2+1./s, y);\r\n        color += vec3(norm(deriv).z)/s;\r\n        y += 0.1;\r\n    }\r\n    s *= 1.1;\r\n}\r\ncolor /= 4.;\r\n\r\nvec2 deriv;\r\nfloat delay = smplxNoise2D(pin.position*s*1., deriv, 0.111, 0.);\r\npout.color = mix(color, vec3(1.0)-color, clamp(sin(time*0.25+pin.position.x*.5+delay*32.)*32., 0.0, 1.0));";
+
+	var squigglesFragPars = "uniform float cDensity;\r\nuniform float cSize;\r\nuniform float cScale;\r\n\r\n// https://www.shadertoy.com/view/MstBD4\r\n// Number of layars.\r\n// Higher value shows more layers of effects\r\n// Lower value higer FPS.\r\nconst int numLayers = 16;\r\n\r\n//Length of worm\r\nconst int wormLength = 8;\r\n\r\nfloat squigglesRand(vec3 pos) {\r\n    vec3 p = pos + vec3(2.);\r\n    vec3 fp = fract(p*p.yzx*222.)+vec3(2.);\r\n    p.y *= p.z * fp.x;\r\n    p.x *= p.y * fp.y;\r\n    return fract(p.x*p.x);\r\n}\r\n\r\nfloat skewF(float n) {\r\n    return (sqrt(n+1.0)-1.0)/n;\r\n}\r\n\r\nfloat unskewG(float n) {\r\n    return (1.0/sqrt(n+1.0)-1.0)/n;\r\n}\r\n\r\nvec2 smplxNoise2DDeriv(vec2 x, float m, vec2 g) {\r\n    vec2 dmdxy = min(dot(x,x)-vec2(0.5), 0.0);\r\n    dmdxy = 8.*x*dmdxy*dmdxy*dmdxy;\r\n    return dmdxy*dot(x,g) + m*g;\r\n}\r\n\r\nfloat smplxNoise2D(vec2 p, out vec2 deriv, float randKey, float roffset) {\r\n    // i is a skewed coordinate of a bottom vertex of a simplex where p is in.\r\n    vec2 i0 = floor(p+vec2(p.x+p.y)*skewF(2.0));\r\n    // x0, x1, x2 are unskewed displacement vectors.\r\n    float unskew = unskewG(2.0);\r\n    vec2 x0 = p-(i0+vec2((i0.x+i0.y)*unskew));\r\n\r\n    vec2 ii1 = x0.x > x0.y ? vec2(1.0,0.0) : vec2(0.0,1.0);\r\n    vec2 ii2 = vec2(1.0);\r\n    vec2 x1 = x0 - ii1 - vec2(unskew);\r\n    vec2 x2 = x0 - ii2 - vec2(2.0*unskew);\r\n\r\n    vec3 m = max(vec3(0.5)-vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0);\r\n    m = m*m;\r\n    m = m*m;\r\n\r\n    float r0 = 3.1416*2.0*squigglesRand(vec3(mod(i0, 16.0)/16.0, randKey));\r\n    float r1 = 3.1416*2.0*squigglesRand(vec3(mod(i0+ii1, 16.0)/16.0, randKey));\r\n    float r2 = 3.1416*2.0*squigglesRand(vec3(mod(i0+ii2, 16.0)/16.0, randKey));\r\n\r\n    float randKey2 = randKey + 0.01;\r\n    float spmin = 0.5;\r\n    float sps = 2.0;\r\n    float sp0 = spmin + sps*squigglesRand(vec3(mod(i0, 16.0)/16.0, randKey2));\r\n    float sp1 = spmin + sps*squigglesRand(vec3(mod(i0+ii1, 16.0)/16.0, randKey2));\r\n    float sp2 = spmin + sps*squigglesRand(vec3(mod(i0+ii2, 16.0)/16.0, randKey2));\r\n\r\n    r0 += time*sp0 + roffset;\r\n    r1 += time*sp1 + roffset;\r\n    r2 += time*sp2 + roffset;\r\n\r\n    // Gradients\r\n    vec2 g0 = vec2(cos(r0), sin(r0));\r\n    vec2 g1 = vec2(cos(r1), sin(r1));\r\n    vec2 g2 = vec2(cos(r2), sin(r2));\r\n\r\n    deriv = smplxNoise2DDeriv(x0, m.x, g0);\r\n    deriv += smplxNoise2DDeriv(x1, m.y, g1);\r\n    deriv += smplxNoise2DDeriv(x2, m.z, g2);\r\n\r\n    return dot(m*vec3(dot(x0,g0), dot(x1,g1), dot(x2,g2)), vec3(1.0));\r\n}\r\n\r\nvec3 norm(vec2 deriv) {\r\n    deriv *= 2000.0;\r\n    vec3 tx = vec3(1.0, 0.0, deriv.x);\r\n    vec3 ty = vec3(0.0, 1.0, deriv.y);\r\n    return normalize(cross(tx,ty));\r\n}\r\n";
+
+	var squigglesUniforms = {
+	    cSize: { value: 8.0 },
+	    cScale: { value: 0.5 },
+	    cDensity: { value: 16.0 }
+	  };
+
 	var sunFrag = "// https://www.shadertoy.com/view/MlKGDc by Iulian Marinescu Ghetau\r\n\r\ninitScene();\r\n\r\nvec3 col0 = rayTrace(pin.coord + vec2(0.0, 0.0));\r\nvec3 col1 = rayTrace(pin.coord + vec2(0.5, 0.0));\r\nvec3 col2 = rayTrace(pin.coord + vec2(0.0, 0.5));\r\nvec3 col3 = rayTrace(pin.coord + vec2(0.5, 0.5));\r\nvec3 col = 0.25 * (col0 + col1 + col2 + col3);\r\n\r\nvec3 gray = vec3(rgb2gray(col));\r\npout.color = mix(gray, col, cColor);";
 
 	var sunFragPars = "// https://www.shadertoy.com/view/MlKGDc by Iulian Marinescu Ghetau\r\n\r\nuniform float cRadius;\r\nuniform float cColor;\r\n\r\nstruct Ray {\r\n  vec3 o;\r\n  vec3 dir;\r\n};\r\n\r\nstruct Intersect {\r\n  vec3 pos;\r\n  vec3 norm;\r\n};\r\n\r\nvec4 obj;  // xyz - position, w - cRadius\r\n\r\nconst float eps = 1e-3;\r\n\r\n// Number of ray iteration\r\nconst int iterations = 15;\r\n\r\n// Next, I define an exposure time adn gamma value. At this point, I also create\r\n// a basic directional light and define the ambient light color; the color here\r\n// is mostly a matter of taste. Basically ... lighting controls.\r\nconst float exposure = 0.3;\r\nconst float gamma = 2.2;\r\nconst float intensity = 50.0;\r\n\r\n// The maximum Radius the Camera can move around (sync with the value in BufA)\r\nconst float cCamPanRadius = 10000.0;\r\n\r\n// The position of the saved camera variables in the Render Buffer A (sync with the value in BufA)\r\nconst vec2 txCamPos = vec2(0.0, 0.0);\r\nconst vec2 txCamForward = vec2(1.0, 0.0);\r\n\r\n// Convert val from [0,1] interval to [minVal,maxVal]\r\n// vec3 decode(vec3 val, float minVal, float maxVal) {\r\n//   return vec3(minVal) + (maxVal - minVal) * val;\r\n// }\r\n\r\n// The intersection functions are from inigo's article\r\n// http://www.iquilezles.org/www/articles/simplegpurt/simplegpurt.htm\r\nbool intSphere(in vec4 sp, in vec3 ro, in vec3 rd, in float tm, out float t) {\r\n  bool r = false;\r\n  vec3 d = ro - sp.xyz;\r\n  float b = dot(rd, d);\r\n  float c = dot(d,d) - sp.w*sp.w;\r\n  t = b*b-c;\r\n  if (t > 0.0) {\r\n    t = -b-sqrt(t);\r\n    r = (t > 0.0) && (t < tm);\r\n  }\r\n  return r;\r\n}\r\n\r\n// Ray Marching code based on Fiery Spikeball shader: https://www.shadertoy.com/view/4lBXzy#\r\n\r\n// #define DITHERING\r\n\r\n// Noise function based on https://www.shadertoy.com/view/4sfGzS\r\n// I tried the Iq's faster version but it shows discontinuities when you zoom in very close\r\nfloat hash(float n) { return fract(sin(n) * 783.5453123); }\r\n\r\nfloat noise(in vec3 x) {\r\n  vec3 p = floor(x);\r\n  vec3 f = fract(x);\r\n  f = f*f*(3.0-2.0*f);\r\n  float n = p.x + p.y * 157.0 + 113.0 * p.z;\r\n  return mix(mix(mix(hash(n+  0.0), hash(n+  1.0), f.x),\r\n                 mix(hash(n+157.0), hash(n+158.0), f.x), f.y),\r\n             mix(mix(hash(n+113.0), hash(n+114.0), f.x),\r\n                 mix(hash(n+270.0), hash(n+271.0), f.x), f.y), f.z);\r\n}\r\n\r\nfloat fbm(vec3 p) {\r\n  const mat3 m = mat3(1.0);\r\n  vec3 q = 0.1 * p;\r\n  float f;\r\n  f = 0.5000 * noise(q); q = m*q*2.01;\r\n  f += 0.2500 * noise(q); q = m*q*2.02;\r\n  f += 0.1250 * noise(q); q = m*q*2.03;\r\n  f += 0.0625 * noise(q);\r\n  return f;\r\n}\r\n\r\nfloat sdSphere(vec4 sp, vec3 p) {\r\n  return length(p - sp.xyz) - sp.w;\r\n}\r\n\r\nfloat dfSunSurface(vec3 p) {\r\n  float cs = cos(time * 0.1);\r\n  float si = sin(time * 0.1);\r\n  mat2 rM = mat2(cs, si, -si, cs);\r\n  p.xz *= rM;\r\n  return max(0.0, sdSphere(obj + vec4(0.0, 0.0, 0.0, -1.0), p) + fbm(p*60.0+time*2.0) * 0.15);\r\n}\r\n\r\n// See \"Combustible Voronoi\"\r\n// https://www.shadertoy.com/view/4tlSzl\r\nvec3 firePalette(float i) {\r\n  float T = 900.0 + 3500.0 * i; // Temperature range (in Kelvin)\r\n  vec3 L = vec3(7.4, 5.6, 4.4); // Red, green, blue wavelengths (in hundreds of nanometers).\r\n  L = pow(L, vec3(5.0)) * (exp(1.43876719683e5/(T*L))-1.0);\r\n  return 1.0 - exp(-5e8/L); // Exposure level. Set to \"50.\" For \"70,\" change the \"5\" to a \"7,\" etc.\r\n}\r\n\r\nvec3 rayMarch(vec3 ro, vec3 rd, vec2 uv, out float dist) {\r\n// ld, td: local, total density\r\n// w: weighwing factor\r\n  float ld = 0.0, td = 0.0, w;\r\n\r\n// t: length of the ray\r\n// d: distance function\r\n  float d = 1.0, t = 0.0;\r\n\r\n// Distance threshold\r\n  const float h = 0.25;\r\n\r\n// total color\r\n  float tc = 0.0;\r\n\r\n  vec2 seed = uv + fract(time);\r\n\r\n// Tidied the raymarcher up a bit. Plus, got rid some redundancies... I think.\r\n\r\n  for (int i=0; i<30; i++) {\r\n    // Loop break conditions. Seems to work, but let me know if I've \r\n    // overlooked something. The middle break isn't really used here, but\r\n    // it can help in certain situations.\r\n    if (td > (1.0 - 0.02) || d < 0.001*t || t>12.0)  break;\r\n\r\n    // evaluate distance function\r\n    // Took away the \"0.5\" factor, and put it below\r\n    d = dfSunSurface(ro + t*rd);\r\n\r\n    // check whether we are close enough (step)\r\n    // compute local density and weighing factor\r\n    ld = (h-d) * step(d, h);\r\n    w = (1.0 - td) * ld;\r\n\r\n    // accumulate color and density\r\n    tc += w*w + 1.0/70.0;  // Difference weight distribution\r\n    td += w;\r\n\r\n    // dithering implementation come from Eiffies' https://www.shadertoy.com/view/MsBGRh\r\n    #ifdef DITHERING\r\n    // add in noise to reduce banding and create fuzz\r\n    d = abs(d) * (0.9 + 0.4*rnd(seed*vec2(i)));\r\n    #endif\r\n\r\n    // enforce minumum stepsize\r\n    // d = max(d, 0.01);\r\n\r\n    // step forward\r\n    t += d * 0.5;\r\n  }\r\n\r\n  dist = clamp(d, 0.0, 1.0);\r\n\r\n  return firePalette(tc);\r\n}\r\n\r\n// http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/\r\n// mat3 rotMat(vec3 axis, float angle) {\r\n//   axis = normalize(axis);\r\n//   float s = sin(angle);\r\n//   float c = cos(angle);\r\n//   float oc = 1.0 - c;\r\n// \r\n//   return mat3(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,\r\n//               oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,\r\n//               oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c);\r\n// }\r\n\r\nvoid initScene() {\r\n  obj = vec4(0.0, 0.0, 0.0, 5.0 - 3.5 * (1.0 - cRadius));\r\n}\r\n\r\n// Get a Ray from the Camera position (read from BufA) to the fragment given by the uv coordinates\r\nRay calcFragmentRay(vec2 uv) {\r\n  vec3 camPos = vec3(0.0, 0.0, 12.0);\r\n  vec3 camForward = vec3(0.0, 0.0, -1.0);\r\n//   vec3 camPos = decode(loadValue(txCamPos), -cCamPanRadius, cCamPanRadius);\r\n//   vec3 camForward = decode(loadValue(txCamForward), -1.0, 0.0);\r\n  vec3 camRight = normalize(cross(vec3(0.0, 1.0, 0.0), camForward));\r\n  vec3 camUp = cross(camForward, camRight);\r\n  return Ray(camPos, normalize(uv.x * camRight + uv.y * camUp + camForward));\r\n}\r\n\r\n// Intersects a ray with the scene and return the closest intersection\r\nbool intObjs(vec3 ro, vec3 rd, out Intersect hit) {\r\n  bool r = false;\r\n  float t = 0.0, tm = cCamPanRadius;\r\n  if (intSphere(obj, ro, rd, tm, t)) {\r\n    tm = t; r = true;\r\n    hit.pos = ro + tm * rd;\r\n    hit.norm = normalize(hit.pos - obj.xyz);\r\n  }\r\n  return r;\r\n}\r\n\r\n// Check if a ray is in the shadow\r\nbool inShadow(vec3 ro, vec3 rd) {\r\n  float t, tm = cCamPanRadius;\r\n  if (intSphere(obj, ro, rd, tm, t)) return true;\r\n  return false;\r\n}\r\n\r\n// Calculate the fresnel coef using Schlick's approximation\r\n// float calcFresnel(vec3 n, vec3 rd, float r0) {\r\n//   float ndotv = clamp(dot(n, -rd), 0.0, 1.0);\r\n//   return r0 + (1.0 - r0) * pow(1.0 - ndotv, 5.0);\r\n// }\r\n\r\nvec3 calcShading(Ray ray, Intersect hit, vec2 uv, out float sunDist) {\r\n// The Sun is shaded using a distance based function, \r\n// bounded by the objs[ixLight] sphere.\r\n// Start to march the ray from points equally distant from the\r\n// sun's center, this way the Sun's shading does not depend on the camera location.\r\n// (The Sun looks the same no matter where you look from)\r\n  vec3 col = rayMarch(hit.pos, ray.dir, uv, sunDist);\r\n  return col;\r\n}\r\n\r\nvec3 rayTrace(vec2 fragCoord) {\r\n// Pixels to fragment coordinates do not map one a one-to-one basis, so I need \r\n// to divide the fragment coordinates by the viewport resolution. I then offset \r\n// that by a fixed value to re-center the coordinate system.\r\n  vec2 uv = fragCoord / resolution - vec2(0.5);\r\n\r\n// For each fragment, create a ray at a fixed point of origin directed at\r\n// the coordinates of each fragment.\r\n  Ray ray = calcFragmentRay(uv);\r\n\r\n  float mask = 1.0; // accumulates reflected light (fresnel coefficient)\r\n  vec3 color = vec3(0.0); // accumulates color\r\n  for (int i=0; i <= iterations; i++) {\r\n    Intersect hit;\r\n    if (intObjs(ray.o, ray.dir, hit)) {\r\n      \r\n      float sunDist = 0.0;\r\n      color += mask * calcShading(ray, hit, uv, sunDist);\r\n\r\n//       float fresnel = calcFresnel(hit.norm, ray.dir, 0.0);\r\n\r\n// The sun\r\n      mask *= sunDist;\r\n// The original ray doesn't change\r\n// This allows to shade objects behind Sun's Corona\r\n      ray.o = hit.pos + eps * ray.dir;\r\n    } else {\r\n// If the trace failed\r\n      color += mask * vec3(0.0);\r\n      break;\r\n    }\r\n  }\r\n\r\n// Adjust for exposure and perform linear gamma correction\r\n//   color = pow(color * exposure, vec3(1.0 / gamma));\r\n\r\n  return color;\r\n}";
@@ -5946,9 +5997,21 @@
 	  cOffset: { value: 0.5 }
 	};
 
+	var testFrag = "vec2 p = (-resolution + 2.0*pin.coord) / resolution.y;\r\nvec2 m = mouse.xy / resolution.xy;\r\nvec3 ro = 4.0*normalize(vec3(sin(3.0*m.x), 0.4*m.y, cos(3.0*m.x)));\r\nvec3 ta = vec3(0.0,-1.0,0.0);\r\nmat3 ca = setCamera(ro, ta, 0.0);\r\nvec3 rd = ca*normalize(vec3(p.xy,1.5));\r\npout.color = render(ro, rd).xyz;";
+
+	var testFragPars = "uniform sampler2D tNoise;\r\n\r\nfloat noise(in vec3 x) {\r\n  vec3 p = floor(x);\r\n  vec3 f = fract(x);\r\n  f = f*f*(3.0-2.0*f);\r\n  vec2 uv = (p.xy + vec2(37.0, 17.0)*p.z) + f.xy;\r\n  uv = (uv+0.5)/256.0;\r\n  uv = vec2(uv.x, -uv.y);\r\n  vec2 rg = texture2D(tNoise, uv).yx;\r\n  return -1.0 + 2.0*mix(rg.x, rg.y, f.z);\r\n}\r\n\r\nfloat map5(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q); q = q*2.02;\r\n  f += 0.03125*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map4(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map3(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map2(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nvec3 sundir = normalize(vec3(-1.0, 0.0, -1.0));\r\n\r\nvec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {\r\n// lighting\r\n  vec3 lin = vec3(0.65,0.7,0.75)*1.4 + vec3(1.0,0.6,0.3)*dif;\r\n  vec4 col = vec4(mix(vec3(1.0,0.95,0.8), vec3(0.25,0.3,0.35), den), den);\r\n  col.xyz *= lin;\r\n  col.xyz = mix(col.xyz, bgcol, 1.0-exp(-0.003*t*t));\r\n// front to back blending\r\n  col.a *= 0.4;\r\n  col.rgb *= col.a;\r\n  return sum + col*(1.0-sum.a);\r\n}\r\n\r\n#define MARCH(STEPS,MAPLOD) for(int i=0; i<STEPS; i++) { vec3 pos = ro + t*rd; if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break; float den = MAPLOD(pos); if (den>0.01) { float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.05, 0.02*t); }\r\n// for (int i=0; i<STEPS; i++) {\r\n//   vec3 pos = ro + t*rd;\r\n//   if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;\r\n//   float den = MAPLOD(pos);\r\n//   if (den>0.01) {\r\n//     float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0);\r\n//     sum = integrate(sum, dif, den, bgcol, t);\r\n//   }\r\n//   t += max(0.05, 0.02*t);\r\n// }\r\n\r\nvec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {\r\n  vec4 sum = vec4(0.0);\r\n  float t = 0.0;\r\n  MARCH(30,map5);\r\n  MARCH(30,map4);\r\n  MARCH(30,map3);\r\n  MARCH(30,map2);\r\n  return clamp(sum, 0.0, 1.0);\r\n}\r\n\r\nmat3 setCamera(in vec3 ro, in vec3 ta, float cr) {\r\n  vec3 cw = normalize(ta-ro);\r\n  vec3 cp = vec3(sin(cr), cos(cr), 0.0);\r\n  vec3 cu = normalize(cross(cw,cp));\r\n  vec3 cv = normalize(cross(cu,cw));\r\n  return mat3(cu, cv, cw);\r\n}\r\n\r\nvec4 render(in vec3 ro, in vec3 rd) {\r\n// background sky\r\n  float sun = clamp(dot(sundir,rd), 0.0, 1.0);\r\n  vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;\r\n  col += 0.2*vec3(1.0,0.6,0.1)*pow(sun,8.0);\r\n// clouds\r\n  vec4 res = raymarch(ro, rd, col);\r\n  col = col * (1.0-res.w) + res.xyz;\r\n// sun glare\r\n  col += 0.2*vec3(1.0,0.4,0.2)*pow(sun,3.0);\r\n  return vec4(col, 1.0);\r\n}";
+
 	var testUniforms = {
 	  tNoise: { value: null }
 	};
+
+	var tilingFrag = "vec4 c1 = texture2D(tDiffuse, pin.uv);\r\nvec4 c2 = texture2D(tDiffuse, pin.uv+vec2(0.5));\r\nfloat a1 = radialMask(pin.uv);\r\nfloat rm2 = radialMask(pin.uv+vec2(0.5));\r\nfloat lm2 = linearMask(pin.uv+vec2(0.5));\r\nfloat a2 = mix(lm2, rm2, cRadialMask);\r\nfloat a = a1+a2;\r\nfloat r = a1*c1.r/a + a2*c2.r/a;\r\nfloat g = a1*c1.g/a + a2*c2.g/a;\r\nfloat b = a1*c1.b/a + a2*c2.b/a;\r\npout.color = vec3(r,g,b);\r\n";
+
+	var tilingFragPars = "uniform float cRadialMask;\r\nfloat radialMask(in vec2 uv) {\r\n    vec2 p = abs(fract(uv) - vec2(0.5)) * 2.0;\r\n    return max(1.0-dot(p,p), 0.0001);\r\n}\r\nfloat linearMask(in vec2 uv) {\r\n    vec2 p = abs(fract(uv) - vec2(0.5));\r\n    return max((0.5-max(p.x,p.y)) / 0.5, 0.0001);\r\n}";
+
+	var tilingUniforms = {
+	    cRadialMask: { value: 1.0 }
+	  };
 
 	var toonFrag$1 = "if (cToonEnable) {\r\n  vec3 dark = mix( vec3(0.0), vec3(0.5),  step(cToonDark, pout.color) ) ;\r\n  vec3 light = mix( dark, vec3(1.0),  step(cToonLight, pout.color) ) ;\r\n//   vec3 dark = mix( vec3(0.0), vec3( 1.0, 0.4, 0.0),  step(0.8, pout.color) ) ;\r\n//   vec3 light = mix( dark, vec3( 1.0, 0.8, 0.0),  step(0.95, pout.color) ) ;\r\n  pout.color = light;\r\n}";
 
@@ -5959,6 +6022,20 @@
 	  cToonDark: { value: 0.8 },
 	  cToonLight: { value: 0.95 },
 	};
+
+	var trabeculumFrag = "vec2 camctrl = vec2(cCameraPan, cCameraTilt);\r\nif (camctrl.x+camctrl.y == 0.) camctrl.xy = vec2(0.5);\r\n\r\nfloat theta = (camctrl.x*2.-1.)*PI;\r\nfloat phi = (camctrl.y-.5)*PI;\r\nfloat t=3.*time, B=.07; theta += B*cos(t); phi += B*sin(t);\r\n\r\nvec3 cameraPos = vec3(sin(theta)*cos(phi), sin(phi), cos(theta)*cos(phi));\r\nvec3 cameraTarget = vec3(0.);\r\nvec3 ww = normalize(cameraPos - cameraTarget);\r\nvec3 uu = normalize(cross(vec3(0.,1.,0.), ww));\r\nvec3 vv = normalize(cross(ww,uu));\r\nvec2 q = 2.*(pin.uv - vec2(.5,.5));\r\nvec3 rayDir = normalize(q.x*uu + q.y*vv - 1.5*ww);\r\n\r\nvec3 col = vec3(0.);\r\nfloat transp=1., epsC = .01/2.;\r\nfloat l = .5;\r\nfloat density = cDensity * 200.;\r\nvec3 p = cameraPos + l*rayDir, p_=p;\r\nfor (int i=0; i<200; i++) {\r\n    if (float(i)>=density) break;\r\n    float Aloc = tweaknoise(p,true);\r\n    if (Aloc>0.01) {\r\n        float a = 2.*PI*float(i)/density;\r\n        vec3 c = .5+.5*cos(a+vec3(0.,2.*PI/3.,-2.*PI/3.)+time);\r\n        col += transp*c*Aloc;\r\n        col = clamp(col, 0., 1.);\r\n        transp *= 1.-Aloc;\r\n        if (transp<.001) break;\r\n    }\r\n    p += epsC*rayDir;\r\n}\r\nvec3 rgb = col+transp*skyColor;\r\nvec3 gray = vec3(rgb2gray(rgb));\r\npout.color = mix(gray, rgb, cColor);\r\n";
+
+	var trabeculumFragPars = "uniform float cDensity;\r\nuniform float cScale;\r\nuniform float cIntensity;\r\nuniform float cTrabeculumVariation;\r\nuniform float cCameraTilt;\r\nuniform float cCameraPan;\r\nuniform float cColor;\r\n\r\nconst vec3 skyColor = 0.*vec3(.7,.8,1.); const float skyTrsp = .5;\r\n\r\nfloat grad = .2/2., scale = 5., thresh = .5;\r\n\r\nvec3 hash13(float n) {\r\n    return fract(sin(n+vec3(0.,12.345,124))*43758.5453);\r\n}\r\nfloat hash31(vec3 n) {\r\n    return rand(n.x+10.*n.y+100.*n.z);\r\n}\r\nvec3 hash33(vec3 n) {\r\n    return hash13(n.x+10.*n.y+100.*n.z);\r\n}\r\nvec4 worley(vec3 p) {\r\n    vec4 d = vec4(1e15);\r\n    vec3 ip = floor(p);\r\n    for (float i=-1.;i<2.; i++) {\r\n        for (float j=-1.;j<2.;j++) {\r\n            for (float k=-1.;k<2.;k++) {\r\n                vec3 p0 = ip + vec3(i,j,k);\r\n                vec3 c  = hash33(p0)+p0-p;\r\n                float d0 = dot(c,c);\r\n                if      (d0<d.x) { d.yzw = d.xyz; d.x=d0; }\r\n                else if (d0<d.y) { d.zw  = d.yz;  d.y=d0; }\r\n                else if (d0<d.z) { d.w   = d.z;   d.z=d0; }\r\n                else if (d0<d.w) {                d.w=d0; }\r\n            }\r\n        }\r\n    }\r\n    return sqrt(d);\r\n}\r\n\r\nfloat tweaknoise(vec3 p, bool step) {\r\n    float d1 = smoothstep(grad/2., -grad/2., length(p)-.5);\r\n    float d2 = smoothstep(grad/1., -grad/1., abs(p.z)-.5);\r\n    float d= d1;\r\n    if (cTrabeculumVariation <= .0) d = (1.-d1)*d2;\r\n    if (cTrabeculumVariation >= 2.) d = d2;\r\n    if (d < .5) return 0.;\r\n    grad=.8;\r\n    scale = mix(2.,10.,cScale);\r\n    thresh = .5+.5*(cos(.5*time)+.36*cos(.5*3.*time))/1.36;\r\n    vec4 w = scale*worley(scale*p-vec3(0.,0.,3.*time));\r\n    float v = 1.-1./(1./(w.z-w.x)+1./(w.a-w.x));\r\n\r\n    if (cIntensity < 1.) {\r\n        return v*d*cIntensity;\r\n    } else {\r\n        return smoothstep(thresh-grad/2., thresh+grad/2., v*d);\r\n    }\r\n}\r\n";
+
+	var trabeculumUniforms = {
+	    cDensity: { value: 1.0 },
+	    cScale: { value: 1.0 },
+	    cIntensity: { value: 1.0 },
+	    cTrabeculumVariation: { value: 2.0 },
+	    cCameraTilt: { value: 0.0 },
+	    cCameraPan: { value: 0.0 },
+	    cColor: { value: 1.0 }
+	  };
 
 	var turbulentNoiseFrag = "vec2 p = pin.uv - time*0.1;\r\nfloat lum = fbm(p, cNoiseOctave, cNoiseFrequency * 128.0, cNoiseAmplitude);\r\npout.color = vec3(lum);\r\n\r\nfloat graph = fbm(p.xx, cNoiseOctave, cNoiseFrequency * 128.0, cNoiseAmplitude);";
 
@@ -5973,6 +6050,15 @@
 	var waterCircleWaveFrag = "const float period = 0.2;\r\nconst float amp = 0.05;\r\nconst float lambda = 0.5;\r\nfloat r = sqrt(pow2(pin.position.x) + pow2(pin.position.y));\r\nfloat phase = 2.0 * PI * (time/period - r/lambda);\r\nif (phase >= 0.0 && phase < 2.0*PI) {\r\n  pout.color = vec3((amp * sin(phase)) / sqrt(r));\r\n} else {\r\n  pout.color = vec3(0.0);\r\n}";
 
 	var waterPlaneWaveFrag = "const float period = 0.2;\r\nconst float amp = 0.05;\r\nconst float lambda = 0.5;\r\nfloat r = sqrt(pow2(pin.position.x) + pow2(pin.position.y));\r\nfloat phase = 2.0 * PI * (time/period - pin.position.x/lambda - pin.position.y/lambda);\r\nif (phase >= 0.0 && phase < 2.0*PI) {\r\n  pout.color = vec3((amp * sin(phase)));\r\n} else {\r\n  pout.color = vec3(0.0);\r\n}";
+
+	var waterTurbulenceFrag = "vec2 p = pin.position * mix(2.0,15.0,cScale);\r\nfloat c = Turb(p);\r\npout.color = vec3(c);";
+
+	var waterTurbulenceFragPars = "uniform float cScale;\r\nuniform float cIntensity;\r\n\r\n#define MAX_ITER 2.0\r\n\r\nfloat Turb(vec2 p) {\r\n    vec2 i = p;\r\n    float c = 0.0;\r\n    float inten = cIntensity;\r\n    float r = length(p + vec2(sin(time), sin(time*0.433+2.))*3.);\r\n    for (float n=0.0; n<MAX_ITER; n++) {\r\n        float t = r-time * (1.0 - (1.9/(n+1.)));\r\n        t = r-time/(n+.6);//r-time*(1.+.5/float(n+1.)));\r\n        i -= p + vec2(\r\n            cos(t-i.x-r)+sin(t+i.y),\r\n            sin(t-i.y)+cos(t+i.x)+r);\r\n            c += 1./length(vec2(sin(i.x+t)/inten, cos(i.y+t)/inten));\r\n    }\r\n    c /= float(MAX_ITER);\r\n    c = clamp(c,-1.,1.);\r\n    return c;\r\n}";
+
+	var waterTurbulenceUniforms = {
+	    cScale: { value: 0.5 },
+	    cIntensity: { value: 0.15 }
+	};
 
 	var waveRingFrag = "float u = sin((atan(pin.position.y, pin.position.x) + time * 0.5) * floor(cFrequency)) * cAmplitude;\r\nfloat t = cWidth / abs(cRadius + u - length(pin.position));\r\nt = pow(abs(t), cPowerExponent);\r\npout.color = vec3(t);";
 
@@ -5995,92 +6081,6 @@
 	  cPowerExponent: { value: 1.0 },
 	};
 
-	var inksplatFrag = "// vec2 uv = 12.0 * (pin.coord - 0.5*resolution.xy) / resolution.x;\r\n// float v = length(uv);\r\n// vec2 h = vec2(ceil(3.0*time));\r\n// float a, w;\r\n// \r\n// // lines\r\n// for (int i=0; i<21; i++) {\r\n//   h = splatHash(h);\r\n//   w = 0.03;\r\n//   a = (atan(uv.x, uv.y)+3.14)/6.28*(1.0+w);\r\n//   v -= sin(smoothstep(h.x, h.x+w, a)*3.14);\r\n// }\r\n// \r\n// // spots\r\n// for (float s = 3.0; s>0.5; s -= 0.04) {\r\n//   h = (splatHash(h)*2.0-1.0)*s;\r\n//   v -= (1.01-smoothstep(0.0,0.5*(3.0-s), length(uv-h)));\r\n// }\r\n\r\nvec2 uv = 6.0*pin.position;\r\nfloat v = splat(splat_uv(pin.coord));\r\n// float w = 0.75 * splat_fwidth(pin.coord, v);\r\nfloat w = 0.75*fwidth(v);\r\nv = 1.0 - smoothstep(-w,w,v);\r\npout.color = vec3(v,v,v);";
-
-	var inksplatFragPars = "uniform int cSplatLines;\r\nuniform float cSplatSpotStep;\r\n\r\nvec2 splatHash(in vec2 p) {\r\n  return fract(sin(p*mat2(63.31,127.63,395.467,213.799))*43141.59265);\r\n}\r\n\r\nfloat splat(in vec2 p) {\r\n  float v = length(p);\r\n  vec2 h = vec2(ceil(3.0*time));\r\n  float a, w;\r\n\r\n  // lines\r\n  for (int i=0; i<100; i++) {\r\n    if (i>=cSplatLines) break;\r\n    h = splatHash(h);\r\n    w = 0.03;\r\n    a = (atan(p.x, p.y)+3.14)/6.28*(1.0+w);\r\n    v -= sin(smoothstep(h.x, h.x+w, a)*3.14);\r\n  }\r\n\r\n  // spots\r\n  // for (float s = 3.0; s>0.5; s -= cSplatSpotStep) {\r\n  float s = 3.0;\r\n  for (int i=0; i<100; i++) {\r\n    h = (splatHash(h)*2.0-1.0)*s;\r\n    v -= (1.01-smoothstep(0.0,0.5*(3.0-s), length(p-h)));\r\n    s -= cSplatSpotStep;\r\n    if (s <= 0.5) break;\r\n  }\r\n  \r\n  return v;\r\n}\r\n\r\nvec2 splat_uv(in vec2 coord) {\r\n  return 8.0 * (coord - 0.5*resolution.xy) / min(resolution.x, resolution.y);\r\n}\r\n\r\nfloat splat_fwidth(in vec2 coord, in float v11) {\r\n  float v10 = splat(splat_uv(coord + vec2(0.0,1.0)));\r\n  float v01 = splat(splat_uv(coord + vec2(-1.0,0.0)));\r\n  return abs(v11-v01) + abs(v10-v11);\r\n}\r\n";
-
-	var inksplatUniforms = {
-	  cSplatLines: { value: 20 },
-	  cSplatSpotStep: { value: 0.04 }
-	};
-
-	var derivatives = "#extension GL_OES_standard_derivatives : enable";
-
-	var particleFrag = "vec3 col = vec3(0.);\r\nfor (float i=0.0; i<PARTICLE_COUNT; i++) {\r\n    if (i>=cCount) break;\r\n    float seed = SEED + floor(i/cCount+time);\r\n    vec2 anchor = vec2(0.5, 0.5);\r\n    vec2 velocity = vec2(mix(-.5, .5, rand(vec2(seed,i))),mix(-.5, .5, rand(vec2(i,seed)/3.)));\r\n    float creationTime = time - fract(i/cCount + time);\r\n    col += particle(pin.uv, 0., anchor, velocity, creationTime) * currentColor();\r\n}\r\ncol = smoothstep(.6, .9, col);\r\npout.color = vec3(rgb2gray(col));";
-
-	var particleFragPars = "// https://www.shadertoy.com/view/llGBWw\r\nuniform float cSize;\r\nuniform float cLifeTime;\r\nuniform float cGravity;\r\nuniform float cCount;\r\n#define SEED 0.12345679\r\n#define GRAV vec2(0,-.26)\r\n#define SIZE 0.024\r\n#define DIE_TIME 0.9\r\n#define PARTICLE_COUNT 500.0\r\n\r\nfloat particle(vec2 uv, float identifier, vec2 anchor, vec2 velocity, float creationTime) {\r\n    float particleTime = max(0., time - creationTime);\r\n    float size = max(0., cLifeTime - particleTime) * cSize;\r\n    vec2 velocityOffset = velocity * particleTime;\r\n    vec2 gravityOffset = vec2(0,-cGravity) * pow(particleTime, 1.798);\r\n    vec2 point = anchor + velocityOffset + gravityOffset;\r\n    float dist = distance(uv, point);\r\n    float hit = smoothstep(size, 0., dist);\r\n    return hit;\r\n}\r\nvec3 currentColor() {\r\n    float c = time * 0.2;\r\n    float r = sin(c*PI)/2. + .5;\r\n    float g = sin((c+.6)*PI)/2. +.5;\r\n    float b = sin((c+1.2)*PI)/2. + .5;\r\n    return vec3(r,g,b);\r\n}\r\n\r\n";
-
-	var particleUniforms = {
-	    cSize: { value: 0.024 },
-	    cLifeTime: { value: 0.9 },
-	    cGravity: { value: 0.26 },
-	    cCount: { value: 300.0 }
-	  };
-
-	var testFrag = "vec2 p = (-resolution + 2.0*pin.coord) / resolution.y;\r\nvec2 m = mouse.xy / resolution.xy;\r\nvec3 ro = 4.0*normalize(vec3(sin(3.0*m.x), 0.4*m.y, cos(3.0*m.x)));\r\nvec3 ta = vec3(0.0,-1.0,0.0);\r\nmat3 ca = setCamera(ro, ta, 0.0);\r\nvec3 rd = ca*normalize(vec3(p.xy,1.5));\r\npout.color = render(ro, rd).xyz;";
-
-	var testFragPars = "uniform sampler2D tNoise;\r\n\r\nfloat noise(in vec3 x) {\r\n  vec3 p = floor(x);\r\n  vec3 f = fract(x);\r\n  f = f*f*(3.0-2.0*f);\r\n  vec2 uv = (p.xy + vec2(37.0, 17.0)*p.z) + f.xy;\r\n  uv = (uv+0.5)/256.0;\r\n  uv = vec2(uv.x, -uv.y);\r\n  vec2 rg = texture2D(tNoise, uv).yx;\r\n  return -1.0 + 2.0*mix(rg.x, rg.y, f.z);\r\n}\r\n\r\nfloat map5(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q); q = q*2.02;\r\n  f += 0.03125*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map4(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q); q = q*2.01;\r\n  f += 0.06250*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map3(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q); q = q*2.03;\r\n  f += 0.12500*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nfloat map2(in vec3 p) {\r\n  vec3 q = p - vec3(0.0, 0.1, 1.0) * time;\r\n  float f;\r\n  f  = 0.50000*noise(q); q = q*2.02;\r\n  f += 0.25000*noise(q);\r\n  return clamp(1.5 - p.y - 2.0 + 1.75*f, 0.0, 1.0);\r\n}\r\n\r\nvec3 sundir = normalize(vec3(-1.0, 0.0, -1.0));\r\n\r\nvec4 integrate(in vec4 sum, in float dif, in float den, in vec3 bgcol, in float t) {\r\n// lighting\r\n  vec3 lin = vec3(0.65,0.7,0.75)*1.4 + vec3(1.0,0.6,0.3)*dif;\r\n  vec4 col = vec4(mix(vec3(1.0,0.95,0.8), vec3(0.25,0.3,0.35), den), den);\r\n  col.xyz *= lin;\r\n  col.xyz = mix(col.xyz, bgcol, 1.0-exp(-0.003*t*t));\r\n// front to back blending\r\n  col.a *= 0.4;\r\n  col.rgb *= col.a;\r\n  return sum + col*(1.0-sum.a);\r\n}\r\n\r\n#define MARCH(STEPS,MAPLOD) for(int i=0; i<STEPS; i++) { vec3 pos = ro + t*rd; if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break; float den = MAPLOD(pos); if (den>0.01) { float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0); sum = integrate(sum, dif, den, bgcol, t); } t += max(0.05, 0.02*t); }\r\n// for (int i=0; i<STEPS; i++) {\r\n//   vec3 pos = ro + t*rd;\r\n//   if (pos.y<-3.0 || pos.y>2.0 || sum.a > 0.99) break;\r\n//   float den = MAPLOD(pos);\r\n//   if (den>0.01) {\r\n//     float dif = clamp((den - MAPLOD(pos+0.3*sundir))/0.6, 0.0, 1.0);\r\n//     sum = integrate(sum, dif, den, bgcol, t);\r\n//   }\r\n//   t += max(0.05, 0.02*t);\r\n// }\r\n\r\nvec4 raymarch(in vec3 ro, in vec3 rd, in vec3 bgcol) {\r\n  vec4 sum = vec4(0.0);\r\n  float t = 0.0;\r\n  MARCH(30,map5);\r\n  MARCH(30,map4);\r\n  MARCH(30,map3);\r\n  MARCH(30,map2);\r\n  return clamp(sum, 0.0, 1.0);\r\n}\r\n\r\nmat3 setCamera(in vec3 ro, in vec3 ta, float cr) {\r\n  vec3 cw = normalize(ta-ro);\r\n  vec3 cp = vec3(sin(cr), cos(cr), 0.0);\r\n  vec3 cu = normalize(cross(cw,cp));\r\n  vec3 cv = normalize(cross(cu,cw));\r\n  return mat3(cu, cv, cw);\r\n}\r\n\r\nvec4 render(in vec3 ro, in vec3 rd) {\r\n// background sky\r\n  float sun = clamp(dot(sundir,rd), 0.0, 1.0);\r\n  vec3 col = vec3(0.6,0.71,0.75) - rd.y*0.2*vec3(1.0,0.5,1.0) + 0.15*0.5;\r\n  col += 0.2*vec3(1.0,0.6,0.1)*pow(sun,8.0);\r\n// clouds\r\n  vec4 res = raymarch(ro, rd, col);\r\n  col = col * (1.0-res.w) + res.xyz;\r\n// sun glare\r\n  col += 0.2*vec3(1.0,0.4,0.2)*pow(sun,3.0);\r\n  return vec4(col, 1.0);\r\n}";
-
-	var electricFrag = "float pauseFreq = cFrequency;\r\nfloat pauseScale = 1.0;\r\nfloat scaledTime = time * 0.5;\r\nscaledTime += 0.05 * pin.uv.x;\r\nfloat sinTime = sin(pauseFreq*scaledTime);\r\nfloat sinTimeOffset = sin(pauseFreq*scaledTime - 0.5*3.141);\r\nfloat timeStep = scaledTime + pauseScale * (sinTime/pauseFreq);\r\n\r\nvec2 p = pin.uv;\r\nvec4 c;\r\n\r\np *= 4.0;\r\np.x = 0.5 - timeStep*3.0;\r\np.y = 0.5 - timeStep*3.0;\r\nc = voronoi(p);\r\n\r\nfloat cellPos = (p.y+c.z) + timeStep * 3.0;\r\nvec2 uv = pin.uv;\r\nuv.x += 1.5*(2.0*c.x-0.33) * (uv.y-0.5);\r\nuv.x *= cScale;\r\n\r\np = uv;\r\np.y = max(p.y, 0.5);\r\np *= 12.0; // higher values zoom out further - don't go too high or the sine waves will become quite obvious...\r\np.x += timeStep*16.0;\r\np.y += timeStep*32.0;\r\nc = voronoi(p);\r\n\r\n// pout.color = 0.5*vec4(c.x);\r\n\r\nfloat d= 0.0;\r\nfloat edgeScale = 1.0-2.0*abs(pin.uv.x-0.5);\r\nfloat scaleMulti = pow(0.5*sinTime + 0.5, 2.0);\r\nfloat dScale = 2.0*edgeScale*(0.25+0.75*pow(0.5*sinTimeOffset+0.5,2.0));\r\n\r\np.y = 0.5*12.0 - timeStep*6.0;\r\nc = dScale * voronoi(p);\r\nd = (uv.y + c.x-0.75);\r\n\r\np.x = uv.x*12.0 - timeStep*6.0;\r\np.y = 4.5*12.0 - timeStep*3.0;\r\nc = dScale*voronoi(p);\r\nd = mix(d, (uv.y-c.x-0.25), 0.5);\r\nd = 1.0-abs(d);\r\n\r\n// pout.color = vec3(d);\r\n\r\nfloat lineWidth = d+0.025*scaleMulti*edgeScale;\r\nvec4 outcolor = mix(vec4(0,1,1.5,1), vec4(1,2,2.0,1), scaleMulti)*smoothstep(1.0, 1.005, lineWidth);\r\noutcolor += edgeScale*pow(scaleMulti*smoothstep(0.75, 1.005, lineWidth), 16.0) * 0.5*vec4(.8,1,2.0,1);\r\noutcolor += 0.5*vec4(.1, 0.05, 0.2, 1);\r\n\r\npout.color = outcolor.xyz;";
-
-	var electricFragPars = "uniform float cFrequency;\r\nuniform float cScale;\r\n\r\nvec2 hash2(vec2 p) {\r\n    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);\r\n}\r\n\r\nvec4 voronoi(in vec2 x) {\r\n    vec2 n = floor(x);\r\n    vec2 f = fract(x);\r\n    vec2 o;\r\n    // first pass: regular voronoi\r\n    vec2 mg, mr;\r\n    float oldDist;\r\n\r\n    float md = 8.0;\r\n    for (int j=-1;j<=1; j++) {\r\n        for (int i=-1; i<=1; i++) {\r\n            vec2 g = vec2(float(i), float(j));\r\n            o = hash2(n+g);\r\n            vec2 r = g + o - f;\r\n            float d = dot(r,r);\r\n            if (d<md) {\r\n                md = d;\r\n                mr = r;\r\n                mg = g;\r\n            }\r\n        }\r\n    }\r\n\r\n    oldDist = md;\r\n\r\n    // second pass: distance to borders\r\n    md = 8.0;\r\n    for (int j=-2;j<=2; j++) {\r\n        for (int i=-2; i<=2; i++) {\r\n            vec2 g = vec2(float(i), float(j));\r\n            o = hash2(n+g);\r\n            vec2 r = g + o - f;\r\n            if (dot(mr-r,mr-r)>0.0001) {\r\n                md = min(md, dot(0.5*(mr+r), normalize(r-mr)));\r\n            }\r\n        }\r\n    }\r\n\r\n    return vec4(md, mr, oldDist);\r\n}";
-
-	var electricUniforms = {
-	    cFrequency: { value: 20.0 },
-	    cScale: { value: 0.25 }
-	  };
-
-	var tilingFrag = "vec4 c1 = texture2D(tDiffuse, pin.uv);\r\nvec4 c2 = texture2D(tDiffuse, pin.uv+vec2(0.5));\r\nfloat a1 = radialMask(pin.uv);\r\nfloat rm2 = radialMask(pin.uv+vec2(0.5));\r\nfloat lm2 = linearMask(pin.uv+vec2(0.5));\r\nfloat a2 = mix(lm2, rm2, cRadialMask);\r\nfloat a = a1+a2;\r\nfloat r = a1*c1.r/a + a2*c2.r/a;\r\nfloat g = a1*c1.g/a + a2*c2.g/a;\r\nfloat b = a1*c1.b/a + a2*c2.b/a;\r\npout.color = vec3(r,g,b);\r\n";
-
-	var tilingFragPars = "uniform float cRadialMask;\r\nfloat radialMask(in vec2 uv) {\r\n    vec2 p = abs(fract(uv) - vec2(0.5)) * 2.0;\r\n    return max(1.0-dot(p,p), 0.0001);\r\n}\r\nfloat linearMask(in vec2 uv) {\r\n    vec2 p = abs(fract(uv) - vec2(0.5));\r\n    return max((0.5-max(p.x,p.y)) / 0.5, 0.0001);\r\n}";
-
-	var tilingUniforms = {
-	    cRadialMask: { value: 1.0 }
-	  };
-
-	var causticsFrag = "mat3 m = mat3(-2,-1,2,3,-2,1,1,2,2);\r\nvec3 a = vec3(pin.coord/vec2(100.0*cScale), time/(max(4.5-cSpeed,0.001)))*m;\r\nvec3 b = a * m * .4;\r\nvec3 c = b * m * .3;\r\npout.color = vec3(pow(min(\r\n    min(length(.5-fract(a)), length(.5-fract(b))),\r\n    length(.5-fract(c))),7.0) * 25.0);\r\npout.color += mix(vec3(.0), vec3(.0,.35,.5), cColor);\r\n";
-
-	var causticsFragPars = "// https://www.shadertoy.com/view/MdKXDm\r\nuniform float cScale;\r\nuniform float cSpeed;\r\nuniform float cColor;";
-
-	var causticsUniforms = {
-	    cScale: { value: 4.0 },
-	    cSpeed: { value: 2.0 },
-	    cColor: { value: 1.0 }
-	  };
-
-	var squigglesFrag = "vec3 color = vec3(0.0);\r\nfloat s = 1.0;\r\nfor (int i=0; i<numLayers; ++i) {\r\n    if (float(i)>=cDensity) break;\r\n    float sn = 0.0;\r\n    float y = 0.0;\r\n    \r\n    vec2 deriv;\r\n    float nx = smplxNoise2D(pin.position*s*mix(10., 1., cScale), deriv, 0.1+1./s, 0.0);\r\n    float ny = smplxNoise2D(pin.position*s*mix(10., 1., cScale), deriv, 0.11+1./s, 0.0);\r\n    for (int j=0; j<wormLength; ++j) {\r\n        if (float(j)>=cSize) break;\r\n        sn += smplxNoise2D(pin.position*s+vec2(1./s,0.)+vec2(nx,ny)*4., deriv, 0.2+1./s, y);\r\n        color += vec3(norm(deriv).z)/s;\r\n        y += 0.1;\r\n    }\r\n    s *= 1.1;\r\n}\r\ncolor /= 4.;\r\n\r\nvec2 deriv;\r\nfloat delay = smplxNoise2D(pin.position*s*1., deriv, 0.111, 0.);\r\npout.color = mix(color, vec3(1.0)-color, clamp(sin(time*0.25+pin.position.x*.5+delay*32.)*32., 0.0, 1.0));";
-
-	var squigglesFragPars = "uniform float cDensity;\r\nuniform float cSize;\r\nuniform float cScale;\r\n\r\n// https://www.shadertoy.com/view/MstBD4\r\n// Number of layars.\r\n// Higher value shows more layers of effects\r\n// Lower value higer FPS.\r\nconst int numLayers = 16;\r\n\r\n//Length of worm\r\nconst int wormLength = 8;\r\n\r\nfloat squigglesRand(vec3 pos) {\r\n    vec3 p = pos + vec3(2.);\r\n    vec3 fp = fract(p*p.yzx*222.)+vec3(2.);\r\n    p.y *= p.z * fp.x;\r\n    p.x *= p.y * fp.y;\r\n    return fract(p.x*p.x);\r\n}\r\n\r\nfloat skewF(float n) {\r\n    return (sqrt(n+1.0)-1.0)/n;\r\n}\r\n\r\nfloat unskewG(float n) {\r\n    return (1.0/sqrt(n+1.0)-1.0)/n;\r\n}\r\n\r\nvec2 smplxNoise2DDeriv(vec2 x, float m, vec2 g) {\r\n    vec2 dmdxy = min(dot(x,x)-vec2(0.5), 0.0);\r\n    dmdxy = 8.*x*dmdxy*dmdxy*dmdxy;\r\n    return dmdxy*dot(x,g) + m*g;\r\n}\r\n\r\nfloat smplxNoise2D(vec2 p, out vec2 deriv, float randKey, float roffset) {\r\n    // i is a skewed coordinate of a bottom vertex of a simplex where p is in.\r\n    vec2 i0 = floor(p+vec2(p.x+p.y)*skewF(2.0));\r\n    // x0, x1, x2 are unskewed displacement vectors.\r\n    float unskew = unskewG(2.0);\r\n    vec2 x0 = p-(i0+vec2((i0.x+i0.y)*unskew));\r\n\r\n    vec2 ii1 = x0.x > x0.y ? vec2(1.0,0.0) : vec2(0.0,1.0);\r\n    vec2 ii2 = vec2(1.0);\r\n    vec2 x1 = x0 - ii1 - vec2(unskew);\r\n    vec2 x2 = x0 - ii2 - vec2(2.0*unskew);\r\n\r\n    vec3 m = max(vec3(0.5)-vec3(dot(x0,x0), dot(x1,x1), dot(x2,x2)), 0.0);\r\n    m = m*m;\r\n    m = m*m;\r\n\r\n    float r0 = 3.1416*2.0*squigglesRand(vec3(mod(i0, 16.0)/16.0, randKey));\r\n    float r1 = 3.1416*2.0*squigglesRand(vec3(mod(i0+ii1, 16.0)/16.0, randKey));\r\n    float r2 = 3.1416*2.0*squigglesRand(vec3(mod(i0+ii2, 16.0)/16.0, randKey));\r\n\r\n    float randKey2 = randKey + 0.01;\r\n    float spmin = 0.5;\r\n    float sps = 2.0;\r\n    float sp0 = spmin + sps*squigglesRand(vec3(mod(i0, 16.0)/16.0, randKey2));\r\n    float sp1 = spmin + sps*squigglesRand(vec3(mod(i0+ii1, 16.0)/16.0, randKey2));\r\n    float sp2 = spmin + sps*squigglesRand(vec3(mod(i0+ii2, 16.0)/16.0, randKey2));\r\n\r\n    r0 += time*sp0 + roffset;\r\n    r1 += time*sp1 + roffset;\r\n    r2 += time*sp2 + roffset;\r\n\r\n    // Gradients\r\n    vec2 g0 = vec2(cos(r0), sin(r0));\r\n    vec2 g1 = vec2(cos(r1), sin(r1));\r\n    vec2 g2 = vec2(cos(r2), sin(r2));\r\n\r\n    deriv = smplxNoise2DDeriv(x0, m.x, g0);\r\n    deriv += smplxNoise2DDeriv(x1, m.y, g1);\r\n    deriv += smplxNoise2DDeriv(x2, m.z, g2);\r\n\r\n    return dot(m*vec3(dot(x0,g0), dot(x1,g1), dot(x2,g2)), vec3(1.0));\r\n}\r\n\r\nvec3 norm(vec2 deriv) {\r\n    deriv *= 2000.0;\r\n    vec3 tx = vec3(1.0, 0.0, deriv.x);\r\n    vec3 ty = vec3(0.0, 1.0, deriv.y);\r\n    return normalize(cross(tx,ty));\r\n}\r\n";
-
-	var squigglesUniforms = {
-	    cSize: { value: 8.0 },
-	    cScale: { value: 0.5 },
-	    cDensity: { value: 16.0 }
-	  };
-
-	var waterTurbulenceFrag = "vec2 p = pin.position * mix(2.0,15.0,cScale);\r\nfloat c = Turb(p);\r\npout.color = vec3(c);";
-
-	var waterTurbulenceFragPars = "uniform float cScale;\r\nuniform float cIntensity;\r\n\r\n#define MAX_ITER 2.0\r\n\r\nfloat Turb(vec2 p) {\r\n    vec2 i = p;\r\n    float c = 0.0;\r\n    float inten = cIntensity;\r\n    float r = length(p + vec2(sin(time), sin(time*0.433+2.))*3.);\r\n    for (float n=0.0; n<MAX_ITER; n++) {\r\n        float t = r-time * (1.0 - (1.9/(n+1.)));\r\n        t = r-time/(n+.6);//r-time*(1.+.5/float(n+1.)));\r\n        i -= p + vec2(\r\n            cos(t-i.x-r)+sin(t+i.y),\r\n            sin(t-i.y)+cos(t+i.x)+r);\r\n            c += 1./length(vec2(sin(i.x+t)/inten, cos(i.y+t)/inten));\r\n    }\r\n    c /= float(MAX_ITER);\r\n    c = clamp(c,-1.,1.);\r\n    return c;\r\n}";
-
-	var waterTurbulenceUniforms = {
-	    cScale: { value: 0.5 },
-	    cIntensity: { value: 0.15 }
-	};
-
-	var trabeculumFrag = "vec2 camctrl = vec2(cCameraPan, cCameraTilt);\r\nif (camctrl.x+camctrl.y == 0.) camctrl.xy = vec2(0.5);\r\n\r\nfloat theta = (camctrl.x*2.-1.)*PI;\r\nfloat phi = (camctrl.y-.5)*PI;\r\nfloat t=3.*time, B=.07; theta += B*cos(t); phi += B*sin(t);\r\n\r\nvec3 cameraPos = vec3(sin(theta)*cos(phi), sin(phi), cos(theta)*cos(phi));\r\nvec3 cameraTarget = vec3(0.);\r\nvec3 ww = normalize(cameraPos - cameraTarget);\r\nvec3 uu = normalize(cross(vec3(0.,1.,0.), ww));\r\nvec3 vv = normalize(cross(ww,uu));\r\nvec2 q = 2.*(pin.uv - vec2(.5,.5));\r\nvec3 rayDir = normalize(q.x*uu + q.y*vv - 1.5*ww);\r\n\r\nvec3 col = vec3(0.);\r\nfloat transp=1., epsC = .01/2.;\r\nfloat l = .5;\r\nfloat density = cDensity * 200.;\r\nvec3 p = cameraPos + l*rayDir, p_=p;\r\nfor (int i=0; i<200; i++) {\r\n    if (float(i)>=density) break;\r\n    float Aloc = tweaknoise(p,true);\r\n    if (Aloc>0.01) {\r\n        float a = 2.*PI*float(i)/density;\r\n        vec3 c = .5+.5*cos(a+vec3(0.,2.*PI/3.,-2.*PI/3.)+time);\r\n        col += transp*c*Aloc;\r\n        col = clamp(col, 0., 1.);\r\n        transp *= 1.-Aloc;\r\n        if (transp<.001) break;\r\n    }\r\n    p += epsC*rayDir;\r\n}\r\nvec3 rgb = col+transp*skyColor;\r\nvec3 gray = vec3(rgb2gray(rgb));\r\npout.color = mix(gray, rgb, cColor);\r\n";
-
-	var trabeculumFragPars = "uniform float cDensity;\r\nuniform float cScale;\r\nuniform float cIntensity;\r\nuniform float cTrabeculumVariation;\r\nuniform float cCameraTilt;\r\nuniform float cCameraPan;\r\nuniform float cColor;\r\n\r\nconst vec3 skyColor = 0.*vec3(.7,.8,1.); const float skyTrsp = .5;\r\n\r\nfloat grad = .2/2., scale = 5., thresh = .5;\r\n\r\nvec3 hash13(float n) {\r\n    return fract(sin(n+vec3(0.,12.345,124))*43758.5453);\r\n}\r\nfloat hash31(vec3 n) {\r\n    return rand(n.x+10.*n.y+100.*n.z);\r\n}\r\nvec3 hash33(vec3 n) {\r\n    return hash13(n.x+10.*n.y+100.*n.z);\r\n}\r\nvec4 worley(vec3 p) {\r\n    vec4 d = vec4(1e15);\r\n    vec3 ip = floor(p);\r\n    for (float i=-1.;i<2.; i++) {\r\n        for (float j=-1.;j<2.;j++) {\r\n            for (float k=-1.;k<2.;k++) {\r\n                vec3 p0 = ip + vec3(i,j,k);\r\n                vec3 c  = hash33(p0)+p0-p;\r\n                float d0 = dot(c,c);\r\n                if      (d0<d.x) { d.yzw = d.xyz; d.x=d0; }\r\n                else if (d0<d.y) { d.zw  = d.yz;  d.y=d0; }\r\n                else if (d0<d.z) { d.w   = d.z;   d.z=d0; }\r\n                else if (d0<d.w) {                d.w=d0; }\r\n            }\r\n        }\r\n    }\r\n    return sqrt(d);\r\n}\r\n\r\nfloat tweaknoise(vec3 p, bool step) {\r\n    float d1 = smoothstep(grad/2., -grad/2., length(p)-.5);\r\n    float d2 = smoothstep(grad/1., -grad/1., abs(p.z)-.5);\r\n    float d= d1;\r\n    if (cTrabeculumVariation <= .0) d = (1.-d1)*d2;\r\n    if (cTrabeculumVariation >= 2.) d = d2;\r\n    if (d < .5) return 0.;\r\n    grad=.8;\r\n    scale = mix(2.,10.,cScale);\r\n    thresh = .5+.5*(cos(.5*time)+.36*cos(.5*3.*time))/1.36;\r\n    vec4 w = scale*worley(scale*p-vec3(0.,0.,3.*time));\r\n    float v = 1.-1./(1./(w.z-w.x)+1./(w.a-w.x));\r\n\r\n    if (cIntensity < 1.) {\r\n        return v*d*cIntensity;\r\n    } else {\r\n        return smoothstep(thresh-grad/2., thresh+grad/2., v*d);\r\n    }\r\n}\r\n";
-
-	var trabeculumUniforms = {
-	    cDensity: { value: 1.0 },
-	    cScale: { value: 1.0 },
-	    cIntensity: { value: 1.0 },
-	    cTrabeculumVariation: { value: 2.0 },
-	    cCameraTilt: { value: 0.0 },
-	    cCameraPan: { value: 0.0 },
-	    cColor: { value: 1.0 }
-	  };
-
 	var ShaderChunk$1 = {
 		blocksFrag: blocksFrag,
 		bonfireFrag: bonfireFrag,
@@ -6094,6 +6094,9 @@
 		bubblesFrag: bubblesFrag,
 		bubblesFragPars: bubblesFragPars,
 		bubblesUniforms: bubblesUniforms,
+		causticsFrag: causticsFrag,
+		causticsFragPars: causticsFragPars,
+		causticsUniforms: causticsUniforms,
 		cellFrag: cellFrag,
 		cellFragPars: cellFragPars,
 		cellNoiseFrag: cellNoiseFrag,
@@ -6129,6 +6132,7 @@
 		crossFrag: crossFrag,
 		crossFragPars: crossFragPars,
 		crossUniforms: crossUniforms,
+		derivatives: derivatives,
 		diamondGearFrag: diamondGearFrag,
 		diamondGearFragPars: diamondGearFragPars,
 		diamondGearUniforms: diamondGearUniforms,
@@ -6136,6 +6140,9 @@
 		displacementFragPars: displacementFragPars,
 		displacementUniforms: displacementUniforms,
 		displacementVert: displacementVert,
+		electricFrag: electricFrag,
+		electricFragPars: electricFragPars,
+		electricUniforms: electricUniforms,
 		energyFrag: energyFrag,
 		energyFragPars: energyFragPars,
 		energyUniforms: energyUniforms,
@@ -6203,6 +6210,9 @@
 		height2NormalFragPars: height2NormalFragPars,
 		height2NormalSobelFrag: height2NormalSobelFrag,
 		height2NormalUniforms: height2NormalUniforms,
+		inksplatFrag: inksplatFrag,
+		inksplatFragPars: inksplatFragPars,
+		inksplatUniforms: inksplatUniforms,
 		julia: julia,
 		kochCurveFrag: kochCurveFrag,
 		kochCurveFragPars: kochCurveFragPars,
@@ -6234,6 +6244,9 @@
 		noise: noise,
 		noiseGraphFrag: noiseGraphFrag,
 		noiseUniforms: noiseUniforms,
+		particleFrag: particleFrag,
+		particleFragPars: particleFragPars,
+		particleUniforms: particleUniforms,
 		pentagonFrag: pentagonFrag,
 		pentagonFragPars: pentagonFragPars,
 		pentagonUniforms: pentagonUniforms,
@@ -6268,16 +6281,27 @@
 		speckleFrag: speckleFrag,
 		speckleFragPars: speckleFragPars,
 		speckleUniforms: speckleUniforms,
+		squigglesFrag: squigglesFrag,
+		squigglesFragPars: squigglesFragPars,
+		squigglesUniforms: squigglesUniforms,
 		sunFrag: sunFrag,
 		sunFragPars: sunFragPars,
 		sunUniforms: sunUniforms,
 		tessNoiseFrag: tessNoiseFrag,
 		tessNoiseFragPars: tessNoiseFragPars,
 		tessNoiseUniforms: tessNoiseUniforms,
+		testFrag: testFrag,
+		testFragPars: testFragPars,
 		testUniforms: testUniforms,
+		tilingFrag: tilingFrag,
+		tilingFragPars: tilingFragPars,
+		tilingUniforms: tilingUniforms,
 		toonFrag: toonFrag$1,
 		toonFragPars: toonFragPars$1,
 		toonUniforms: toonUniforms$1,
+		trabeculumFrag: trabeculumFrag,
+		trabeculumFragPars: trabeculumFragPars,
+		trabeculumUniforms: trabeculumUniforms,
 		turbulentNoiseFrag: turbulentNoiseFrag,
 		turbulentNoiseFragPars: turbulentNoiseFragPars,
 		vert: vert,
@@ -6285,39 +6309,15 @@
 		voronoiNoiseFragPars: voronoiNoiseFragPars,
 		waterCircleWaveFrag: waterCircleWaveFrag,
 		waterPlaneWaveFrag: waterPlaneWaveFrag,
+		waterTurbulenceFrag: waterTurbulenceFrag,
+		waterTurbulenceFragPars: waterTurbulenceFragPars,
+		waterTurbulenceUniforms: waterTurbulenceUniforms,
 		waveRingFrag: waveRingFrag,
 		waveRingFragPars: waveRingFragPars,
 		waveRingUniforms: waveRingUniforms,
 		woodFrag: woodFrag,
 		woodFragPars: woodFragPars,
 		woodUniforms: woodUniforms,
-		inksplatFrag: inksplatFrag,
-		inksplatFragPars: inksplatFragPars,
-		inksplatUniforms: inksplatUniforms,
-		derivatives: derivatives,
-		particleFrag: particleFrag,
-		particleFragPars: particleFragPars,
-		particleUniforms: particleUniforms,
-		testFrag: testFrag,
-		testFragPars: testFragPars,
-		electricFrag: electricFrag,
-		electricFragPars: electricFragPars,
-		electricUniforms: electricUniforms,
-		tilingFrag: tilingFrag,
-		tilingFragPars: tilingFragPars,
-		tilingUniforms: tilingUniforms,
-		causticsFrag: causticsFrag,
-		causticsFragPars: causticsFragPars,
-		causticsUniforms: causticsUniforms,
-		squigglesFrag: squigglesFrag,
-		squigglesFragPars: squigglesFragPars,
-		squigglesUniforms: squigglesUniforms,
-		waterTurbulenceFrag: waterTurbulenceFrag,
-		waterTurbulenceFragPars: waterTurbulenceFragPars,
-		waterTurbulenceUniforms: waterTurbulenceUniforms,
-		trabeculumFrag: trabeculumFrag,
-		trabeculumFragPars: trabeculumFragPars,
-		trabeculumUniforms: trabeculumUniforms,
 	};
 
 	function FxgenShader() {
