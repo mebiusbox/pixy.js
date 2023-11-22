@@ -1,3 +1,3 @@
-export var opacityUniforms = {
-  tDiffuse: { value: null }
+export const opacityUniforms = {
+	tDiffuse: { value: null },
 };

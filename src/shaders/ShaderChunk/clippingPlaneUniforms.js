@@ -1,3 +1,4 @@
-export var clippingPlaneUniforms = {
-  clippingPlane: { value: new THREE.Vector4() }
+import * as THREE from 'three';
+export const clippingPlaneUniforms = {
+	clippingPlane: { value: new THREE.Vector4() },
 };

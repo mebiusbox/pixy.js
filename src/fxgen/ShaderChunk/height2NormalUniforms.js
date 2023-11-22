@@ -1,3 +1,3 @@
-export var height2NormalUniforms = {
-  cHeightScale: { value: 10.0 },
+export const height2NormalUniforms = {
+	cHeightScale: { value: 10.0 },
 };

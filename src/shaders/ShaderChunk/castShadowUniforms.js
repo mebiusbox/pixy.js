@@ -1,3 +1,4 @@
-export var castShadowUniforms = {
-  lightViewProjectionMatrix: { value: new THREE.Matrix4() }
+import * as THREE from 'three';
+export const castShadowUniforms = {
+	lightViewProjectionMatrix: { value: new THREE.Matrix4() },
 };

@@ -1,4 +1,4 @@
-export var toneMappingUniforms = {
-  toneMappingExposure: 3.0,
-  toneMappingWhitePoint: 5.0
+export const toneMappingUniforms = {
+	toneMappingExposure: { value: 3.0 },
+	toneMappingWhitePoint: { value: 5.0 },
 };

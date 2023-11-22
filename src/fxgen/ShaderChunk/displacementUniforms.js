@@ -1,3 +1,3 @@
-export var displacementUniforms = {
-  tDisplacement: { value: null },
+export const displacementUniforms = {
+	tDisplacement: { value: null },
 };

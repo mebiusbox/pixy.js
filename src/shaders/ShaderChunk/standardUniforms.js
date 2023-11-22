@@ -1,4 +1,4 @@
-export var standardUniforms = {
-  roughness: { value: 1.0 },
-  metalness: { value: 0.0 }
+export const standardUniforms = {
+	roughness: { value: 1.0 },
+	metalness: { value: 0.0 },
 };

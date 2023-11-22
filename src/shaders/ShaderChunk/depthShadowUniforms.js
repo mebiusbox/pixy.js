@@ -1,3 +1,3 @@
-export var depthShadowUniforms = {
-  tShadow: { value: null }
+export const depthShadowUniforms = {
+	tShadow: { value: null },
 };

@@ -1,4 +1,4 @@
-export var inksplatUniforms = {
-  cSplatLines: { value: 20 },
-  cSplatSpotStep: { value: 0.04 }
+export const inksplatUniforms = {
+	cSplatLines: { value: 20 },
+	cSplatSpotStep: { value: 0.04 },
 };

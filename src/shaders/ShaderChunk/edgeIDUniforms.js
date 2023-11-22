@@ -1,5 +1,6 @@
-export var edgeIDUniforms = {
-  tDiffuse: { value: null },
-  step:   { value: 2.0 },
-  aspect: { value: new THREE.Vector2() }
+import * as THREE from 'three';
+export const edgeIDUniforms = {
+	tDiffuse: { value: null },
+	step: { value: 2.0 },
+	aspect: { value: new THREE.Vector2() },
 };

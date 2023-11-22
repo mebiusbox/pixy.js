@@ -1,3 +1,3 @@
-export var roughnessMapUniforms = {
-  tRoughness: { value: null }
+export const roughnessMapUniforms = {
+	tRoughness: { value: null },
 };

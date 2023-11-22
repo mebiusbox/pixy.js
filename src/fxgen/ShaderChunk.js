@@ -109,6 +109,8 @@ import { flowerUniforms } from './ShaderChunk/flowerUniforms.js';
 import frag from './ShaderChunk/frag.glsl';
 import fragEnd from './ShaderChunk/fragEnd.glsl';
 import fragPars from './ShaderChunk/fragPars.glsl';
+import glsl3Frag from './ShaderChunk/glsl3Frag.glsl';
+import glsl3Vert from './ShaderChunk/glsl3Vert.glsl';
 import gradationFrag from './ShaderChunk/gradationFrag.glsl';
 import gradationFragPars from './ShaderChunk/gradationFragPars.glsl';
 import gradationLineFrag from './ShaderChunk/gradationLineFrag.glsl';
@@ -347,6 +349,8 @@ export var ShaderChunk = {
 	frag: frag,
 	fragEnd: fragEnd,
 	fragPars: fragPars,
+	glsl3Frag: glsl3Frag,
+	glsl3Vert: glsl3Vert,
 	gradationFrag: gradationFrag,
 	gradationFragPars: gradationFragPars,
 	gradationLineFrag: gradationLineFrag,

@@ -1,3 +1,3 @@
-export var uvScaleUniforms = {
-  uvScale: { value: 1.0 }
+export const uvScaleUniforms = {
+	uvScale: { value: 1.0 },
 };

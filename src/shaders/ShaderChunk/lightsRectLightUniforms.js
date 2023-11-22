@@ -1,5 +1,7 @@
-export var lightsRectLightUniforms = {
-  rectLights: { value: [
-    // PIXY.RectLight
-  ]}
+export const lightsRectLightUniforms = {
+	rectLights: {
+		value: [
+			// PIXY.RectLight
+		],
+	},
 };

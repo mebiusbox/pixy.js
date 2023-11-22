@@ -1,4 +1,4 @@
-export var distortionUniforms = {
-  tDistortion: { value: null },
-  distortionStrength: { value: 1.0 }
+export const distortionUniforms = {
+	tDistortion: { value: null },
+	distortionStrength: { value: 1.0 },
 };

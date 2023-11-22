@@ -1,3 +1,3 @@
-export var idUniforms = {
-  id: { value: 1.0 }
+export const idUniforms = {
+	id: { value: 1.0 },
 };

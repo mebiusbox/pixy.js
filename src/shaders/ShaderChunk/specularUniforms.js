@@ -1,3 +1,3 @@
-export var specularUniforms = {
-  specularStrength: { value: 1.0 }
+export const specularUniforms = {
+	specularStrength: { value: 1.0 },
 };

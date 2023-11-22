@@ -1,3 +1,3 @@
-export var timeUniforms = {
-  time: { value: 0.0 }
+export const timeUniforms = {
+	time: { value: 0.0 },
 };

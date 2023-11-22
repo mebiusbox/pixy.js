@@ -2,6 +2,10 @@ uniform float exposure;
 uniform float whitePoint;
 uniform sampler2D tDiffuse;
 
+#ifndef saturate
+#define saturate( a ) clamp( a, 0.0, 1.0 )
+#endif
+
 // exposure only
 vec3 PixyLinearToneMapping(vec3 color) {
   return exposure * color;

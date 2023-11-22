@@ -1,3 +1,3 @@
-export var colorMapUniforms = {
-  tDiffuse: { value: null }
+export const colorMapUniforms = {
+	tDiffuse: { value: null },
 };

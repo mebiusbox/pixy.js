@@ -1,3 +1,3 @@
-export var emissiveMapUniforms = {
-  tEmissive: { value: null }
+export const emissiveMapUniforms = {
+	tEmissive: { value: null },
 };

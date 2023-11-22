@@ -17,6 +17,7 @@
 //   v -= (1.01-smoothstep(0.0,0.5*(3.0-s), length(uv-h)));
 // }
 
+vec3 xyz = fwidth(vec3(0,0,0));
 vec2 uv = 6.0*pin.position;
 float v = splat(splat_uv(pin.coord));
 // float w = 0.75 * splat_fwidth(pin.coord, v);

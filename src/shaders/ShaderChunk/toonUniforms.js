@@ -1,3 +1,3 @@
-export var toonUniforms = {
-  tToon : { value: null },
+export const toonUniforms = {
+	tToon: { value: null },
 };

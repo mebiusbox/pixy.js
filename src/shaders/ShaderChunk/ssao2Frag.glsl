@@ -13,6 +13,10 @@ uniform vec4 focalParams;
 uniform vec2 cameraParams;
 varying vec2 vUv;
 
+#ifndef saturate
+#define saturate( a ) clamp( a, 0.0, 1.0 )
+#endif
+
 // expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
 // do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 // highp float rand(const in vec2 uv) {
@@ -27,9 +31,9 @@ vec2 rand(vec2 p) {
   return -1.0 + 2.0 * fract(sin(p)*43758.5453123);
 }
 
-vec2 round(vec2 a) {
-  return floor(a + 0.5);
-}
+// vec2 round(vec2 a) {
+//   return floor(a + 0.5);
+// }
 
 float rsqrt(float a) {
   return inversesqrt(a);

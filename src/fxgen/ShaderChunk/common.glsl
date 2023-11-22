@@ -1,5 +1,5 @@
-// #extension GL_OES_standard_derivatives : enable
 precision highp float;
+precision highp int;
 #define PI 3.14159265359
 #define PI2 6.28318530718
 #define INV_PI 0.31830988618
@@ -10,6 +10,9 @@ precision highp float;
 
 // handy value clamping to 0 - 1 range
 // #define saturate(a) clamp(a, 0.0, 1.0)
+#ifndef saturate
+#define saturate( a ) clamp( a, 0.0, 1.0 )
+#endif
 #define whiteCompliment(a) (1.0 - saturate(a))
 
 

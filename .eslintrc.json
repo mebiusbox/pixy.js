@@ -1,0 +1,28 @@
+{
+  "root": true,
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2018": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "extends": [
+    "mdcs",
+    "plugin:compat/recommended"
+  ],
+  "plugins": [
+    "html",
+    "import"
+  ],
+  "rules": {
+    "no-unused-vars": [
+      "error", { "argsIgnorePattern": "^_"}
+    ],
+    "space-unary-ops": [
+      "error", {"words": true, "nonwords": false}
+    ]
+  }
+}

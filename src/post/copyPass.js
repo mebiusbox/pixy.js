@@ -1,16 +1,14 @@
 import { ShaderLib } from '../shaders/ShaderLib.js';
 import { ShaderPass } from './shaderPass.js';
 
-var CopyPass = function() {
-  
-  ShaderPass.call(this, ShaderLib.copy);
-  
-};
+class CopyPass extends ShaderPass {
 
-CopyPass.prototype = Object.assign(Object.create(ShaderPass.prototype), {
-  
-  constructor: CopyPass
-  
-});
+	constructor() {
+
+		super( ShaderLib.copy );
+
+	}
+
+}
 
 export { CopyPass };

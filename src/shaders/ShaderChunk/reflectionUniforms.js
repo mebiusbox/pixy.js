@@ -1,4 +1,4 @@
-export var reflectionUniforms = {
-  reflectionStrength: { value: 1.0 },
-  tEnvMap: { value: null }
+export const reflectionUniforms = {
+	reflectionStrength: { value: 1.0 },
+	tEnvMap: { value: null },
 };

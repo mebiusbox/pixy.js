@@ -1,3 +1,3 @@
-export var cloudsUniforms = {
-  tNoise: { value: null }
+export const cloudsUniforms = {
+	tNoise: { value: null },
 };

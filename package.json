@@ -1,10 +1,10 @@
 {
   "name": "pixy",
   "version": "0.1.0",
-  "description": "Original shader and utilities for Three.js",
-  "main": "build/pixy.js",
-  "jsnext:main": "build/pixy.module.js",
-  "module": "build/pixy.module.js",
+  "description": "The shaders and utilities for Three.js",
+  "type": "module",
+  "main": "./build/pixy.js",
+  "module": "./build/pixy.module.js",
   "repository": "mebiusbox/pixy.js",
   "files": [
     "package.json",
@@ -20,18 +20,19 @@
     "doc": "docs",
     "example": "samples"
   },
-  "eslintConfig": {
-    "extends": "mdcs"
-  },
+  "browserslist": [
+    "> 1%, not dead, not ie 11, not op_mini all"
+  ],
   "scripts": {
     "build": "rollup -c",
-    "build-uglify": "rollup -c && uglifyjs build/pixy.js --cm --preamble \"\" > build/pixy.min.js",
     "build-shaderchunk": "python scripts/generateShaderChunk.py ./src/shaders/",
     "build-fxgen": "python scripts/generateShaderChunk.py ./src/fxgen/",
     "dev": "rollup -c -w",
     "lint": "eslint src",
-    "copy:three": "cpx node_modules/three/examples/js/**/*.* samples/js && cpx node_modules/three/build/*.js samples/js",
-    "serve": "http-server"
+    "lint:fix": "npm run lint -- --fix",
+    "lint:file": "eslint",
+    "copy:three": "node scripts/cp.js",
+    "serve": "servez -p 8080"
   },
   "keywords": [
     "threejs",
@@ -42,17 +43,18 @@
   "bugs": {
     "url": "https://github.com/mebiusbox/pixy.js/issues"
   },
-  "homepage": "http://mebiusbox.sakura.ne.jp/",
-  "dependencies": {
-    "cpx": "^1.5.0",
-    "three": "^0.84.0"
-  },
+  "homepage": "https://mebiusbox.github.io/",
   "devDependencies": {
-    "eslint": "^3.10.1",
-    "eslint-config-mdcs": "^4.2.2",
-    "qunitjs": "^2.1.1",
-    "rollup": "^0.36.3",
-    "rollup-watch": "^2.5.0",
-    "uglify-js": "^2.6.0"
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-terser": "^0.4.4",
+    "eslint": "^8.37.0",
+    "eslint-config-mdcs": "^5.0.0",
+    "eslint-plugin-compat": "^4.2.0",
+    "eslint-plugin-html": "^7.1.0",
+    "eslint-plugin-import": "^2.29.0",
+    "fs-extra": "^11.1.1",
+    "rollup": "^3.20.2",
+    "servez": "^2.0.0",
+    "three": "^0.158.0"
   }
 }

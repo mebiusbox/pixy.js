@@ -1,5 +1,7 @@
-export var lightsAreaLightUniforms = {
-  areaLights: { value: [
-    // PIXY.AreaLight
-  ]}
+export const lightsAreaLightUniforms = {
+	areaLights: {
+		value: [
+			// PIXY.AreaLight
+		],
+	},
 };

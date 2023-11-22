@@ -1,3 +1,3 @@
-export var phongUniforms = {
-  shininess: { value: 50.0 }
+export const phongUniforms = {
+	shininess: { value: 50.0 },
 };

@@ -1,4 +1,3 @@
-// import './polyfills.js';
 export { ShaderChunk } from './shaders/ShaderChunk.js';
 export { ShaderUtils } from './shaders/ShaderUtils.js';
 export { Shader } from './shaders/Shader.js';

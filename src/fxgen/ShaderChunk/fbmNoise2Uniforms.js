@@ -1,3 +1,3 @@
-export var fbmNoise2Uniforms = {
-  cScale: { value: 0.2 }
+export const fbmNoise2Uniforms = {
+	cScale: { value: 0.2 },
 };

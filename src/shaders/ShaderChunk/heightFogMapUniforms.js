@@ -1,3 +1,3 @@
-export var heightFogMapUniforms = {
-  tHeightFog: { value: null }
+export const heightFogMapUniforms = {
+	tHeightFog: { value: null },
 };

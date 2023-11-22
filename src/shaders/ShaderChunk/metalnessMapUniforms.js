@@ -1,3 +1,3 @@
-export var metalnessMapUniforms = {
-  tMetalness: { value: null }
+export const metalnessMapUniforms = {
+	tMetalness: { value: null },
 };

@@ -6,7 +6,9 @@
 #define EPSILON 1e-6
 
 // handy value clamping to 0 - 1 range
-// #define saturate(a) clamp(a, 0.0, 1.0)
+#ifndef saturate
+#define saturate( a ) clamp( a, 0.0, 1.0 )
+#endif
 #define whiteCompliment(a) (1.0 - saturate(a))
 
 float pow2(const in float x) { return x*x; }
@@ -70,4 +72,11 @@ float sideOfPlane(in vec3 point, in vec3 pointOnPlane, in vec3 planeNormal) {
 
 vec3 linePlaneIntersect(in vec3 pointOnLine, in vec3 lineDirection, in vec3 pointOnPlane, in vec3 planeNormal) {
   return lineDirection * (dot(planeNormal, pointOnPlane - pointOnLine) / dot(planeNormal, lineDirection)) + pointOnLine;
+}
+
+vec4 GammaToLinear(in vec4 value, in float gammaFactor) {
+  return vec4(pow(value.xyz, vec3(gammaFactor)), value.w);
+}
+vec4 LinearToGamma(in vec4 value, in float gammaFactor) {
+  return vec4(pow(value.xyz, vec3(1.0/gammaFactor)), value.w);
 }

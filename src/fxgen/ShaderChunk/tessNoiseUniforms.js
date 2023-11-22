@@ -1,3 +1,3 @@
-export var tessNoiseUniforms = {
-  cOffset: { value: 0.5 }
+export const tessNoiseUniforms = {
+	cOffset: { value: 0.5 },
 };

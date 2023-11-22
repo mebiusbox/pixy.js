@@ -1,3 +1,3 @@
-export var seemlessNoiseUniforms = {
-  cNoiseScale: { value: 1.0 }
+export const seemlessNoiseUniforms = {
+	cNoiseScale: { value: 1.0 },
 };
