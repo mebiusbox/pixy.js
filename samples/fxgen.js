@@ -42,6 +42,7 @@ const app = {
 	effectController: undefined,
 	layers: [],
 	spriteSheet: {},
+	alphaOptions: {},
 	shaderDefines: undefined,
 
 	init() {
@@ -87,6 +88,18 @@ const app = {
 
 		} );
 		document.body.appendChild( this.canvas );
+
+		// for alpha
+		this.alphaCanvas = document.createElement( 'canvas' );
+		this.alphaCanvas.style.display = "none";
+		document.body.appendChild( this.alphaCanvas );
+
+		// for save as png
+		this.saveCanvas = document.createElement( 'canvas' );
+
+		// for blur
+		this.blur50 = document.createElement( 'canvas' );
+		this.blur25 = document.createElement( 'canvas' );
 
 		// STATS
 
@@ -438,17 +451,56 @@ const app = {
 		} );
 
 		this.effectController = {
-			saveImage: function () {
+			saveImage() {
 
 				context.render();
-				// window.open(canvas.toDataURL());
+				// window.open( context.canvas.toDataURL() );
 				let dataUrl = context.canvas.toDataURL();
 				let w = window.open( 'about:blank' );
 				w.document.write( "<img src='" + dataUrl + "'/>" );
 
 			},
 
-			saveSpriteSheet: function () {
+			savePng() {
+
+				context.render();
+				context.updateSaveBuffer();
+				context.saveCanvas.toBlob( async function ( result ) {
+
+					const options = {
+						types: [
+							{
+								description: 'Images',
+								accept: {
+									'image/png': [ '.png' ],
+								}
+							}
+						],
+						suggestedName: 'image.png',
+					};
+					const imgFileHandle = await window.showSaveFilePicker( options );
+					const writable = await imgFileHandle.createWritable();
+					await writable.write( result );
+					await writable.close();
+
+				} );
+
+			},
+
+			downloadPng() {
+
+				const dl = document.createElement("a");
+
+				context.render();
+				context.updateSaveBuffer();
+				context.saveCanvas.toBlob((blob) => {
+					dl.href = window.URL.createObjectURL(blob);
+					dl.download = "image.png";
+					dl.click();
+				});
+			},
+
+			saveSpriteSheet() {
 
 				let width = Math.floor( context.canvas.width / context.spriteSheet.dimension );
 				let size = width / context.canvas.width;
@@ -509,7 +561,7 @@ const app = {
 
 			},
 
-			resetColorBalance: function () {
+			resetColorBalance() {
 
 				context.effectController.cColorBalanceShadowsR = 0.0;
 				context.effectController.cColorBalanceShadowsG = 0.0;
@@ -528,13 +580,13 @@ const app = {
 
 			},
 
-			load: function () {
+			load() {
 
 				fileInput.click();
 
 			},
 
-			save: function () {
+			save() {
 
 				let output;
 				try {
@@ -917,10 +969,51 @@ const app = {
 		h.add( this.spriteSheet, 'time', 0.0, 1000.0 );
 		h.add( this.spriteSheet, 'timeLength', 0.1, 1000.0 );
 		h.add( this.spriteSheet, 'timeStep', 0.0001, 100.0 );
-		h.add( this.effectController, 'saveSpriteSheet' );
+		h.add( this.effectController, 'saveSpriteSheet' ).name( 'Save (SpriteSheet)' );
 		h.open( false );
 
-		this.gui.root.add( this.effectController, 'saveImage' );
+		this.alphaOptions.threshold = 0.0;
+		this.alphaOptions.tolerance = 1.0;
+		this.alphaOptions.blur = 0;
+		this.alphaOptions.visible = false;
+		this.alphaOptions.update = false;
+		h = this.gui.root.addFolder( 'Image with alpha (PNG)' );
+		h.add( this.alphaOptions, 'threshold', 0.0, 1.0 ).onChange( ( _value ) => {
+
+			context.alphaOptions.update = true;
+
+		} );
+		h.add( this.alphaOptions, 'tolerance', 0.0, 1.0 ).onChange( ( _value ) => {
+
+			context.alphaOptions.update = true;
+
+		} );
+		h.add( this.alphaOptions, 'blur', 0, 10, 1 ).onChange( ( _value ) => {
+
+			context.alphaOptions.update = true;
+
+		} );
+		h.add( this.alphaOptions, 'visible' ).onChange( ( value ) => {
+
+			if ( value ) {
+
+				context.canvas.style.display = 'none';
+				context.alphaCanvas.style.display = null;
+				context.alphaOptions.update = true;
+
+			} else {
+
+				context.canvas.style.display = null;
+				context.alphaCanvas.style.display = 'none';
+
+			}
+
+		} );
+		h.add( this.effectController, 'savePng' ).name( 'Save (PNG)' );
+		h.add( this.effectController, 'downloadPng' ).name( 'Download (PNG)' );
+		h.open( false );
+
+		this.gui.root.add( this.effectController, 'saveImage' ).name( 'Save' );
 
 	},
 
@@ -1716,6 +1809,88 @@ const app = {
 
 	},
 
+	updateSaveBuffer() {
+
+		this.saveCanvas.width = this.canvas.width;
+		this.saveCanvas.height = this.canvas.height;
+		const ctx = this.saveCanvas.getContext( '2d', { willReadFrequently: true } );
+
+		if ( this.alphaOptions.blur > 0 ) {
+
+			this.blur50.width = this.canvas.width * 0.5;
+			this.blur50.height = this.canvas.height * 0.5;
+			this.blur25.width = this.canvas.width * 0.25;
+			this.blur25.height = this.canvas.height * 0.25;
+
+			let blur1 = this.blur50;
+			let blur2 = this.blur25;
+			let blur1ctx = blur1.getContext( '2d' );
+			let blur2ctx = blur2.getContext( '2d' );
+
+			blur2ctx.drawImage( this.canvas, 0, 0, this.canvas.width, this.canvas.height, 0, 0, blur2.width, blur2.height );
+			blur1ctx.drawImage( blur2, 0, 0, blur2.width, blur2.height, 0, 0, blur1.width, blur1.height );
+
+			for ( let i = 0; i < this.alphaOptions.blur; i++ ) {
+
+				blur2ctx.drawImage( blur1, 0, 0, blur1.width, blur1.height, 0, 0, blur2.width, blur2.height );
+				blur1ctx.drawImage( blur2, 0, 0, blur2.width, blur2.height, 0, 0, blur1.width, blur1.height );
+				[ blur1, blur2, blur1ctx, blur2ctx ] = [ blur2, blur1, blur2ctx, blur1ctx ];
+
+			}
+
+			ctx.drawImage( blur1, 0, 0, blur1.width, blur1.height, 0, 0, this.canvas.width, this.canvas.height );
+
+		} else {
+
+			ctx.drawImage( this.canvas, 0, 0 );
+
+		}
+
+		const threshold = Math.round( this.alphaOptions.threshold * 255.0 );
+		const tolerance = Math.round( this.alphaOptions.tolerance * 255.0 );
+		const imageData = ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
+		let buffer = imageData.data;
+		for ( let i = 0; i < buffer.length; i += 4 ) {
+
+			const r = ( buffer[ i + 0 ] > tolerance ) ? 255 : ( buffer[ i + 0 ] < threshold ) ? 0 : buffer[ i + 0 ];
+			const g = ( buffer[ i + 1 ] > tolerance ) ? 255 : ( buffer[ i + 1 ] < threshold ) ? 0 : buffer[ i + 1 ];
+			const b = ( buffer[ i + 2 ] > tolerance ) ? 255 : ( buffer[ i + 2 ] < threshold ) ? 0 : buffer[ i + 2 ];
+			const mono = Math.round( Math.max( r, g, b ) );	// max
+			// const mono = Math.round((r+g+b)/3.0);	// average
+			// const mono = Math.round(0.2989*r + 0.5870*g + 0.114*b);	// weighted average
+			// const mono = Math.round(0.21*r + 0.72*r + 0.07*b);	// luminosity
+			buffer[ i + 3 ] = mono;
+
+		}
+
+		imageData.data.set( buffer );
+		ctx.putImageData( imageData, 0, 0 );
+
+	},
+
+	updateAlphaBuffer() {
+
+		this.updateSaveBuffer();
+
+		this.alphaCanvas.width = this.canvas.width;
+		this.alphaCanvas.height = this.canvas.height;
+		const ctx2d = this.alphaCanvas.getContext( '2d', { willReadFrequently: true } );
+		ctx2d.drawImage( this.saveCanvas, 0, 0 );
+
+		const imageData = ctx2d.getImageData( 0, 0, this.canvas.width, this.canvas.height );
+		const buffer = imageData.data;
+		for ( let i = 0; i < buffer.length; i += 4 ) {
+
+			buffer[ i + 0 ] = buffer[ i + 1 ] = buffer[ i + 2 ] = buffer[ i + 3 ];
+			buffer[ i + 3 ] = 255;
+
+		}
+
+		imageData.data.set( buffer );
+		ctx2d.putImageData( imageData, 0, 0 );
+
+	},
+
 	animate() {
 
 		if ( this.effectController.animate ) {
@@ -1732,6 +1907,12 @@ const app = {
 
 		requestAnimationFrame( this.animate.bind( this ) );
 		this.render();
+
+		if ( this.alphaOptions.visible && ( this.effectController.animate || this.alphaOptions.update ) ) {
+
+			this.updateAlphaBuffer();
+
+		}
 
 	},
 
