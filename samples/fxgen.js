@@ -68,23 +68,18 @@ const app = {
 		// this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize( 512, 512 );
 		// this.renderer.setSize(window.innerWidth, window.innerHeight);
-		// this.renderer.gammaInput = true;
-		// this.renderer.gammaOutput = true;
 		// this.renderer.autoClear = false;
-		// container.appendChild(this.renderer.domElement);
-		// this.renderer.context.getExtension( 'OES_standard_derivatives' );
 		if ( this.renderer.capabilities.isWebGL2 ) {
 
 			console.log( "WebGL2" );
 
 		}
 
-		let context = this;
 		this.canvas = this.renderer.domElement;
 		this.canvas.addEventListener( 'mousemove', ( e ) => {
 
-			context.mouse.x = e.offsetX / context.canvas.width;
-			context.mouse.y = e.offsetY / context.canvas.height;
+			this.mouse.x = e.offsetX / this.canvas.width;
+			this.mouse.y = e.offsetY / this.canvas.height;
 
 		} );
 		document.body.appendChild( this.canvas );
@@ -216,7 +211,6 @@ const app = {
 			{
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter,
-				// format: THREE.RGBFormat,
 				stencilBuffer: false,
 			}
 		);
@@ -247,7 +241,6 @@ const app = {
 			{
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter,
-				// format: THREE.RGBFormat,
 				stencilBuffer: false,
 			}
 		);
@@ -270,7 +263,6 @@ const app = {
 			{
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter,
-				// format: THREE.RGBFormat,
 				stencilBuffer: false,
 			}
 		);
@@ -296,7 +288,6 @@ const app = {
 			{
 				minFilter: THREE.NearestFilter,
 				magFilter: THREE.NearestFilter,
-				// format: THREE.RGBFormat,
 				stencilBuffer: false,
 			}
 		);
@@ -321,7 +312,6 @@ const app = {
 			{
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter,
-				// format: THREE.RGBFormat,
 				stencilBuffer: false,
 			}
 		);
@@ -354,7 +344,6 @@ const app = {
 			{
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter,
-				// format: THREE.RGBFormat,
 				stencilBuffer: false,
 			}
 		);
@@ -365,244 +354,91 @@ const app = {
 
 		console.log( "[fxgen] setup GUI..." );
 
-		const context = this;
-		const fileInput = document.createElement( 'input' );
-		fileInput.type = 'file';
-		fileInput.addEventListener( 'change', function ( _event ) {
+		this.fileInput = document.createElement( 'input' );
+		this.fileInput.type = 'file';
+		this.fileInput.addEventListener( 'change', ( _event ) => {
 
 			let reader = new FileReader();
 			reader.addEventListener(
 				'load',
-				function ( event ) {
+				(event) => {
 
 					let contents = event.target.result;
 					let json = JSON.parse( contents );
 
-					context.canvas.width = json.resolution;
-					context.canvas.height = json.resolution;
+					this.canvas.width = json.resolution;
+					this.canvas.height = json.resolution;
 					onWindowResize();
 
 					let stdShader = new PIXY.FxgenShader();
 					stdShader.enable( json.type.toUpperCase() );
 					stdShader.enable( 'TOON' );
 					stdShader.enable( 'GLSL3' );
-					context.layers[ 0 ].uniforms = stdShader.generateUniforms();
-					context.layers[ 0 ].material = stdShader.createMaterial(
-						context.layers[ 0 ].uniforms,
+					this.layers[ 0 ].uniforms = stdShader.generateUniforms();
+					this.layers[ 0 ].material = stdShader.createMaterial(
+						this.layers[ 0 ].uniforms,
 						{ defines: stdShader.generateDefines() }
 					);
 
-					context.effectController.type = json.type;
-					context.resetParameters( context.layers[ 0 ].uniforms );
+					this.effectController.type = json.type;
+					this.resetParameters( this.layers[ 0 ].uniforms );
 
 					for ( var i in json ) {
 
-						context.effectController[ i ] = json[ i ];
+						this.effectController[ i ] = json[ i ];
 
 					}
 
-					for ( var i in context.gui.root.controllers ) {
+					for ( var i in this.gui.root.controllers ) {
 
-						context.gui.root.controllers[ i ].updateDisplay();
-
-					}
-
-					for ( var i in context.gui.pars.controllers ) {
-
-						context.gui.pars.controllers[ i ].updateDisplay();
+						this.gui.root.controllers[ i ].updateDisplay();
 
 					}
 
-					for ( var i in context.gui.tone.controllers ) {
+					for ( var i in this.gui.pars.controllers ) {
 
-						context.gui.tone.controllers[ i ].updateDisplay();
-
-					}
-
-					for ( var i in context.gui.tiling.controllers ) {
-
-						context.gui.tiling.controllers[ i ].updateDisplay();
+						this.gui.pars.controllers[ i ].updateDisplay();
 
 					}
 
-					for ( var i in context.gui.normalMap.controllers ) {
+					for ( var i in this.gui.tone.controllers ) {
 
-						context.gui.normalMap.controllers[ i ].updateDisplay();
+						this.gui.tone.controllers[ i ].updateDisplay();
 
 					}
 
-					for ( var i in context.gui.cb.controllers ) {
+					for ( var i in this.gui.tiling.controllers ) {
 
-						context.gui.cb.controllers[ i ].updateDisplay();
+						this.gui.tiling.controllers[ i ].updateDisplay();
+
+					}
+
+					for ( var i in this.gui.normalMap.controllers ) {
+
+						this.gui.normalMap.controllers[ i ].updateDisplay();
+
+					}
+
+					for ( var i in this.gui.cb.controllers ) {
+
+						this.gui.cb.controllers[ i ].updateDisplay();
 
 					}
 
 				},
 				false
 			);
-			reader.readAsText( fileInput.files[ 0 ] );
+			reader.readAsText( this.fileInput.files[ 0 ] );
 
 		} );
 
-		fileInput.addEventListener( 'click', function ( _event ) {
+		this.fileInput.addEventListener( 'click', ( _event ) => {
 
 			this.value = null;
 
 		} );
 
 		this.effectController = {
-			saveImage() {
-
-				context.render();
-				// window.open( context.canvas.toDataURL() );
-				let dataUrl = context.canvas.toDataURL();
-				let w = window.open( 'about:blank' );
-				w.document.write( "<img src='" + dataUrl + "'/>" );
-
-			},
-
-			savePng() {
-
-				context.render();
-				context.updateSaveBuffer();
-				context.saveCanvas.toBlob( async function ( result ) {
-
-					const options = {
-						types: [
-							{
-								description: 'Images',
-								accept: {
-									'image/png': [ '.png' ],
-								}
-							}
-						],
-						suggestedName: 'image.png',
-					};
-					const imgFileHandle = await window.showSaveFilePicker( options );
-					const writable = await imgFileHandle.createWritable();
-					await writable.write( result );
-					await writable.close();
-
-				} );
-
-			},
-
-			downloadPng() {
-
-				const dl = document.createElement("a");
-
-				context.render();
-				context.updateSaveBuffer();
-				context.saveCanvas.toBlob((blob) => {
-					dl.href = window.URL.createObjectURL(blob);
-					dl.download = "image.png";
-					dl.click();
-				});
-			},
-
-			saveSpriteSheet() {
-
-				let width = Math.floor( context.canvas.width / context.spriteSheet.dimension );
-				let size = width / context.canvas.width;
-				let time = context.spriteSheet.time;
-				// var time = 0.0;
-
-				context.renderer.setRenderTarget( context.spriteSheet.renderTarget );
-				context.renderer.clear();
-				context.renderer.setRenderTarget( null );
-
-				for ( let i = 0; i < context.spriteSheet.dimension; i++ ) {
-
-					for ( let j = 0; j < context.spriteSheet.dimension; j++ ) {
-
-						let len =
-						context.spriteSheet.timeStep * context.spriteSheet.dimension * i +
-						context.spriteSheet.timeStep * j;
-						if ( len >= context.spriteSheet.timeLength ) {
-
-							break;
-
-						}
-
-						context.effectController.time = time + len;
-						context.render();
-
-						context.spriteSheet.uniforms.tDiffuse.value =
-						context.layers[ context.layers.length - 2 ].renderTarget.texture;
-
-						context.spriteSheet.quad.scale.set( size, size, 1.0 );
-						context.spriteSheet.quad.position.set(
-							-1 + 2.0 * size * j + size,
-							1 - 2.0 * size * i - size,
-							0.0
-						);
-
-						context.renderer.autoClear = false;
-						context.renderer.setRenderTarget( context.spriteSheet.renderTarget );
-						context.renderer.render( context.spriteSheet.scene, context.spriteSheet.camera );
-						context.renderer.setRenderTarget( null );
-						context.renderer.autoClear = true;
-
-					}
-
-				}
-
-				context.spriteSheet.quad.scale.set( 1.0, 1.0, 1.0 );
-				context.spriteSheet.quad.position.set( 0.0, 0.0, 0.0 );
-				context.spriteSheet.uniforms.tDiffuse.value =
-				context.spriteSheet.renderTarget.texture;
-				context.renderer.render( context.spriteSheet.scene, context.spriteSheet.camera );
-
-				context.effectController.time = time;
-				// window.open(canvas.toDataURL());
-				let dataUrl = context.canvas.toDataURL();
-				let w = window.open( 'about:blank' );
-				w.document.write( "<img src='" + dataUrl + "'/>" );
-
-			},
-
-			resetColorBalance() {
-
-				context.effectController.cColorBalanceShadowsR = 0.0;
-				context.effectController.cColorBalanceShadowsG = 0.0;
-				context.effectController.cColorBalanceShadowsB = 0.0;
-				context.effectController.cColorBalanceMidtonesR = 0.0;
-				context.effectController.cColorBalanceMidtonesG = 0.0;
-				context.effectController.cColorBalanceMidtonesB = 0.0;
-				context.effectController.cColorBalanceHighlightsR = 0.0;
-				context.effectController.cColorBalanceHighlightsG = 0.0;
-				context.effectController.cColorBalanceHighlightsB = 0.0;
-				for ( let i in context.gui.cb.controllers ) {
-
-					context.gui.cb.controllers[ i ].updateDisplay();
-
-				}
-
-			},
-
-			load() {
-
-				fileInput.click();
-
-			},
-
-			save() {
-
-				let output;
-				try {
-
-					output = JSON.stringify( context.effectController, null, '\t' );
-					output = output.replace( /[\n\t]+([\d\.e\-\[\]]+)/g, '$1' );
-
-				} catch ( e ) {
-
-					output = JSON.stringify( context.effectController );
-
-				}
-
-				saveString( output, 'EffectTextureMaker_Untitled.json' );
-
-			},
 
 			animate: false,
 			time: 0.0,
@@ -765,8 +601,8 @@ const app = {
 
 		let h;
 		this.gui.root = new GUI();
-		this.gui.root.add( this.effectController, 'load' );
-		this.gui.root.add( this.effectController, 'save' );
+		this.gui.root.add( this, 'load' );
+		this.gui.root.add( this, 'save' );
 
 		// material (attributes)
 
@@ -785,10 +621,10 @@ const app = {
 			'512',
 			'1024',
 			'2048',
-		] ).onChange( function ( value ) {
+		] ).onChange( ( value ) => {
 
-			context.canvas.width = value;
-			context.canvas.height = value;
+			this.canvas.width = value;
+			this.canvas.height = value;
 			onWindowResize();
 
 		} );
@@ -861,21 +697,21 @@ const app = {
 			'Squiggles',
 			'WaterTurbulence',
 			'Trabeculum',
-		] ).onChange( function ( value ) {
+		] ).onChange( ( value ) => {
 
 			const stdShader = new PIXY.FxgenShader();
 			stdShader.enable( value.toUpperCase() );
 			stdShader.enable( 'TOON' );
 			stdShader.enable( 'GLSL3' );
-			context.layers[ 0 ].uniforms = stdShader.generateUniforms();
-			context.layers[ 0 ].material = stdShader.createMaterial( context.layers[ 0 ].uniforms );
-			context.layers[ 0 ].material.defines = stdShader.generateDefines();
+			this.layers[ 0 ].uniforms = stdShader.generateUniforms();
+			this.layers[ 0 ].material = stdShader.createMaterial( this.layers[ 0 ].uniforms );
+			this.layers[ 0 ].material.defines = stdShader.generateDefines();
 			// console.log( context.layers[ 0 ].material.extensions );
 			// console.log( context.layers[ 0 ].material.glslVersion );
 			// console.log( context.layers[ 0 ].material.vertexShader );
 			// console.log( context.layers[ 0 ].material.fragmentShader );
 
-			context.resetParameters( context.layers[ 0 ].uniforms );
+			this.resetParameters( this.layers[ 0 ].uniforms );
 
 		} );
 
@@ -959,7 +795,7 @@ const app = {
 			1.0,
 			0.025
 		).name( 'Highlights-B' );
-		h.add( this.effectController, 'resetColorBalance' );
+		h.add( this, 'resetColorBalance' );
 		h.open( false );
 		// h.add(this.effectController, "colorBlanacePreserveLuminosity");
 		this.gui.cb = h;
@@ -969,7 +805,7 @@ const app = {
 		h.add( this.spriteSheet, 'time', 0.0, 1000.0 );
 		h.add( this.spriteSheet, 'timeLength', 0.1, 1000.0 );
 		h.add( this.spriteSheet, 'timeStep', 0.0001, 100.0 );
-		h.add( this.effectController, 'saveSpriteSheet' ).name( 'Save (SpriteSheet)' );
+		h.add( this, 'saveSpriteSheet' ).name( 'Save (SpriteSheet)' );
 		h.open( false );
 
 		this.alphaOptions.threshold = 0.0;
@@ -980,40 +816,196 @@ const app = {
 		h = this.gui.root.addFolder( 'Image with alpha (PNG)' );
 		h.add( this.alphaOptions, 'threshold', 0.0, 1.0 ).onChange( ( _value ) => {
 
-			context.alphaOptions.update = true;
+			this.alphaOptions.update = true;
 
 		} );
 		h.add( this.alphaOptions, 'tolerance', 0.0, 1.0 ).onChange( ( _value ) => {
 
-			context.alphaOptions.update = true;
+			this.alphaOptions.update = true;
 
 		} );
 		h.add( this.alphaOptions, 'blur', 0, 10, 1 ).onChange( ( _value ) => {
 
-			context.alphaOptions.update = true;
+			this.alphaOptions.update = true;
 
 		} );
 		h.add( this.alphaOptions, 'visible' ).onChange( ( value ) => {
 
 			if ( value ) {
 
-				context.canvas.style.display = 'none';
-				context.alphaCanvas.style.display = null;
-				context.alphaOptions.update = true;
+				this.canvas.style.display = 'none';
+				this.alphaCanvas.style.display = null;
+				this.alphaOptions.update = true;
 
 			} else {
 
-				context.canvas.style.display = null;
-				context.alphaCanvas.style.display = 'none';
+				this.canvas.style.display = null;
+				this.alphaCanvas.style.display = 'none';
 
 			}
 
 		} );
-		h.add( this.effectController, 'savePng' ).name( 'Save (PNG)' );
-		h.add( this.effectController, 'downloadPng' ).name( 'Download (PNG)' );
+		h.add( this, 'savePng' ).name( 'Save (PNG)' );
+		h.add( this, 'downloadPng' ).name( 'Download (PNG)' );
 		h.open( false );
 
-		this.gui.root.add( this.effectController, 'saveImage' ).name( 'Save' );
+		this.gui.root.add( this, 'saveImage' ).name( 'Save' );
+
+	},
+
+	saveImage() {
+
+		this.render();
+		// window.open( context.canvas.toDataURL() );
+		let dataUrl = this.canvas.toDataURL();
+		let w = window.open( 'about:blank' );
+		w.document.write( "<img src='" + dataUrl + "'/>" );
+
+	},
+
+	savePng() {
+
+		this.render();
+		this.updateSaveBuffer();
+		this.saveCanvas.toBlob( async function ( result ) {
+
+			const options = {
+				types: [
+					{
+						description: 'Images',
+						accept: {
+							'image/png': [ '.png' ],
+						}
+					}
+				],
+				suggestedName: 'image.png',
+			};
+			const imgFileHandle = await window.showSaveFilePicker( options );
+			const writable = await imgFileHandle.createWritable();
+			await writable.write( result );
+			await writable.close();
+
+		} );
+
+	},
+
+	downloadPng() {
+
+		const dl = document.createElement( "a" );
+
+		this.render();
+		this.updateSaveBuffer();
+		this.saveCanvas.toBlob( ( blob ) => {
+
+			dl.href = window.URL.createObjectURL( blob );
+			dl.download = "image.png";
+			dl.click();
+
+		} );
+
+	},
+
+	saveSpriteSheet() {
+
+		let width = Math.floor( this.canvas.width / this.spriteSheet.dimension );
+		let size = width / this.canvas.width;
+		let time = this.spriteSheet.time;
+		// var time = 0.0;
+
+		this.renderer.setRenderTarget( this.spriteSheet.renderTarget );
+		this.renderer.clear();
+		this.renderer.setRenderTarget( null );
+
+		for ( let i = 0; i < this.spriteSheet.dimension; i++ ) {
+
+			for ( let j = 0; j < this.spriteSheet.dimension; j++ ) {
+
+				let len =
+				this.spriteSheet.timeStep * this.spriteSheet.dimension * i +
+				this.spriteSheet.timeStep * j;
+				if ( len >= this.spriteSheet.timeLength ) {
+
+					break;
+
+				}
+
+				this.effectController.time = time + len;
+				this.render();
+
+				this.spriteSheet.uniforms.tDiffuse.value =
+				this.layers[ this.layers.length - 2 ].renderTarget.texture;
+
+				this.spriteSheet.quad.scale.set( size, size, 1.0 );
+				this.spriteSheet.quad.position.set(
+					-1 + 2.0 * size * j + size,
+					1 - 2.0 * size * i - size,
+					0.0
+				);
+
+				this.renderer.autoClear = false;
+				this.renderer.setRenderTarget( this.spriteSheet.renderTarget );
+				this.renderer.render( this.spriteSheet.scene, this.spriteSheet.camera );
+				this.renderer.setRenderTarget( null );
+				this.renderer.autoClear = true;
+
+			}
+
+		}
+
+		this.spriteSheet.quad.scale.set( 1.0, 1.0, 1.0 );
+		this.spriteSheet.quad.position.set( 0.0, 0.0, 0.0 );
+		this.spriteSheet.uniforms.tDiffuse.value =
+		this.spriteSheet.renderTarget.texture;
+		this.renderer.render( this.spriteSheet.scene, this.spriteSheet.camera );
+
+		this.effectController.time = time;
+		// window.open(canvas.toDataURL());
+		let dataUrl = this.canvas.toDataURL();
+		let w = window.open( 'about:blank' );
+		w.document.write( "<img src='" + dataUrl + "'/>" );
+
+	},
+
+	resetColorBalance() {
+
+		this.effectController.cColorBalanceShadowsR = 0.0;
+		this.effectController.cColorBalanceShadowsG = 0.0;
+		this.effectController.cColorBalanceShadowsB = 0.0;
+		this.effectController.cColorBalanceMidtonesR = 0.0;
+		this.effectController.cColorBalanceMidtonesG = 0.0;
+		this.effectController.cColorBalanceMidtonesB = 0.0;
+		this.effectController.cColorBalanceHighlightsR = 0.0;
+		this.effectController.cColorBalanceHighlightsG = 0.0;
+		this.effectController.cColorBalanceHighlightsB = 0.0;
+		for ( let i in this.gui.cb.controllers ) {
+
+			this.gui.cb.controllers[ i ].updateDisplay();
+
+		}
+
+	},
+
+	load() {
+
+		this.fileInput.click();
+
+	},
+
+	save() {
+
+		let output;
+		try {
+
+			output = JSON.stringify( this.effectController, null, '\t' );
+			output = output.replace( /[\n\t]+([\d\.e\-\[\]]+)/g, '$1' );
+
+		} catch ( e ) {
+
+			output = JSON.stringify( this.effectController );
+
+		}
+
+		saveString( output, 'EffectTextureMaker_Untitled.json' );
 
 	},
 
@@ -1903,7 +1895,7 @@ const app = {
 		var time = this.effectController.time;
 		var str = time.toString() + '0000000';
 		if ( time === 0 ) str = '0.00000000';
-		document.getElementById( 'time' ).innerHTML = str.substr( 0, 8 );
+		document.getElementById( 'time' ).innerHTML = str.slice( 0, 8 );
 
 		requestAnimationFrame( this.animate.bind( this ) );
 		this.render();
@@ -2076,7 +2068,6 @@ function onWindowResize() {
 					{
 						minFilter: THREE.LinearFilter,
 						magFilter: THREE.LinearFilter,
-						// format: THREE.RGBFormat,
 						stencilBuffer: false,
 					}
 				);
@@ -2106,7 +2097,6 @@ function onWindowResize() {
 		{
 			minFilter: THREE.LinearFilter,
 			magFilter: THREE.LinearFilter,
-			// format: THREE.RGBFormat,
 			stencilBuffer: false,
 		}
 	);
