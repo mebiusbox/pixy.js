@@ -66,13 +66,15 @@
       </center>
     </div>
     
-    <script src="js/three.min.r81dev.mrt.js"></script>
-    <script src="js/WebGL.js"></script>
-    <script src="js/controls/OrbitControls.r81dev.js"></script>
-    <script src="js/libs/dat.gui.min.js"></script>
-    <script src="js/libs/stats.min.js"></script>
-    <script src="js/utils/BufferGeometryUtils.js"></script>
-    <script src="../build/pixy.min.r81dev.js"></script>
-		<script src="./shader_deferred.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+					"three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/",
+					"pixy": "../build/pixy.module.js"
+				}
+			}
+		</script>
+		<script type="module" src="shader_deferred.js"></script>
   </body>
 </html>

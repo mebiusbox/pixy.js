@@ -115,6 +115,8 @@ import glassFrag from './ShaderChunk/glassFrag.glsl';
 import glassFragPars from './ShaderChunk/glassFragPars.glsl';
 import { glassUniforms } from './ShaderChunk/glassUniforms.js';
 import glassVert from './ShaderChunk/glassVert.glsl';
+import glsl3Frag from './ShaderChunk/glsl3Frag.glsl';
+import glsl3Vert from './ShaderChunk/glsl3Vert.glsl';
 import godRayCompositeFrag from './ShaderChunk/godRayCompositeFrag.glsl';
 import { godRayCompositeUniforms } from './ShaderChunk/godRayCompositeUniforms.js';
 import godRayCompositeVert from './ShaderChunk/godRayCompositeVert.glsl';
@@ -414,6 +416,8 @@ export var ShaderChunk = {
 	glassFragPars: glassFragPars,
 	glassUniforms: glassUniforms,
 	glassVert: glassVert,
+	glsl3Frag: glsl3Frag,
+	glsl3Vert: glsl3Vert,
 	godRayCompositeFrag: godRayCompositeFrag,
 	godRayCompositeUniforms: godRayCompositeUniforms,
 	godRayCompositeVert: godRayCompositeVert,

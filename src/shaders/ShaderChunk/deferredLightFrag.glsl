@@ -1,10 +1,9 @@
-#extension GL_EXT_draw_buffers : require
-#extension GL_EXT_shader_texture_lod : enable
-precision mediump float;
 #include <packing>
 #define PI 3.14159265359
 #define RECIPROCAL_PI 0.31830988618
+#ifndef saturate
 #define saturate(x) clamp(x, 0.0, 1.0)
+#endif
 float pow2(const in float x) { return x*x; }
 vec3 transformDirection(in vec3 dir, in mat4 matrix) {
   return normalize((matrix * vec4(dir, 0.0)).xyz);

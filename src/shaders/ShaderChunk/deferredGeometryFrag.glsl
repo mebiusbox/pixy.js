@@ -1,6 +1,3 @@
-#extension GL_EXT_draw_buffers : require
-#extension GL_OES_standard_derivatives : enable
-precision mediump float;
 #include <packing>
 uniform sampler2D tDiffuse;
 uniform sampler2D tRoughness;
@@ -9,6 +6,8 @@ uniform float bumpiness;
 varying vec3 vViewPosition;
 varying vec3 vNormal;
 varying vec2 vUv;
+layout(location = 0) out vec4 gNormal;
+layout(location = 1) out vec4 gDiffuseRoughness;
 
 vec2 dHdxy_fwd() {
   vec2 dSTdx = dFdx(vUv);
@@ -34,6 +33,6 @@ void main() {
   vec4 diffuseRGBA = texture2D(tDiffuse, vUv);
   vec4 roughnessRGBA = texture2D(tRoughness, vUv);
   vec3 Nn = perturbNormalArb(-vViewPosition, normalize(vNormal), dHdxy_fwd());
-  gl_FragData[0] = vec4(Nn * 0.5 + 0.5, 0.0);
-  gl_FragData[1] = vec4(diffuseRGBA.xyz, roughnessRGBA.r);
+  gNormal = vec4(Nn * 0.5 + 0.5, 0.0);
+  gDiffuseRoughness = vec4(diffuseRGBA.xyz, roughnessRGBA.r);
 }

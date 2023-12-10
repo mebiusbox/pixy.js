@@ -502,6 +502,7 @@ class Shader {
 	_generateVertexShader() {
 
 		const codes = [];
+		this._addCode( codes, [ 'GLSL3' ], 'glsl3Vert' );
 
 		// DEFFERED
 
@@ -652,6 +653,8 @@ class Shader {
 
 		if ( this.isEnable( 'DEFERRED_GEOMETRY' ) ) {
 
+			codes.push( "#define MULTIRENDERCOLOR" );
+			this._addCode( codes, [ 'GLSL3' ], 'glsl3Frag' );
 			this._addCode( codes, [], 'deferredGeometryFrag' );
 			return codes.join( '\n' );
 
@@ -659,10 +662,13 @@ class Shader {
 
 		if ( this.isEnable( 'DEFERRED_LIGHT' ) ) {
 
+			this._addCode( codes, [ 'GLSL3' ], 'glsl3Frag' );
 			this._addCode( codes, [], 'deferredLightFrag' );
 			return codes.join( '\n' );
 
 		}
+
+		this._addCode( codes, [ 'GLSL3' ], 'glsl3Frag' );
 
 		// FORWARD
 
@@ -1114,6 +1120,15 @@ class Shader {
 		if ( this.isEnable( [ '+DEFERRED_GEOMETRY', '+DEFERRED_LIGHT' ] ) ) {
 
 			this.material = new THREE.RawShaderMaterial( Object.assign( params, options ) );
+
+			if ( this.isEnable( [ 'GLSL3' ] ) ) {
+
+				this.material.glslVersion = THREE.GLSL3;
+
+			}
+
+			this.material.extensions.derivatives = true;
+
 			return;
 
 		}

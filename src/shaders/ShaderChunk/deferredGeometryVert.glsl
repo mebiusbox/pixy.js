@@ -1,4 +1,3 @@
-#extension GL_EXT_draw_buffers : require
 uniform mat4 projectionMatrix;
 uniform mat4 modelViewMatrix;
 uniform mat3 normalMatrix;
