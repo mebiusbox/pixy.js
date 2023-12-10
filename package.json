@@ -25,8 +25,8 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "build-shaderchunk": "python scripts/generateShaderChunk.py ./src/shaders/",
-    "build-fxgen": "python scripts/generateShaderChunk.py ./src/fxgen/",
+    "build:shaderchunk": "python scripts/generateShaderChunk.py ./src/shaders/",
+    "build:fxgen": "python scripts/generateShaderChunk.py ./src/fxgen/",
     "dev": "rollup -c -w",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
