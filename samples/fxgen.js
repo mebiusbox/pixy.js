@@ -42,6 +42,7 @@ const app = {
 	spriteSheet: {},
 	alphaOptions: {},
 	shaderDefines: undefined,
+	preventSave: false,
 
 	init() {
 		this.initGraphics();
@@ -688,6 +689,8 @@ const app = {
 		h.add( this.spriteSheet, 'timeLength', 0.1, 1000.0 );
 		h.add( this.spriteSheet, 'timeStep', 0.0001, 100.0 );
 		h.add( this, 'saveSpriteSheet' ).name( 'Save (SpriteSheet)' );
+		h.add( this, 'saveSpriteSheetPng' ).name( 'Save (SpriteSheet with alpha)' );
+		h.add( this, 'downloadSpriteSheetPng' ).name( 'Download (SpriteSheet with alpha)' );
 		h.open( false );
 
 		this.alphaOptions.threshold = 0.0;
@@ -753,11 +756,10 @@ const app = {
 	},
 
 	downloadPng() {
-		const dl = document.createElement( 'a' );
-
 		this.render();
 		this.updateSaveBuffer();
 		this.saveCanvas.toBlob( ( blob ) => {
+			const dl = document.createElement( 'a' );
 			dl.href = window.URL.createObjectURL( blob );
 			dl.download = 'image.png';
 			dl.click();
@@ -801,10 +803,51 @@ const app = {
 		this.renderer.render( this.spriteSheet.scene, this.spriteSheet.camera );
 
 		this.effectController.time = time;
-		// window.open(canvas.toDataURL());
-		let dataUrl = this.canvas.toDataURL();
-		let w = window.open( 'about:blank' );
-		w.document.write( "<img src='" + dataUrl + "'/>" );
+
+		if ( !this.preventSave ) {
+			let dataUrl = this.canvas.toDataURL();
+			let w = window.open( 'about:blank' );
+			w.document.write( "<img src='" + dataUrl + "'/>" );
+		}
+	},
+
+	saveSpriteSheetPng() {
+		this.preventSave = true;
+		this.saveSpriteSheet();
+		this.preventSave = false;
+
+		this.updateSaveBuffer();
+		this.saveCanvas.toBlob( async function ( result ) {
+			const options = {
+				types: [
+					{
+						description: 'Images',
+						accept: {
+							'image/png': [ '.png' ],
+						},
+					},
+				],
+				suggestedName: 'image.png',
+			};
+			const imgFileHandle = await window.showSaveFilePicker( options );
+			const writable = await imgFileHandle.createWritable();
+			await writable.write( result );
+			await writable.close();
+		} );
+	},
+
+	downloadSpriteSheetPng() {
+		this.preventSave = true;
+		this.saveSpriteSheet();
+		this.preventSave = false;
+
+		this.updateSaveBuffer();
+		this.saveCanvas.toBlob( ( blob ) => {
+			const dl = document.createElement( 'a' );
+			dl.href = window.URL.createObjectURL( blob );
+			dl.download = 'image.png';
+			dl.click();
+		} );
 	},
 
 	resetColorBalance() {
