@@ -23,6 +23,9 @@
     ],
     "space-unary-ops": [
       "error", {"words": true, "nonwords": false}
+    ],
+    "padded-blocks": [
+      "error", "never"
     ]
   }
 }
