@@ -7,9 +7,7 @@ import { CopyShader } from 'three/addons/shaders/CopyShader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 if ( WebGL.isWebGLAvailable() === false ) {
-
 	document.body.appendChild( WebGL.getWebGLErrorMessage() );
-
 }
 
 const app = {
@@ -25,7 +23,7 @@ const app = {
 		sphere: undefined,
 		uniforms: undefined,
 		material: undefined,
-		texture: undefined
+		texture: undefined,
 	},
 	grungeTexture: undefined,
 	gui: {
@@ -35,7 +33,7 @@ const app = {
 		normalMap: undefined,
 		cb: undefined,
 		pars: undefined,
-		parsItems: undefined
+		parsItems: undefined,
 	},
 	stats: undefined,
 	clock: new THREE.Clock(),
@@ -46,21 +44,18 @@ const app = {
 	shaderDefines: undefined,
 
 	init() {
-
 		this.initGraphics();
 		this.initScene();
 		this.setupGui();
 		this.initLayers();
 
-		console.log( "[fxgen] initialized" );
-
+		console.log( '[fxgen] initialized' );
 	},
 
 	initGraphics() {
+		console.log( '[fxgen] initializing graphics...' );
 
-		console.log( "[fxgen] initializing graphics..." );
-
-		// RENDERER
+		//! RENDERER
 
 		this.renderer = new THREE.WebGLRenderer();
 		// this.renderer = new THREE.WebGLRenderer({antialias: true});
@@ -70,23 +65,19 @@ const app = {
 		// this.renderer.setSize(window.innerWidth, window.innerHeight);
 		// this.renderer.autoClear = false;
 		if ( this.renderer.capabilities.isWebGL2 ) {
-
-			console.log( "WebGL2" );
-
+			console.log( 'WebGL2' );
 		}
 
 		this.canvas = this.renderer.domElement;
 		this.canvas.addEventListener( 'mousemove', ( e ) => {
-
 			this.mouse.x = e.offsetX / this.canvas.width;
 			this.mouse.y = e.offsetY / this.canvas.height;
-
 		} );
 		document.body.appendChild( this.canvas );
 
 		// for alpha
 		this.alphaCanvas = document.createElement( 'canvas' );
-		this.alphaCanvas.style.display = "none";
+		this.alphaCanvas.style.display = 'none';
 		document.body.appendChild( this.alphaCanvas );
 
 		// for save as png
@@ -96,39 +87,37 @@ const app = {
 		this.blur50 = document.createElement( 'canvas' );
 		this.blur25 = document.createElement( 'canvas' );
 
-		// STATS
+		//! STATS
 
 		this.stats = new Stats();
 		document.body.appendChild( this.stats.dom );
-
 	},
 
 	initScene() {
-
-		console.log( "[fxgen] initializing scene..." );
+		console.log( '[fxgen] initializing scene...' );
 
 		// scene itself
 		this.scene = new THREE.Scene();
 		this.noise.scene = new THREE.Scene();
 
-		// CAMERA
+		//! CAMERA
 
 		this.camera = new THREE.PerspectiveCamera( 45.0, 1.0, 1.0, 1000.0 );
 		this.camera.position.set( 0.0, 0.0, 3.8 );
 		// this.camera.lookAt(new THREE.Vector3(0.0, -0.3, 1.0));
 		this.dummyCamera = new THREE.Camera();
 
-		// CONTROLS
+		//! CONTROLS
 
 		this.controls = new OrbitControls( this.camera, this.renderer.domElement );
 		this.controls.target.set( 0, 0, 0 );
 		this.controls.addEventListener( 'change', this.render.bind( this ) );
 
-		// TEXTUERS
+		//! TEXTUERS
 
-		// MATERIALS
+		//! MATERIALS
 
-		// MODELS
+		//! MODELS
 
 		let geo, mesh, stdShader;
 
@@ -163,7 +152,7 @@ const app = {
 		// console.log(stdShader.generateVertexShader());
 		// console.log(stdShader.generateFragmentShader());
 
-		// LAYERS
+		//! LAYERS
 
 		// noise = {};
 		// noise.octave = 8;
@@ -184,36 +173,27 @@ const app = {
 
 		this.spriteSheet.camera = new THREE.OrthographicCamera( -1, 1, 1, -1, 0, 1 );
 		this.spriteSheet.scene = new THREE.Scene();
-		this.spriteSheet.quad = new THREE.Mesh(
-			new THREE.PlaneGeometry( 2, 2 ),
-			this.spriteSheet.material
-		);
+		this.spriteSheet.quad = new THREE.Mesh( new THREE.PlaneGeometry( 2, 2 ), this.spriteSheet.material );
 		this.spriteSheet.dimension = 8;
 		this.spriteSheet.time = 0.0;
 		this.spriteSheet.timeLength = 3.0;
 		this.spriteSheet.timeStep = 0.1;
 		this.spriteSheet.scene.add( this.spriteSheet.quad );
-
 	},
 
 	initLayers() {
-
-		console.log( "[fxgen] initializing layers..." );
+		console.log( '[fxgen] initializing layers...' );
 
 		this.layers = [];
 		let layer = {};
 
 		layer.name = 'Base';
 		// layer.renderTarget = null;
-		layer.renderTarget = new THREE.WebGLRenderTarget(
-			this.canvas.width,
-			this.canvas.height,
-			{
-				minFilter: THREE.LinearFilter,
-				magFilter: THREE.LinearFilter,
-				stencilBuffer: false,
-			}
-		);
+		layer.renderTarget = new THREE.WebGLRenderTarget( this.canvas.width, this.canvas.height, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter,
+			stencilBuffer: false,
+		} );
 
 		let stdShader = new PIXY.FxgenShader();
 		let type = this.effectController.type;
@@ -230,20 +210,16 @@ const app = {
 		this.resetParameters( layer.uniforms );
 		this.layers.push( layer );
 
-		//// POLAR CONVERSION
+		//! POLAR CONVERSION
 
 		layer = {};
 		layer.name = 'PolarConversion';
 		layer.tDiffuse = this.layers[ this.layers.length - 1 ].renderTarget.texture;
-		layer.renderTarget = new THREE.WebGLRenderTarget(
-			this.canvas.width,
-			this.canvas.height,
-			{
-				minFilter: THREE.LinearFilter,
-				magFilter: THREE.LinearFilter,
-				stencilBuffer: false,
-			}
-		);
+		layer.renderTarget = new THREE.WebGLRenderTarget( this.canvas.width, this.canvas.height, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter,
+			stencilBuffer: false,
+		} );
 
 		stdShader.clear();
 		stdShader.enable( 'POLARCONVERSION' );
@@ -252,20 +228,16 @@ const app = {
 		layer.material.defines = this.shaderDefines;
 		this.layers.push( layer );
 
-		//// COLOR BALANCE
+		//! COLOR BALANCE
 
 		layer = {};
 		layer.name = 'ColorBalance';
 		layer.tDiffuse = this.layers[ this.layers.length - 1 ].renderTarget.texture;
-		layer.renderTarget = new THREE.WebGLRenderTarget(
-			this.canvas.width,
-			this.canvas.height,
-			{
-				minFilter: THREE.LinearFilter,
-				magFilter: THREE.LinearFilter,
-				stencilBuffer: false,
-			}
-		);
+		layer.renderTarget = new THREE.WebGLRenderTarget( this.canvas.width, this.canvas.height, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter,
+			stencilBuffer: false,
+		} );
 
 		stdShader.clear();
 		stdShader.enable( 'COLORBALANCE' );
@@ -276,21 +248,17 @@ const app = {
 		// console.log(stdShader.generateFragmentShader());
 		this.layers.push( layer );
 
-		//// TILING
+		//! TILING
 
 		layer = {};
 		layer.name = 'Tiling';
 		layer.tDiffuse = this.layers[ this.layers.length - 1 ].renderTarget.texture;
 		layer.tDiffuse.wrapS = layer.tDiffuse.wrapT = THREE.RepeatWrapping;
-		layer.renderTarget = new THREE.WebGLRenderTarget(
-			this.canvas.width,
-			this.canvas.height,
-			{
-				minFilter: THREE.NearestFilter,
-				magFilter: THREE.NearestFilter,
-				stencilBuffer: false,
-			}
-		);
+		layer.renderTarget = new THREE.WebGLRenderTarget( this.canvas.width, this.canvas.height, {
+			minFilter: THREE.NearestFilter,
+			magFilter: THREE.NearestFilter,
+			stencilBuffer: false,
+		} );
 
 		stdShader.clear();
 		stdShader.enable( 'TILING' );
@@ -301,20 +269,16 @@ const app = {
 		// console.log(stdShader.generateFragmentShader());
 		this.layers.push( layer );
 
-		//// NORMAL MAP
+		//! NORMAL MAP
 
 		layer = {};
 		layer.name = 'NormalMap';
 		layer.tDiffuse = this.layers[ this.layers.length - 1 ].renderTarget.texture;
-		layer.renderTarget = new THREE.WebGLRenderTarget(
-			this.canvas.width,
-			this.canvas.height,
-			{
-				minFilter: THREE.LinearFilter,
-				magFilter: THREE.LinearFilter,
-				stencilBuffer: false,
-			}
-		);
+		layer.renderTarget = new THREE.WebGLRenderTarget( this.canvas.width, this.canvas.height, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter,
+			stencilBuffer: false,
+		} );
 
 		stdShader.clear();
 		// stdShader.enable("HEIGHT2NORMAL");
@@ -324,7 +288,7 @@ const app = {
 		layer.material.defines = this.shaderDefines;
 		this.layers.push( layer );
 
-		//// COPY
+		//! COPY
 
 		layer = {};
 		layer.name = 'Copy';
@@ -338,31 +302,23 @@ const app = {
 		layer.material.defines = this.shaderDefines;
 		this.layers.push( layer );
 
-		this.spriteSheet.renderTarget = new THREE.WebGLRenderTarget(
-			this.canvas.width,
-			this.canvas.height,
-			{
-				minFilter: THREE.LinearFilter,
-				magFilter: THREE.LinearFilter,
-				stencilBuffer: false,
-			}
-		);
-
+		this.spriteSheet.renderTarget = new THREE.WebGLRenderTarget( this.canvas.width, this.canvas.height, {
+			minFilter: THREE.LinearFilter,
+			magFilter: THREE.LinearFilter,
+			stencilBuffer: false,
+		} );
 	},
 
 	setupGui() {
-
-		console.log( "[fxgen] setup GUI..." );
+		console.log( '[fxgen] setup GUI...' );
 
 		this.fileInput = document.createElement( 'input' );
 		this.fileInput.type = 'file';
 		this.fileInput.addEventListener( 'change', ( _event ) => {
-
 			let reader = new FileReader();
 			reader.addEventListener(
 				'load',
-				(event) => {
-
+				( event ) => {
 					let contents = event.target.result;
 					let json = JSON.parse( contents );
 
@@ -375,71 +331,51 @@ const app = {
 					stdShader.enable( 'TOON' );
 					stdShader.enable( 'GLSL3' );
 					this.layers[ 0 ].uniforms = stdShader.generateUniforms();
-					this.layers[ 0 ].material = stdShader.createMaterial(
-						this.layers[ 0 ].uniforms,
-						{ defines: stdShader.generateDefines() }
-					);
+					this.layers[ 0 ].material = stdShader.createMaterial( this.layers[ 0 ].uniforms, {
+						defines: stdShader.generateDefines(),
+					} );
 
 					this.effectController.type = json.type;
 					this.resetParameters( this.layers[ 0 ].uniforms );
 
 					for ( var i in json ) {
-
 						this.effectController[ i ] = json[ i ];
-
 					}
 
 					for ( var i in this.gui.root.controllers ) {
-
 						this.gui.root.controllers[ i ].updateDisplay();
-
 					}
 
 					for ( var i in this.gui.pars.controllers ) {
-
 						this.gui.pars.controllers[ i ].updateDisplay();
-
 					}
 
 					for ( var i in this.gui.tone.controllers ) {
-
 						this.gui.tone.controllers[ i ].updateDisplay();
-
 					}
 
 					for ( var i in this.gui.tiling.controllers ) {
-
 						this.gui.tiling.controllers[ i ].updateDisplay();
-
 					}
 
 					for ( var i in this.gui.normalMap.controllers ) {
-
 						this.gui.normalMap.controllers[ i ].updateDisplay();
-
 					}
 
 					for ( var i in this.gui.cb.controllers ) {
-
 						this.gui.cb.controllers[ i ].updateDisplay();
-
 					}
-
 				},
 				false
 			);
 			reader.readAsText( this.fileInput.files[ 0 ] );
-
 		} );
 
 		this.fileInput.addEventListener( 'click', ( _event ) => {
-
 			this.value = null;
-
 		} );
 
 		this.effectController = {
-
 			animate: false,
 			time: 0.0,
 
@@ -611,23 +547,13 @@ const app = {
 		// Parameters
 
 		// h.add(this.effectController, 'freeCamera');
-		h.add( this.effectController, 'resolution', [
-			'8',
-			'16',
-			'32',
-			'64',
-			'128',
-			'256',
-			'512',
-			'1024',
-			'2048',
-		] ).onChange( ( value ) => {
-
-			this.canvas.width = value;
-			this.canvas.height = value;
-			onWindowResize();
-
-		} );
+		h.add( this.effectController, 'resolution', [ '8', '16', '32', '64', '128', '256', '512', '1024', '2048' ] ).onChange(
+			( value ) => {
+				this.canvas.width = value;
+				this.canvas.height = value;
+				onWindowResize();
+			}
+		);
 
 		//MARK: type
 		h.add( this.effectController, 'type', [
@@ -698,7 +624,6 @@ const app = {
 			'WaterTurbulence',
 			'Trabeculum',
 		] ).onChange( ( value ) => {
-
 			const stdShader = new PIXY.FxgenShader();
 			stdShader.enable( value.toUpperCase() );
 			stdShader.enable( 'TOON' );
@@ -712,7 +637,6 @@ const app = {
 			// console.log( context.layers[ 0 ].material.fragmentShader );
 
 			this.resetParameters( this.layers[ 0 ].uniforms );
-
 		} );
 
 		this.gui.root.add( this.effectController, 'time', 0, 100.0 );
@@ -744,57 +668,15 @@ const app = {
 		this.gui.normalMap = h;
 
 		h = this.gui.root.addFolder( 'ColorBalance' );
-		h.add( this.effectController, 'cColorBalanceShadowsR', -1.0, 1.0, 0.025 ).name(
-			'Shadows-R'
-		);
-		h.add( this.effectController, 'cColorBalanceShadowsG', -1.0, 1.0, 0.025 ).name(
-			'Shadows-G'
-		);
-		h.add( this.effectController, 'cColorBalanceShadowsB', -1.0, 1.0, 0.025 ).name(
-			'Shadows-B'
-		);
-		h.add(
-			this.effectController,
-			'cColorBalanceMidtonesR',
-			-1.0,
-			1.0,
-			0.025
-		).name( 'Midtones-R' );
-		h.add(
-			this.effectController,
-			'cColorBalanceMidtonesG',
-			-1.0,
-			1.0,
-			0.025
-		).name( 'Midtones-G' );
-		h.add(
-			this.effectController,
-			'cColorBalanceMidtonesB',
-			-1.0,
-			1.0,
-			0.025
-		).name( 'Midtones-B' );
-		h.add(
-			this.effectController,
-			'cColorBalanceHighlightsR',
-			-1.0,
-			1.0,
-			0.025
-		).name( 'Highlights-R' );
-		h.add(
-			this.effectController,
-			'cColorBalanceHighlightsG',
-			-1.0,
-			1.0,
-			0.025
-		).name( 'Highlights-G' );
-		h.add(
-			this.effectController,
-			'cColorBalanceHighlightsB',
-			-1.0,
-			1.0,
-			0.025
-		).name( 'Highlights-B' );
+		h.add( this.effectController, 'cColorBalanceShadowsR', -1.0, 1.0, 0.025 ).name( 'Shadows-R' );
+		h.add( this.effectController, 'cColorBalanceShadowsG', -1.0, 1.0, 0.025 ).name( 'Shadows-G' );
+		h.add( this.effectController, 'cColorBalanceShadowsB', -1.0, 1.0, 0.025 ).name( 'Shadows-B' );
+		h.add( this.effectController, 'cColorBalanceMidtonesR', -1.0, 1.0, 0.025 ).name( 'Midtones-R' );
+		h.add( this.effectController, 'cColorBalanceMidtonesG', -1.0, 1.0, 0.025 ).name( 'Midtones-G' );
+		h.add( this.effectController, 'cColorBalanceMidtonesB', -1.0, 1.0, 0.025 ).name( 'Midtones-B' );
+		h.add( this.effectController, 'cColorBalanceHighlightsR', -1.0, 1.0, 0.025 ).name( 'Highlights-R' );
+		h.add( this.effectController, 'cColorBalanceHighlightsG', -1.0, 1.0, 0.025 ).name( 'Highlights-G' );
+		h.add( this.effectController, 'cColorBalanceHighlightsB', -1.0, 1.0, 0.025 ).name( 'Highlights-B' );
 		h.add( this, 'resetColorBalance' );
 		h.open( false );
 		// h.add(this.effectController, "colorBlanacePreserveLuminosity");
@@ -815,68 +697,51 @@ const app = {
 		this.alphaOptions.update = false;
 		h = this.gui.root.addFolder( 'Image with alpha (PNG)' );
 		h.add( this.alphaOptions, 'threshold', 0.0, 1.0 ).onChange( ( _value ) => {
-
 			this.alphaOptions.update = true;
-
 		} );
 		h.add( this.alphaOptions, 'tolerance', 0.0, 1.0 ).onChange( ( _value ) => {
-
 			this.alphaOptions.update = true;
-
 		} );
 		h.add( this.alphaOptions, 'blur', 0, 10, 1 ).onChange( ( _value ) => {
-
 			this.alphaOptions.update = true;
-
 		} );
 		h.add( this.alphaOptions, 'visible' ).onChange( ( value ) => {
-
 			if ( value ) {
-
 				this.canvas.style.display = 'none';
 				this.alphaCanvas.style.display = null;
 				this.alphaOptions.update = true;
-
 			} else {
-
 				this.canvas.style.display = null;
 				this.alphaCanvas.style.display = 'none';
-
 			}
-
 		} );
 		h.add( this, 'savePng' ).name( 'Save (PNG)' );
 		h.add( this, 'downloadPng' ).name( 'Download (PNG)' );
 		h.open( false );
 
 		this.gui.root.add( this, 'saveImage' ).name( 'Save' );
-
 	},
 
 	saveImage() {
-
 		this.render();
 		// window.open( context.canvas.toDataURL() );
 		let dataUrl = this.canvas.toDataURL();
 		let w = window.open( 'about:blank' );
 		w.document.write( "<img src='" + dataUrl + "'/>" );
-
 	},
 
 	savePng() {
-
 		this.render();
 		this.updateSaveBuffer();
 		this.saveCanvas.toBlob( async function ( result ) {
-
 			const options = {
 				types: [
 					{
 						description: 'Images',
 						accept: {
 							'image/png': [ '.png' ],
-						}
-					}
+						},
+					},
 				],
 				suggestedName: 'image.png',
 			};
@@ -884,29 +749,22 @@ const app = {
 			const writable = await imgFileHandle.createWritable();
 			await writable.write( result );
 			await writable.close();
-
 		} );
-
 	},
 
 	downloadPng() {
-
-		const dl = document.createElement( "a" );
+		const dl = document.createElement( 'a' );
 
 		this.render();
 		this.updateSaveBuffer();
 		this.saveCanvas.toBlob( ( blob ) => {
-
 			dl.href = window.URL.createObjectURL( blob );
-			dl.download = "image.png";
+			dl.download = 'image.png';
 			dl.click();
-
 		} );
-
 	},
 
 	saveSpriteSheet() {
-
 		let width = Math.floor( this.canvas.width / this.spriteSheet.dimension );
 		let size = width / this.canvas.width;
 		let time = this.spriteSheet.time;
@@ -917,45 +775,29 @@ const app = {
 		this.renderer.setRenderTarget( null );
 
 		for ( let i = 0; i < this.spriteSheet.dimension; i++ ) {
-
 			for ( let j = 0; j < this.spriteSheet.dimension; j++ ) {
-
-				let len =
-				this.spriteSheet.timeStep * this.spriteSheet.dimension * i +
-				this.spriteSheet.timeStep * j;
-				if ( len >= this.spriteSheet.timeLength ) {
-
-					break;
-
-				}
+				let len = this.spriteSheet.timeStep * this.spriteSheet.dimension * i + this.spriteSheet.timeStep * j;
+				if ( len >= this.spriteSheet.timeLength ) break;
 
 				this.effectController.time = time + len;
 				this.render();
 
-				this.spriteSheet.uniforms.tDiffuse.value =
-				this.layers[ this.layers.length - 2 ].renderTarget.texture;
+				this.spriteSheet.uniforms.tDiffuse.value = this.layers[ this.layers.length - 2 ].renderTarget.texture;
 
 				this.spriteSheet.quad.scale.set( size, size, 1.0 );
-				this.spriteSheet.quad.position.set(
-					-1 + 2.0 * size * j + size,
-					1 - 2.0 * size * i - size,
-					0.0
-				);
+				this.spriteSheet.quad.position.set( -1 + 2.0 * size * j + size, 1 - 2.0 * size * i - size, 0.0 );
 
 				this.renderer.autoClear = false;
 				this.renderer.setRenderTarget( this.spriteSheet.renderTarget );
 				this.renderer.render( this.spriteSheet.scene, this.spriteSheet.camera );
 				this.renderer.setRenderTarget( null );
 				this.renderer.autoClear = true;
-
 			}
-
 		}
 
 		this.spriteSheet.quad.scale.set( 1.0, 1.0, 1.0 );
 		this.spriteSheet.quad.position.set( 0.0, 0.0, 0.0 );
-		this.spriteSheet.uniforms.tDiffuse.value =
-		this.spriteSheet.renderTarget.texture;
+		this.spriteSheet.uniforms.tDiffuse.value = this.spriteSheet.renderTarget.texture;
 		this.renderer.render( this.spriteSheet.scene, this.spriteSheet.camera );
 
 		this.effectController.time = time;
@@ -963,11 +805,9 @@ const app = {
 		let dataUrl = this.canvas.toDataURL();
 		let w = window.open( 'about:blank' );
 		w.document.write( "<img src='" + dataUrl + "'/>" );
-
 	},
 
 	resetColorBalance() {
-
 		this.effectController.cColorBalanceShadowsR = 0.0;
 		this.effectController.cColorBalanceShadowsG = 0.0;
 		this.effectController.cColorBalanceShadowsB = 0.0;
@@ -978,49 +818,34 @@ const app = {
 		this.effectController.cColorBalanceHighlightsG = 0.0;
 		this.effectController.cColorBalanceHighlightsB = 0.0;
 		for ( let i in this.gui.cb.controllers ) {
-
 			this.gui.cb.controllers[ i ].updateDisplay();
-
 		}
-
 	},
 
 	load() {
-
 		this.fileInput.click();
-
 	},
 
 	save() {
-
 		let output;
 		try {
-
 			output = JSON.stringify( this.effectController, null, '\t' );
 			output = output.replace( /[\n\t]+([\d\.e\-\[\]]+)/g, '$1' );
-
 		} catch ( e ) {
-
 			output = JSON.stringify( this.effectController );
-
 		}
 
 		saveString( output, 'EffectTextureMaker_Untitled.json' );
-
 	},
 
 	resetParameters( uniforms ) {
-
 		for ( let i in this.gui.parsItems ) {
-
 			this.gui.parsItems[ i ].destroy();
-
 		}
 
 		this.gui.parsItems = [];
 
 		for ( let key in uniforms ) {
-
 			if (
 				key === 'resolution' ||
 				key === 'mouse' ||
@@ -1035,15 +860,10 @@ const app = {
 
 			const keys = Object.keys( this.effectController );
 			for ( let key of keys ) {
-
 				if ( key in uniforms ) {
-
 					this.effectController[ key ] = uniforms[ key ].value;
-
 				}
-
 			}
-
 		}
 
 		//MARK: items
@@ -1464,37 +1284,14 @@ const app = {
 			Spark: [ 'cIntensity', 'cPowerExponent' ],
 			Ring: [ 'cRadius', 'cWidth', 'cPowerExponent' ],
 			Gradation: [ 'cDirectionX', 'cDirectionY', 'cPowerExponent' ],
-			GradationLine: [
-				'cDirectionX',
-				'cDirectionY',
-				'cOffset',
-				'cPowerExponent',
-			],
+			GradationLine: [ 'cDirectionX', 'cDirectionY', 'cOffset', 'cPowerExponent' ],
 			Flash: [ 'cFrequency', 'cPowerExponent' ],
 			Cone: [ 'cDirectionX', 'cDirectionY', 'cPowerExponent' ],
 			Flower: [ 'cPetals', 'cRadius', 'cIntensity', 'cPowerExponent' ],
-			FlowerFun: [
-				'cPetals',
-				'cRadius',
-				'cOffset',
-				'cIntensity',
-				'cPowerExponent',
-			],
-			WaveRing: [
-				'cRadius',
-				'cWidth',
-				'cFrequency',
-				'cAmplitude',
-				'cPowerExponent',
-			],
+			FlowerFun: [ 'cPetals', 'cRadius', 'cOffset', 'cIntensity', 'cPowerExponent' ],
+			WaveRing: [ 'cRadius', 'cWidth', 'cFrequency', 'cAmplitude', 'cPowerExponent' ],
 			Flame: [ 'cIntensity', 'cWidth', 'cScale' ],
-			FlameEye: [
-				'cSpeed',
-				'cFlameEyeInnerFade',
-				'cFlameEyeOuterFade',
-				'cFlameEyeBorder',
-				'cColor',
-			],
+			FlameEye: [ 'cSpeed', 'cFlameEyeInnerFade', 'cFlameEyeOuterFade', 'cFlameEyeBorder', 'cColor' ],
 			Cell: [ 'cIntensity', 'cPowerExponent', 'cSize' ],
 			Smoke: [ 'cVolume', 'cBeta', 'cDelta' ],
 			Lightning: [ 'cIntensity', 'cFrequency', 'cWidth' ],
@@ -1521,23 +1318,9 @@ const app = {
 				'cExplosionDelayRange',
 				'cExplosionBallSpread',
 			],
-			Explosion2: [
-				'cCameraPan',
-				'cExplosionSpeed',
-				'cExplosionDensity',
-				'cEmission',
-				'cBloom',
-				'cColor',
-			],
+			Explosion2: [ 'cCameraPan', 'cExplosionSpeed', 'cExplosionDensity', 'cEmission', 'cBloom', 'cColor' ],
 			Corona: [ 'cIntensity', 'cRadius', 'cSize' ],
-			Fire: [
-				'cIntensity',
-				'cStrength',
-				'cPower',
-				'cRange',
-				'cWidth',
-				'cColor',
-			],
+			Fire: [ 'cIntensity', 'cStrength', 'cPower', 'cRange', 'cWidth', 'cColor' ],
 			LensFlare: [ 'cRadius', 'cRange', 'cColor', 'cPowerExponent' ],
 			Sun: [ 'cRadius', 'cColor' ],
 			Laser: [ 'cWidth', 'cColor' ],
@@ -1561,41 +1344,12 @@ const app = {
 			],
 			Cloud2: [ 'cIntensity', 'cDensity', 'cThickness', 'cColor' ],
 
-			PerlinNoise: [
-				'cNoiseOctave',
-				'cNoisePersistence',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			SeemlessNoise: [
-				'cNoiseOctave',
-				'cNoisePersistence',
-				'cNoiseScale',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			BooleanNoise: [
-				'cNoiseFrequency',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			CellNoise: [
-				'cNoiseFrequency',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			RandomNoise: [
-				'cNoiseFrequency',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			FbmNoise: [
-				'cNoiseOctave',
-				'cNoiseAmplitude',
-				'cNoiseFrequency',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
+			PerlinNoise: [ 'cNoiseOctave', 'cNoisePersistence', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			SeemlessNoise: [ 'cNoiseOctave', 'cNoisePersistence', 'cNoiseScale', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			BooleanNoise: [ 'cNoiseFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			CellNoise: [ 'cNoiseFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			RandomNoise: [ 'cNoiseFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			FbmNoise: [ 'cNoiseOctave', 'cNoiseAmplitude', 'cNoiseFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
 			FbmNoise2: [
 				'cNoiseOctave',
 				'cNoiseAmplitude',
@@ -1613,69 +1367,18 @@ const app = {
 				'cNoiseSphereEnable',
 				'cNoiseGraphEnable',
 			],
-			TurbulentNoise: [
-				'cNoiseOctave',
-				'cNoiseAmplitude',
-				'cNoiseFrequency',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			SparkNoise: [
-				'cNoiseFrequency',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			VoronoiNoise: [
-				'cNoiseFrequency',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			MarbleNoise: [
-				'cScale',
-				'cFrequency',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			TessNoise: [
-				'cNoiseFrequency',
-				'cOffset',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
-			GradientNoise: [
-				'cNoiseScale',
-				'cColor',
-				'cNoiseSphereEnable',
-				'cNoiseGraphEnable',
-			],
+			TurbulentNoise: [ 'cNoiseOctave', 'cNoiseAmplitude', 'cNoiseFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			SparkNoise: [ 'cNoiseFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			VoronoiNoise: [ 'cNoiseFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			MarbleNoise: [ 'cScale', 'cFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			TessNoise: [ 'cNoiseFrequency', 'cOffset', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
+			GradientNoise: [ 'cNoiseScale', 'cColor', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
 
 			Checker: [ 'cWidth', 'cHeight' ],
-			FlameLance: [
-				'cSize',
-				'cSpeed',
-				'cPower',
-				'cAngle',
-				'cColor',
-				'cNoiseSize',
-				'cNoiseStrength',
-				'cNoiseDepth',
-			],
-			Bonfire: [
-				'cSpeed',
-				'cIntensity',
-				'cStrength',
-				'cDensity',
-				'cSize',
-				'cColor',
-			],
+			FlameLance: [ 'cSize', 'cSpeed', 'cPower', 'cAngle', 'cColor', 'cNoiseSize', 'cNoiseStrength', 'cNoiseDepth' ],
+			Bonfire: [ 'cSpeed', 'cIntensity', 'cStrength', 'cDensity', 'cSize', 'cColor' ],
 			Snow: [ 'cSpeed', 'cScale', 'cDensity', 'cRange' ],
-			DiamondGear: [
-				'cScale',
-				'cWidth',
-				'cRadius',
-				'cDiamondGearTeeth',
-				'cDiamondGearMid',
-			],
+			DiamondGear: [ 'cScale', 'cWidth', 'cRadius', 'cDiamondGearTeeth', 'cDiamondGearMid' ],
 			BrushStroke: [
 				'cWidth',
 				'cStrength',
@@ -1689,38 +1392,17 @@ const app = {
 				'cColor',
 			],
 			Speckle: [ 'cRadius', 'cScale', 'cDensity' ],
-			Bubbles: [
-				'cRadius',
-				'cWidth',
-				'cThickness',
-				'cColor',
-				'cBubblesVariation',
-			],
+			Bubbles: [ 'cRadius', 'cWidth', 'cThickness', 'cColor', 'cBubblesVariation' ],
 			Pentagon: [ 'cScale', 'cAlpha', 'cWidth' ],
 			Grunge: [ 'cRadius', 'cScale' ],
-			Energy: [
-				'cPower',
-				'cDensity',
-				'cThickness',
-				'cScale',
-				'cFrequency',
-				'cColor',
-			],
+			Energy: [ 'cPower', 'cDensity', 'cThickness', 'cScale', 'cFrequency', 'cColor' ],
 			InkSplat: [ 'cSplatLines', 'cSplatSpotStep' ],
 			Particle: [ 'cSize', 'cLifeTime', 'cGravity', 'cCount' ],
 			Electric: [ 'cFrequency', 'cScale' ],
 			Caustics: [ 'cScale', 'cSpeed', 'cColor' ],
 			Squiggles: [ 'cSize', 'cScale', 'cDensity' ],
 			WaterTurbulence: [ 'cScale', 'cIntensity' ],
-			Trabeculum: [
-				'cDensity',
-				'cScale',
-				'cIntensity',
-				'cTrabeculumVariation',
-				'cCameraTilt',
-				'cCameraPan',
-				'cColor',
-			],
+			Trabeculum: [ 'cDensity', 'cScale', 'cIntensity', 'cTrabeculumVariation', 'cCameraTilt', 'cCameraPan', 'cColor' ],
 			//MARK: add new pars here
 
 			Test: [],
@@ -1728,87 +1410,53 @@ const app = {
 
 		let pars = parsTable[ this.effectController.type ];
 		for ( let i = 0; i < pars.length; i++ ) {
-
 			let item = items[ pars[ i ] ];
 			if ( pars[ i ].indexOf( 'Enable' ) >= 0 ) {
-
-				this.gui.parsItems.push(
-					this.gui.pars.add( this.effectController, pars[ i ] ).name( item.name )
-				);
-
+				this.gui.parsItems.push( this.gui.pars.add( this.effectController, pars[ i ] ).name( item.name ) );
 			} else {
-
 				let override = false;
 				if ( this.effectController.type in overrideItems ) {
-
 					if ( pars[ i ] in overrideItems[ this.effectController.type ] ) {
-
 						override = true;
-
 					}
-
 				}
 
 				if ( override ) {
-
 					let overrideItem = overrideItems[ this.effectController.type ][ pars[ i ] ];
 					if ( 'defaultValue' in overrideItem ) {
-
 						this.effectController[ pars[ i ] ] = overrideItem.defaultValue;
-
 					}
 
 					let guiItem = this.gui.pars
-						.add(
-							this.effectController,
-							pars[ i ],
-							overrideItem.minValue,
-							overrideItem.maxValue
-						)
+						.add( this.effectController, pars[ i ], overrideItem.minValue, overrideItem.maxValue )
 						.name( item.name );
 					if ( 'step' in item ) {
-
 						guiItem.step( item.step );
-
 					}
 
 					if ( 'step' in overrideItem ) {
-
 						guiItem.step( override.step );
-
 					}
 
 					this.gui.parsItems.push( guiItem );
-
 				} else {
-
-					var guiItem = this.gui.pars
-						.add( this.effectController, pars[ i ], item.minValue, item.maxValue )
-						.name( item.name );
+					var guiItem = this.gui.pars.add( this.effectController, pars[ i ], item.minValue, item.maxValue ).name( item.name );
 					if ( 'step' in item ) {
-
 						guiItem.step( item.step );
-
 					}
 
 					this.gui.parsItems.push( guiItem );
-
 				}
-
 			}
-
 		}
-
 	},
 
 	updateSaveBuffer() {
-
 		this.saveCanvas.width = this.canvas.width;
 		this.saveCanvas.height = this.canvas.height;
 		const ctx = this.saveCanvas.getContext( '2d', { willReadFrequently: true } );
 
 		if ( this.alphaOptions.blur > 0 ) {
-
 			this.blur50.width = this.canvas.width * 0.5;
 			this.blur50.height = this.canvas.height * 0.5;
 			this.blur25.width = this.canvas.width * 0.25;
@@ -1823,19 +1471,14 @@ const app = {
 			blur1ctx.drawImage( blur2, 0, 0, blur2.width, blur2.height, 0, 0, blur1.width, blur1.height );
 
 			for ( let i = 0; i < this.alphaOptions.blur; i++ ) {
-
 				blur2ctx.drawImage( blur1, 0, 0, blur1.width, blur1.height, 0, 0, blur2.width, blur2.height );
 				blur1ctx.drawImage( blur2, 0, 0, blur2.width, blur2.height, 0, 0, blur1.width, blur1.height );
 				[ blur1, blur2, blur1ctx, blur2ctx ] = [ blur2, blur1, blur2ctx, blur1ctx ];
-
 			}
 
 			ctx.drawImage( blur1, 0, 0, blur1.width, blur1.height, 0, 0, this.canvas.width, this.canvas.height );
-
 		} else {
-
 			ctx.drawImage( this.canvas, 0, 0 );
-
 		}
 
 		const threshold = Math.round( this.alphaOptions.threshold * 255.0 );
@@ -1843,25 +1486,21 @@ const app = {
 		const imageData = ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
 		let buffer = imageData.data;
 		for ( let i = 0; i < buffer.length; i += 4 ) {
-
-			const r = ( buffer[ i + 0 ] > tolerance ) ? 255 : ( buffer[ i + 0 ] < threshold ) ? 0 : buffer[ i + 0 ];
-			const g = ( buffer[ i + 1 ] > tolerance ) ? 255 : ( buffer[ i + 1 ] < threshold ) ? 0 : buffer[ i + 1 ];
-			const b = ( buffer[ i + 2 ] > tolerance ) ? 255 : ( buffer[ i + 2 ] < threshold ) ? 0 : buffer[ i + 2 ];
-			const mono = Math.round( Math.max( r, g, b ) );	// max
+			const r = buffer[ i + 0 ] > tolerance ? 255 : buffer[ i + 0 ] < threshold ? 0 : buffer[ i + 0 ];
+			const g = buffer[ i + 1 ] > tolerance ? 255 : buffer[ i + 1 ] < threshold ? 0 : buffer[ i + 1 ];
+			const b = buffer[ i + 2 ] > tolerance ? 255 : buffer[ i + 2 ] < threshold ? 0 : buffer[ i + 2 ];
+			const mono = Math.round( Math.max( r, g, b ) ); // max
 			// const mono = Math.round((r+g+b)/3.0);	// average
 			// const mono = Math.round(0.2989*r + 0.5870*g + 0.114*b);	// weighted average
 			// const mono = Math.round(0.21*r + 0.72*r + 0.07*b);	// luminosity
 			buffer[ i + 3 ] = mono;
-
 		}
 
 		imageData.data.set( buffer );
 		ctx.putImageData( imageData, 0, 0 );
-
 	},
 
 	updateAlphaBuffer() {
-
 		this.updateSaveBuffer();
 
 		this.alphaCanvas.width = this.canvas.width;
@@ -1872,24 +1511,18 @@ const app = {
 		const imageData = ctx2d.getImageData( 0, 0, this.canvas.width, this.canvas.height );
 		const buffer = imageData.data;
 		for ( let i = 0; i < buffer.length; i += 4 ) {
-
 			buffer[ i + 0 ] = buffer[ i + 1 ] = buffer[ i + 2 ] = buffer[ i + 3 ];
 			buffer[ i + 3 ] = 255;
-
 		}
 
 		imageData.data.set( buffer );
 		ctx2d.putImageData( imageData, 0, 0 );
-
 	},
 
 	animate() {
-
 		if ( this.effectController.animate ) {
-
 			this.effectController.time += this.clock.getDelta();
 			// console.log(this.effectController.time);
-
 		}
 
 		var time = this.effectController.time;
@@ -1901,51 +1534,31 @@ const app = {
 		this.render();
 
 		if ( this.alphaOptions.visible && ( this.effectController.animate || this.alphaOptions.update ) ) {
-
 			this.updateAlphaBuffer();
-
 		}
-
 	},
 
 	render() {
-
 		this.stats.update();
 
 		for ( var i = 0; i < this.layers.length; i++ ) {
-
 			var layer = this.layers[ i ];
 			var target = layer.renderTarget;
 			var texture = layer.tDiffuse;
 
-			if (
-				layer.name === 'NormalMap' &&
-				this.effectController.normalMap === false
-			) {
-
+			if ( layer.name === 'NormalMap' && this.effectController.normalMap === false ) {
 				layer = this.layers[ this.layers.length - 1 ];
-
 			}
 
-			if (
-				layer.name === 'PolarConversion' &&
-				this.effectController.polarConversion === false
-			) {
-
+			if ( layer.name === 'PolarConversion' && this.effectController.polarConversion === false ) {
 				layer = this.layers[ this.layers.length - 1 ];
-
 			}
 
 			if ( layer.name === 'Tiling' && this.effectController.tiling === false ) {
-
 				layer = this.layers[ this.layers.length - 1 ];
-
 			}
 
-			layer.uniforms.resolution.value = new THREE.Vector2(
-				this.canvas.width,
-				this.canvas.height
-			);
+			layer.uniforms.resolution.value = new THREE.Vector2( this.canvas.width, this.canvas.height );
 			this.camera.getWorldPosition( layer.uniforms.cameraPos.value );
 			this.camera.getWorldDirection( layer.uniforms.cameraDir.value );
 			layer.uniforms.mouse.value.copy( this.mouse );
@@ -1953,15 +1566,9 @@ const app = {
 			layer.uniforms.tDiffuse.value = texture;
 			const keys = Object.keys( this.effectController );
 			for ( let i in keys ) {
-
 				const key = keys[ i ];
 				if ( key === 'resolution' ) continue;
-				PIXY.FxgenShaderUtils.SetShaderParameter(
-					layer.uniforms,
-					key,
-					this.effectController[ key ]
-				);
-
+				PIXY.FxgenShaderUtils.SetShaderParameter( layer.uniforms, key, this.effectController[ key ] );
 			}
 
 			// PIXY.FxgenShaderUtils.SetShaderParameter(layer.uniforms, "heightScale", effectController.heightScale);
@@ -1995,36 +1602,23 @@ const app = {
 			PIXY.FxgenShaderUtils.SetShaderParameter(
 				layer.uniforms,
 				'cDirection',
-				new THREE.Vector2(
-					this.effectController.cDirectionX,
-					this.effectController.cDirectionY
-				)
+				new THREE.Vector2( this.effectController.cDirectionX, this.effectController.cDirectionY )
 			);
 			// PIXY.FxgenShaderUtils.SetShaderParameter(layer.uniforms, "tNoise", noiseTexture);
-			PIXY.FxgenShaderUtils.SetShaderParameter(
-				layer.uniforms,
-				'tGrunge',
-				this.grungeTexture
-			);
+			PIXY.FxgenShaderUtils.SetShaderParameter( layer.uniforms, 'tGrunge', this.grungeTexture );
 
 			this.scene.overrideMaterial = layer.material;
 			this.renderer.setRenderTarget( target );
 			this.renderer.render( this.scene, this.dummyCamera );
 			this.renderer.setRenderTarget( null );
 			this.scene.overrideMaterial = null;
-
 		}
 
 		if ( this.effectController.cNoiseSphereEnable ) {
-
-			this.noise.uniforms.tDisplacement.value =
-			this.layers[ this.layers.length - 2 ].renderTarget.texture;
+			this.noise.uniforms.tDisplacement.value = this.layers[ this.layers.length - 2 ].renderTarget.texture;
 			this.renderer.render( this.noise.scene, this.camera );
-
 		}
-
-	}
-
+	},
 };
 
 // Save Helper
@@ -2034,80 +1628,55 @@ link.style.display = 'none';
 document.body.appendChild( link ); // Firefox workaround, see #6594
 
 function save( blob, filename ) {
-
 	link.href = URL.createObjectURL( blob );
 	link.download = filename || 'data.json';
 	link.click();
 	// URL.revokeObjectURL( url ); breaks Firefox...
-
 }
 
 function saveString( text, filename ) {
-
 	save( new Blob( [ text ], { type: 'text/plain' } ), filename );
-
 }
 
 app.init();
 app.animate();
 
 function onWindowResize() {
-
 	console.log( '[fxgen] onWindowResize' );
 	app.renderer.setSize( app.canvas.width, app.canvas.height );
 
 	if ( app.layers ) {
-
 		for ( var i = 0; i < app.layers.length; i++ ) {
-
 			if ( app.layers[ i ].renderTarget ) {
-
-				app.layers[ i ].renderTarget = new THREE.WebGLRenderTarget(
-					app.canvas.width,
-					app.canvas.height,
-					{
-						minFilter: THREE.LinearFilter,
-						magFilter: THREE.LinearFilter,
-						stencilBuffer: false,
-					}
-				);
-
+				app.layers[ i ].renderTarget = new THREE.WebGLRenderTarget( app.canvas.width, app.canvas.height, {
+					minFilter: THREE.LinearFilter,
+					magFilter: THREE.LinearFilter,
+					stencilBuffer: false,
+				} );
 			}
 
 			if ( app.layers[ i ].tDiffuse ) {
-
 				app.layers[ i ].tDiffuse = app.layers[ i - 1 ].renderTarget.texture;
-
 			}
 
 			if ( app.layers[ i ].name === 'Tiling' ) {
-
-				app.layers[ i ].tDiffuse.wrapS = app.layers[ i ].tDiffuse.wrapT =
-					THREE.RepeatWrapping;
-
+				app.layers[ i ].tDiffuse.wrapS = app.layers[ i ].tDiffuse.wrapT = THREE.RepeatWrapping;
 			}
-
 		}
-
 	}
 
-	app.spriteSheet.renderTarget = new THREE.WebGLRenderTarget(
-		app.canvas.width,
-		app.canvas.height,
-		{
-			minFilter: THREE.LinearFilter,
-			magFilter: THREE.LinearFilter,
-			stencilBuffer: false,
-		}
-	);
+	app.spriteSheet.renderTarget = new THREE.WebGLRenderTarget( app.canvas.width, app.canvas.height, {
+		minFilter: THREE.LinearFilter,
+		magFilter: THREE.LinearFilter,
+		stencilBuffer: false,
+	} );
 
 	// app.camera.aspect = window.innerWidth / window.innerHeight;
 	// app.camera.updateProjectionMatrix();
 
 	app.render();
-
 }
 
 window.addEventListener( 'resize', onWindowResize, false );
 
-console.log( "[fxgen] ready" );
+console.log( '[fxgen] ready' );
