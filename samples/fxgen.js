@@ -59,14 +59,9 @@ const app = {
 		//! RENDERER
 
 		this.renderer = new THREE.WebGLRenderer();
-		// this.renderer = new THREE.WebGLRenderer({antialias: true});
-		// this.renderer.setClearColor(0xAAAAAA);
-		// this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setSize( 512, 512 );
-		// this.renderer.setSize(window.innerWidth, window.innerHeight);
-		// this.renderer.autoClear = false;
 		if ( this.renderer.capabilities.isWebGL2 ) {
-			console.log( 'WebGL2' );
+			console.log( '[fxgen] WebGL2' );
 		}
 
 		this.canvas = this.renderer.domElement;
@@ -97,7 +92,6 @@ const app = {
 	initScene() {
 		console.log( '[fxgen] initializing scene...' );
 
-		// scene itself
 		this.scene = new THREE.Scene();
 		this.noise.scene = new THREE.Scene();
 
@@ -105,7 +99,6 @@ const app = {
 
 		this.camera = new THREE.PerspectiveCamera( 45.0, 1.0, 1.0, 1000.0 );
 		this.camera.position.set( 0.0, 0.0, 3.8 );
-		// this.camera.lookAt(new THREE.Vector3(0.0, -0.3, 1.0));
 		this.dummyCamera = new THREE.Camera();
 
 		//! CONTROLS
@@ -126,7 +119,8 @@ const app = {
 		mesh = new THREE.Mesh( geo, new THREE.MeshBasicMaterial() );
 		this.scene.add( mesh );
 
-		// TEXTUER MAP
+		//! TEXTUER MAP
+
 		// Noise Texture (for CLOUDS)
 		// noiseTexture = new THREE.TextureLoader().load('assets/textures/shadertoy/tex16.png');
 		// noiseTexture.wrapS = noiseTexture.wrapT = THREE.RepeatWrapping;
@@ -339,31 +333,31 @@ const app = {
 					this.effectController.type = json.type;
 					this.resetParameters( this.layers[ 0 ].uniforms );
 
-					for ( var i in json ) {
+					for ( let i in json ) {
 						this.effectController[ i ] = json[ i ];
 					}
 
-					for ( var i in this.gui.root.controllers ) {
+					for ( let i in this.gui.root.controllers ) {
 						this.gui.root.controllers[ i ].updateDisplay();
 					}
 
-					for ( var i in this.gui.pars.controllers ) {
+					for ( let i in this.gui.pars.controllers ) {
 						this.gui.pars.controllers[ i ].updateDisplay();
 					}
 
-					for ( var i in this.gui.tone.controllers ) {
+					for ( let i in this.gui.tone.controllers ) {
 						this.gui.tone.controllers[ i ].updateDisplay();
 					}
 
-					for ( var i in this.gui.tiling.controllers ) {
+					for ( let i in this.gui.tiling.controllers ) {
 						this.gui.tiling.controllers[ i ].updateDisplay();
 					}
 
-					for ( var i in this.gui.normalMap.controllers ) {
+					for ( let i in this.gui.normalMap.controllers ) {
 						this.gui.normalMap.controllers[ i ].updateDisplay();
 					}
 
-					for ( var i in this.gui.cb.controllers ) {
+					for ( let i in this.gui.cb.controllers ) {
 						this.gui.cb.controllers[ i ].updateDisplay();
 					}
 				},
@@ -547,7 +541,6 @@ const app = {
 
 		// Parameters
 
-		// h.add(this.effectController, 'freeCamera');
 		h.add( this.effectController, 'resolution', [ '8', '16', '32', '64', '128', '256', '512', '1024', '2048' ] ).onChange(
 			( value ) => {
 				this.canvas.width = value;
@@ -1175,7 +1168,7 @@ const app = {
 		};
 
 		//MARK: override items
-		var overrideItems = {
+		let overrideItems = {
 			Circle: {
 				cPowerExponent: { minValue: 0.0, maxValue: 50.0 },
 			},
@@ -1483,7 +1476,7 @@ const app = {
 
 					this.gui.parsItems.push( guiItem );
 				} else {
-					var guiItem = this.gui.pars.add( this.effectController, pars[ i ], item.minValue, item.maxValue ).name( item.name );
+					let guiItem = this.gui.pars.add( this.effectController, pars[ i ], item.minValue, item.maxValue ).name( item.name );
 					if ( 'step' in item ) {
 						guiItem.step( item.step );
 					}
@@ -1568,8 +1561,8 @@ const app = {
 			// console.log(this.effectController.time);
 		}
 
-		var time = this.effectController.time;
-		var str = time.toString() + '0000000';
+		const time = this.effectController.time;
+		let str = time.toString() + '0000000';
 		if ( time === 0 ) str = '0.00000000';
 		document.getElementById( 'time' ).innerHTML = str.slice( 0, 8 );
 
@@ -1584,10 +1577,10 @@ const app = {
 	render() {
 		this.stats.update();
 
-		for ( var i = 0; i < this.layers.length; i++ ) {
-			var layer = this.layers[ i ];
-			var target = layer.renderTarget;
-			var texture = layer.tDiffuse;
+		for ( let i = 0; i < this.layers.length; i++ ) {
+			let layer = this.layers[ i ];
+			let target = layer.renderTarget;
+			let texture = layer.tDiffuse;
 
 			if ( layer.name === 'NormalMap' && this.effectController.normalMap === false ) {
 				layer = this.layers[ this.layers.length - 1 ];
@@ -1689,7 +1682,7 @@ function onWindowResize() {
 	app.renderer.setSize( app.canvas.width, app.canvas.height );
 
 	if ( app.layers ) {
-		for ( var i = 0; i < app.layers.length; i++ ) {
+		for ( let i = 0; i < app.layers.length; i++ ) {
 			if ( app.layers[ i ].renderTarget ) {
 				app.layers[ i ].renderTarget = new THREE.WebGLRenderTarget( app.canvas.width, app.canvas.height, {
 					minFilter: THREE.LinearFilter,
