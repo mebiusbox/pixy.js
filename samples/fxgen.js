@@ -15,7 +15,7 @@ const app = {
 	canvas: undefined,
 	camera: undefined,
 	dummyCamera: undefined,
-	constrols: undefined,
+	controls: undefined,
 	scene: undefined,
 	renderer: undefined,
 	noise: {

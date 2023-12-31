@@ -11,7 +11,7 @@ if ( WebGL.isWebGLAvailable() === false ) {
 const NUM_LIGHTS = 10;
 const app = {
 	camera: undefined,
-	controsl: undefined,
+	controls: undefined,
 	scene: undefined,
 	postScene: undefined,
 	renderer: undefined,
