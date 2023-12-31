@@ -413,6 +413,7 @@ class FxgenShader {
 		this.addCode( codes, [ 'SQUIGGLES' ], 'squigglesFrag' );
 		this.addCode( codes, [ 'WATERTURBULENCE' ], 'waterTurbulenceFrag' );
 		this.addCode( codes, [ 'TRABECULUM' ], 'trabeculumFrag' );
+		this.addCode( codes, [ 'BINARYMATRIX' ], 'binaryMatrixFrag' );
 		this.addCode( codes, [ 'TEST' ], 'testFrag' );
 
 		this.addCode( codes, [ 'TOON' ], 'toonFrag' );

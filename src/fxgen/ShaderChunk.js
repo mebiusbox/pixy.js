@@ -1,3 +1,4 @@
+import binaryMatrixFrag from './ShaderChunk/binaryMatrixFrag.glsl';
 import blocksFrag from './ShaderChunk/blocksFrag.glsl';
 import bonfireFrag from './ShaderChunk/bonfireFrag.glsl';
 import bonfireFragPars from './ShaderChunk/bonfireFragPars.glsl';
@@ -238,6 +239,7 @@ import woodFragPars from './ShaderChunk/woodFragPars.glsl';
 import { woodUniforms } from './ShaderChunk/woodUniforms.js';
 
 export var ShaderChunk = {
+	binaryMatrixFrag: binaryMatrixFrag,
 	blocksFrag: blocksFrag,
 	bonfireFrag: bonfireFrag,
 	bonfireFragPars: bonfireFragPars,

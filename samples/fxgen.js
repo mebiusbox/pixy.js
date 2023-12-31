@@ -617,6 +617,7 @@ const app = {
 			'Squiggles',
 			'WaterTurbulence',
 			'Trabeculum',
+			'BinaryMatrix',
 		] ).onChange( ( value ) => {
 			const stdShader = new PIXY.FxgenShader();
 			stdShader.enable( value.toUpperCase() );
@@ -1439,6 +1440,7 @@ const app = {
 			Squiggles: [ 'cSize', 'cScale', 'cDensity' ],
 			WaterTurbulence: [ 'cScale', 'cIntensity' ],
 			Trabeculum: [ 'cDensity', 'cScale', 'cIntensity', 'cTrabeculumVariation', 'cCameraTilt', 'cCameraPan', 'cColor' ],
+			BinaryMatrix: [],
 			//MARK: add new pars here
 
 			Test: [],
