@@ -139,7 +139,6 @@ const app = {
 
 		stdShader = new PIXY.FxgenShader();
 		stdShader.enable( 'DISPLACEMENT' );
-		stdShader.enable( 'GLSL3' );
 		this.noise.uniforms = stdShader.generateUniforms();
 		this.noise.material = stdShader.createStandardMaterial( this.noise.uniforms );
 		this.noise.sphere = new THREE.Mesh( geo, this.noise.material );
