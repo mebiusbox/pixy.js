@@ -34,6 +34,9 @@ import cloudsFrag from './ShaderChunk/cloudsFrag.glsl';
 import cloudsFragPars from './ShaderChunk/cloudsFragPars.glsl';
 import { cloudsUniforms } from './ShaderChunk/cloudsUniforms.js';
 import { cloudUniforms } from './ShaderChunk/cloudUniforms.js';
+import coherentNoiseFrag from './ShaderChunk/coherentNoiseFrag.glsl';
+import coherentNoiseFragPars from './ShaderChunk/coherentNoiseFragPars.glsl';
+import { coherentNoiseUniforms } from './ShaderChunk/coherentNoiseUniforms.js';
 import color from './ShaderChunk/color.glsl';
 import colorBalanceFrag from './ShaderChunk/colorBalanceFrag.glsl';
 import colorBalanceFragPars from './ShaderChunk/colorBalanceFragPars.glsl';
@@ -275,6 +278,9 @@ export var ShaderChunk = {
 	cloudsFragPars: cloudsFragPars,
 	cloudsUniforms: cloudsUniforms,
 	cloudUniforms: cloudUniforms,
+	coherentNoiseFrag: coherentNoiseFrag,
+	coherentNoiseFragPars: coherentNoiseFragPars,
+	coherentNoiseUniforms: coherentNoiseUniforms,
 	color: color,
 	colorBalanceFrag: colorBalanceFrag,
 	colorBalanceFragPars: colorBalanceFragPars,

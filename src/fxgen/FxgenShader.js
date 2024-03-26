@@ -126,7 +126,7 @@ class FxgenShader {
 			tDiffuse: { value: null },
 		} );
 
-		// UNIFORMS
+		//! UNIFORMS
 
 		this.addUniform( uniforms, [], 'noiseUniforms' );
 		this.addUniform( uniforms, [ 'DISPLACEMENT' ], 'displacementUniforms' );
@@ -143,6 +143,7 @@ class FxgenShader {
 		this.addUniform( uniforms, [ 'FLOWER' ], 'flowerUniforms' );
 		this.addUniform( uniforms, [ 'FLOWERFUN' ], 'flowerFunUniforms' );
 		this.addUniform( uniforms, [ 'WAVERING' ], 'waveRingUniforms' );
+		this.addUniform( uniforms, [ 'COHERENTNOISE' ], 'coherentNoiseUniforms' );
 		this.addUniform( uniforms, [ 'FBMNOISE2' ], 'fbmNoise2Uniforms' );
 		this.addUniform( uniforms, [ 'FBMNOISE3' ], 'fbmNoise3Uniforms' );
 		this.addUniform( uniforms, [ 'SEEMLESSNOISE' ], 'seemlessNoiseUniforms' );
@@ -227,6 +228,8 @@ class FxgenShader {
 
 	generateFragmentShader() {
 
+		//! FRAGMENT PARAMETERS
+
 		const codes = [];
 		this.addCode( codes, [ 'GLSL3' ], 'glsl3Frag' );
 		this.addCode( codes, [], 'common' );
@@ -248,6 +251,7 @@ class FxgenShader {
 		this.addCode( codes, [ 'FLOWER' ], 'flowerFragPars' );
 		this.addCode( codes, [ 'FLOWERFUN' ], 'flowerFunFragPars' );
 		this.addCode( codes, [ 'WAVERING' ], 'waveRingFragPars' );
+		this.addCode( codes, [ 'COHERENTNOISE' ], 'coherentNoiseFragPars' );
 		this.addCode( codes, [ 'BOOLEANNOISE' ], 'booleanNoiseFragPars' );
 		this.addCode( codes, [ 'CELLNOISE' ], 'cellNoiseFragPars' );
 		this.addCode( codes, [ 'FBMNOISE' ], 'fbmNoiseFragPars' );
@@ -315,7 +319,7 @@ class FxgenShader {
 		this.addCode( codes, [], 'frag' );
 		this.addCode( codes, [ 'DISPLACEMENT' ], 'displacementFrag' );
 
-		//// FRAGMENT
+		//! FRAGMENT
 
 		// this.addCode(codes, [], "");
 		this.addCode( codes, [ 'WOOD' ], 'woodFrag' );
@@ -330,6 +334,7 @@ class FxgenShader {
 		this.addCode( codes, [ 'FLOWER' ], 'flowerFrag' );
 		this.addCode( codes, [ 'FLOWERFUN' ], 'flowerFunFrag' );
 		this.addCode( codes, [ 'WAVERING' ], 'waveRingFrag' );
+		this.addCode( codes, [ 'COHERENTNOISE' ], 'coherentNoiseFrag' );
 		this.addCode( codes, [ 'PERLINNOISE' ], 'perlinNoiseFrag' );
 		this.addCode( codes, [ 'BOOLEANNOISE' ], 'booleanNoiseFrag' );
 		this.addCode( codes, [ 'CELLNOISE' ], 'cellNoiseFrag' );
@@ -349,6 +354,7 @@ class FxgenShader {
 		this.addCode(
 			codes,
 			[
+				'+COHERENTNOISE',
 				'+PERLINNOISE',
 				'+BOOLEANNOISE',
 				'+CELLNOISE',
@@ -362,7 +368,7 @@ class FxgenShader {
 				'+SEEMLESSNOISE',
 				'+MARBLENOISE',
 				'+TESSNOISE',
-				'+GRADIENTNOISE',
+				'+GRADIENTNOISE'
 			],
 			'noiseGraphFrag'
 		);

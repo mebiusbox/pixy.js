@@ -5,16 +5,18 @@ uniform float cNoiseAmplitude;
 uniform float cNoisePersistence;
 uniform bool cNoiseGraphEnable;
 
+// [0,1]
 float rand(float x) {
   return fract(sin(x) * 4358.5453123);
 }
+// [0,1]
 float rand3(float n) {
   return fract(cos(n*89.42) * 343.32);
 }
+// [0,1]
 float rand(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898,78.233))) * 43758.5453);
 }
-
 // expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
 // do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
 highp float rand2(const in vec2 uv) {
@@ -56,6 +58,10 @@ float quintic(float a, float b, float x) {
 
 float biquintic(float tl, float tr, float bl, float br, float x, float y) {
   return quintic(quintic(tl,tr,x), quintic(bl,br,x), y);
+}
+
+float bimix(float tl, float tr, float bl, float br, float x, float y) {
+  return mix(mix(tl,tr,x), mix(bl,br,x), y);
 }
 
 // Value Noise by Inigo Quilez - iq/2013
@@ -224,6 +230,10 @@ float iqfbm( in vec2 p ) {
 
 // simplex noise
 
+float mod289(float x) {
+  return x - floor(x * (1.0 / 289.0)) * 289.0;
+}
+
 vec2 mod289(vec2 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
@@ -234,6 +244,14 @@ vec3 mod289(vec3 x) {
 
 vec4 mod289(vec4 x) {
   return x - floor(x * (1.0 / 289.0)) * 289.0;
+}
+
+float permute(in float x) {
+  return mod289(((x*34.0)+1.0)*x);
+}
+
+vec2 permute(in vec2 x) {
+  return mod289(((x*34.0)+1.0)*x);
 }
 
 vec3 permute(in vec3 x) {
@@ -456,3 +474,52 @@ return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) )
 //   return 49.0 * (dot(m0*m0), vec3(dot(p0,x0), dot(p1,x1), dot(p2,x2))) + 
 //     dot(m1*m1, vec2(dot(p3,x3), dot(p4,x4)));
 // }
+
+float scaleShift(float x, float a, float b) { return x*a+b; }
+vec2 scaleShift(vec2 x, float a, float b) { return x*a+b; }
+vec3 scaleShift(vec3 x, float a, float b) { return x*a+b; }
+// @return Value of the noise, range: [0,1]
+float hash1(float x) {
+    return fract(sin(x)*12345.0);
+}
+// @return Value of the noise, range: [0,1]
+float hash1(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233)))*43758.5453123);
+}
+// @return Value of the noise, range: [0,1]
+float hash1(vec3 v) {
+    return fract(sin(dot(v.xyz ,vec3(12.9898,78.233,144.7272))) * 43758.5453);
+}
+// @return Value of the noise, range: [0,1]
+vec2 hash2(vec2 st) {
+    st = vec2(dot(st,vec2(127.1,311.7)),
+              dot(st,vec2(269.5,183.3)));
+    return fract(sin(st)*43758.5453123);
+}
+// @return Value of the noise, range: [0,1]
+vec3 hash3(vec3 st) {
+    st = vec3(dot(st,vec3(127.1,311.7,217.3)), 
+              dot(st,vec3(269.5,183.3,431.1)), 
+              dot(st,vec3(365.6,749.9,323.7)));
+    return fract(sin(st)*43758.5453123);
+}
+// @return Value of the noise, range: [-1,1]
+float random1(float x) {
+    return scaleShift(hash1(x), 2.0, -1.0);
+}
+// @return Value of the noise, range: [-1,1]
+float random1(vec2 st) {
+    return scaleShift(hash1(st), 2.0, -1.0);
+}
+// @return Value of the noise, range: [-1,1]
+float random1(vec3 v) {
+    return scaleShift(hash1(v), 2.0, -1.0);
+}
+// @return Value of the noise, range: [-1,1]
+vec2 random2(vec2 p) {
+    return scaleShift(hash2(p), 2.0, -1.0);
+}
+// @return Value of the noise, range: [-1,1]
+vec3 random3(vec3 v) {
+    return scaleShift(hash3(v), 2.0, -1.0);
+}

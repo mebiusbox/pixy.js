@@ -195,13 +195,14 @@ const app = {
 		stdShader.enable( 'TOON' );
 		stdShader.enable( 'GLSL3' );
 		layer.uniforms = stdShader.generateUniforms();
+		layer.defaultUniforms = THREE.UniformsUtils.clone( layer.uniforms );
 		layer.material = stdShader.createMaterial( layer.uniforms );
 		layer.material.defines = this.shaderDefines;
 		// console.log(stdShader.generateVertexShader());
 		// console.log(stdShader.generateFragmentShader());
 		// console.log(layer.material.fragmentShader);
 
-		this.resetParameters( layer.uniforms );
+		this.resetParameters( layer.defaultUniforms );
 		this.layers.push( layer );
 
 		//! POLAR CONVERSION
@@ -325,12 +326,13 @@ const app = {
 					stdShader.enable( 'TOON' );
 					stdShader.enable( 'GLSL3' );
 					this.layers[ 0 ].uniforms = stdShader.generateUniforms();
+					this.layers[ 0 ].defaultUniforms = THREE.UniformsUtils.clone( this.layers[ 0 ].uniforms );
 					this.layers[ 0 ].material = stdShader.createMaterial( this.layers[ 0 ].uniforms, {
 						defines: stdShader.generateDefines(),
 					} );
 
 					this.effectController.type = json.type;
-					this.resetParameters( this.layers[ 0 ].uniforms );
+					this.resetParameters( this.layers[ 0 ].defaultUniforms );
 
 					for ( let i in json ) {
 						this.effectController[ i ] = json[ i ];
@@ -382,139 +384,6 @@ const app = {
 			tiling: false,
 			cRadialMask: 1.0,
 
-			//MARK: parameters
-			cFrequency: 30.0,
-			cAmplitude: 0.01,
-			cIntensity: 0.5,
-			cDirectionX: 0.0,
-			cDirectionY: 1.0,
-			cPowerExponent: 1.0,
-			cRadius: 1.0,
-			cInnerRadius: 1.0,
-			cInnerRadius2: 1.0,
-			cSize: 1.0,
-			cWidth: 1.0,
-			cHeight: 1.0,
-			cDepth: 1.0,
-			cColor: 1.0,
-			cRadius: 0.5,
-			cPetals: 6.0,
-			cOffset: 0.2,
-			cVolume: 3.0,
-			cBeta: 4.0,
-			cDelta: 0.05,
-			cScale: 1.0,
-			cInnerWidth: 0.4,
-			cStrength: 1.0,
-			cPower: 1.0,
-			cRange: 2.0,
-			cEmission: 1.0,
-			cBloom: 1.0,
-			cLightX: 1.0,
-			cLightY: 1.0,
-			cLightZ: 1.0,
-			cAmbient: 1.0,
-			cSmoothness: 1.0,
-			cSmoothnessPower: 1.0,
-			cThickness: 1.0,
-			cThicknessPower: 1.0,
-			cCameraTilt: 0.0,
-			cCameraPan: 0.0,
-			cSpeed: 1.0,
-			cAngle: 0.0,
-			cDensity: 1.0,
-			cAlpha: 1.0,
-
-			cDiamondGearTeeth: 18.0,
-			cDiamondGearMid: 0.8,
-
-			cBrushStrokeX1: -0.4,
-			cBrushStrokeY1: 0.0,
-			cBrushStrokeX2: 1.1,
-			cBrushStrokeY2: 0.8,
-
-			cBubblesVariation: 1.0,
-
-			cFlameEyeInnerFade: 1.0,
-			cFlameEyeOuterFade: 1.0,
-			cFlameEyeBorder: 1.0,
-
-			cSplatLines: 20,
-			cSplatSpotStep: 0.04,
-
-			cTrabeculumVariation: 2.0,
-
-			cLifeTime: 0.9,
-			cGravity: 0.26,
-			cCount: 300,
-
-			// circleRadius: 1.1,
-			// ringRadius: 0.5,
-			// ringWidth: 0.1,
-			// flowerPetals: 6.0,
-			// flowerRadius: 0.5,
-			// flowerOffset: 0.2,
-			// gradationOffset: 0.0001,
-			// smokeVolume: 3.0,
-			// smokeBeta: 4.0,
-			// smokeDelta: 0.05,
-			// flameWidth: 1.0,
-			// flameScale: 1.0,
-			// cellSize: 1.0,
-			// lightningFrequency: 1.0,
-			// lightningWidth: 7.0,
-			// coronaRadius: 0.3,
-			// coronaSize: 1.0,
-			//
-			// lensFlareRadius: 1.0,
-			// lensFlareLength: 1.0,
-			// lensFlareColor: 0.0,
-			//
-			// sunRadius: 1.0,
-			// sunColor: 0.0,
-			//
-			// laserWidth: 0.5,
-			// laserInnerWidth: 0.4,
-			// laserColor: 1.0,
-
-			cToonEnable: false,
-			cToonDark: 0.8,
-			cToonLight: 0.95,
-
-			// fireStrength: 1.0,
-			// firePower: 1.0,
-			// fireRange: 2.0,
-			// fireWidth: 0.1,
-			// fireColor: 0.0001,
-
-			cExplosionRadius: 1.75,
-			cExplosionDownScale: 1.25,
-			cExplosionGrain: 2.0,
-			cExplosionSpeed: 0.3,
-			cExplosionBallness: 2.0,
-			cExplosionGrowth: 2.2,
-			cExplosionFade: 1.6,
-			cExplosionDensity: 1.35,
-			cExplosionContrast: 1.0,
-			cExplosionRollingInitDamp: 0.3,
-			cExplosionRollingSpeed: 2.0,
-			cExplosionDelayRange: 0.25,
-			cExplosionBallSpread: 1.0,
-			cExplosionBloom: 0.0,
-			cExplosionEmission: 0.2,
-			cExplosionColor: 1.0,
-
-			cNoiseOctave: 8,
-			cNoiseFrequency: 1.0,
-			cNoiseAmplitude: 0.65,
-			cNoisePersistence: 0.5,
-			cNoiseScale: 1.0,
-			cNoiseSphereEnable: false,
-			cNoiseGraphEnable: false,
-			cNoiseStrength: 1.0,
-			cNoiseDepth: 3,
-			cNoiseSize: 8.0,
-
 			cColorBalanceShadowsR: 0.0,
 			cColorBalanceShadowsG: 0.0,
 			cColorBalanceShadowsB: 0.0,
@@ -528,6 +397,8 @@ const app = {
 			type: 'Wood',
 			// type: "Test",
 		};
+
+		this.resetEffectParameters();
 
 		let h;
 		this.gui.root = new GUI();
@@ -584,6 +455,7 @@ const app = {
 			'Light',
 			'Cloud',
 			'Cloud2',
+			'CoherentNoise',
 			'PerlinNoise',
 			'SeemlessNoise',
 			'BooleanNoise',
@@ -623,6 +495,7 @@ const app = {
 			stdShader.enable( 'TOON' );
 			stdShader.enable( 'GLSL3' );
 			this.layers[ 0 ].uniforms = stdShader.generateUniforms();
+			this.layers[ 0 ].defaultUniforms = THREE.UniformsUtils.clone( this.layers[ 0 ].uniforms );
 			this.layers[ 0 ].material = stdShader.createMaterial( this.layers[ 0 ].uniforms );
 			this.layers[ 0 ].material.defines = stdShader.generateDefines();
 			// console.log( context.layers[ 0 ].material.extensions );
@@ -630,13 +503,14 @@ const app = {
 			// console.log( context.layers[ 0 ].material.vertexShader );
 			// console.log( context.layers[ 0 ].material.fragmentShader );
 
-			this.resetParameters( this.layers[ 0 ].uniforms );
+			this.resetParameters( this.layers[ 0 ].defaultUniforms );
 		} );
 
 		this.gui.root.add( this.effectController, 'time', 0, 100.0 );
 		this.gui.root.add( this.effectController, 'animate' );
 
 		this.gui.pars = this.gui.root.addFolder( 'Parameters' );
+		this.gui.pars.add(this, 'onResetEffectParameters').name('reset');
 		this.gui.parsItems = [];
 		// this.resetParameters();
 
@@ -671,7 +545,7 @@ const app = {
 		h.add( this.effectController, 'cColorBalanceHighlightsR', -1.0, 1.0, 0.025 ).name( 'Highlights-R' );
 		h.add( this.effectController, 'cColorBalanceHighlightsG', -1.0, 1.0, 0.025 ).name( 'Highlights-G' );
 		h.add( this.effectController, 'cColorBalanceHighlightsB', -1.0, 1.0, 0.025 ).name( 'Highlights-B' );
-		h.add( this, 'resetColorBalance' );
+		h.add( this, 'onResetColorBalance' ).name('reset');
 		h.open( false );
 		// h.add(this.effectController, "colorBlanacePreserveLuminosity");
 		this.gui.cb = h;
@@ -681,9 +555,9 @@ const app = {
 		h.add( this.spriteSheet, 'time', 0.0, 1000.0 );
 		h.add( this.spriteSheet, 'timeLength', 0.1, 1000.0 );
 		h.add( this.spriteSheet, 'timeStep', 0.0001, 100.0 );
-		h.add( this, 'saveSpriteSheet' ).name( 'Save (SpriteSheet)' );
-		h.add( this, 'saveSpriteSheetPng' ).name( 'Save (SpriteSheet with alpha)' );
-		h.add( this, 'downloadSpriteSheetPng' ).name( 'Download (SpriteSheet with alpha)' );
+		h.add( this, 'onSaveSpriteSheet' ).name( 'Save (SpriteSheet)' );
+		h.add( this, 'onSaveSpriteSheetPng' ).name( 'Save (SpriteSheet with alpha)' );
+		h.add( this, 'onDownloadSpriteSheetPng' ).name( 'Download (SpriteSheet with alpha)' );
 		h.open( false );
 
 		this.alphaOptions.threshold = 0.0;
@@ -711,14 +585,169 @@ const app = {
 				this.alphaCanvas.style.display = 'none';
 			}
 		} );
-		h.add( this, 'savePng' ).name( 'Save (PNG)' );
-		h.add( this, 'downloadPng' ).name( 'Download (PNG)' );
+		h.add( this, 'onSavePng' ).name( 'Save (PNG)' );
+		h.add( this, 'onDownloadPng' ).name( 'Download (PNG)' );
 		h.open( false );
 
-		this.gui.root.add( this, 'saveImage' ).name( 'Save' );
+		this.gui.root.add( this, 'onSaveImage' ).name( 'Save' );
 	},
 
-	saveImage() {
+	resetEffectParameters() {
+			//MARK: parameters
+		this.effectController.cFrequency = 30.0;
+		this.effectController.cAmplitude = 0.01;
+		this.effectController.cIntensity = 0.5;
+		this.effectController.cDirectionX = 0.0;
+		this.effectController.cDirectionY = 1.0;
+		this.effectController.cPowerExponent = 1.0;
+		this.effectController.cRadius = 1.0;
+		this.effectController.cInnerRadius = 1.0;
+		this.effectController.cInnerRadius2 = 1.0;
+		this.effectController.cSize = 1.0;
+		this.effectController.cWidth = 1.0;
+		this.effectController.cHeight = 1.0;
+		this.effectController.cDepth = 1.0;
+		this.effectController.cColor = 1.0;
+		this.effectController.cRadius = 0.5;
+		this.effectController.cPetals = 6.0;
+		this.effectController.cOffset = 0.2;
+		this.effectController.cVolume = 3.0;
+		this.effectController.cBeta = 4.0;
+		this.effectController.cDelta = 0.05;
+		this.effectController.cScale = 1.0;
+		this.effectController.cInnerWidth = 0.4;
+		this.effectController.cStrength = 1.0;
+		this.effectController.cPower = 1.0;
+		this.effectController.cRange = 2.0;
+		this.effectController.cEmission = 1.0;
+		this.effectController.cBloom = 1.0;
+		this.effectController.cLightX = 1.0;
+		this.effectController.cLightY = 1.0;
+		this.effectController.cLightZ = 1.0;
+		this.effectController.cAmbient = 1.0;
+		this.effectController.cSmoothness = 1.0;
+		this.effectController.cSmoothnessPower = 1.0;
+		this.effectController.cThickness = 1.0;
+		this.effectController.cThicknessPower = 1.0;
+		this.effectController.cCameraTilt = 0.0;
+		this.effectController.cCameraPan = 0.0;
+		this.effectController.cSpeed = 1.0;
+		this.effectController.cAngle = 0.0;
+		this.effectController.cDensity = 1.0;
+		this.effectController.cAlpha = 1.0;
+		this.effectController.cRepeat = 1.0;
+		this.effectController.cScaleShift = 0.0;
+		this.effectController.cBias = 0.0;
+		this.effectController.cGain = 0.0;
+		this.effectController.cInvert = 0.0;
+		this.effectController.cThreshold = 0.0;
+
+		this.effectController.cDiamondGearTeeth = 18.0;
+		this.effectController.cDiamondGearMid = 0.8;
+
+		this.effectController.cBrushStrokeX1 = -0.4;
+		this.effectController.cBrushStrokeY1 = 0.0;
+		this.effectController.cBrushStrokeX2 = 1.1;
+		this.effectController.cBrushStrokeY2 = 0.8;
+
+		this.effectController.cBubblesVariation = 1.0;
+
+		this.effectController.cFlameEyeInnerFade = 1.0;
+		this.effectController.cFlameEyeOuterFade = 1.0;
+		this.effectController.cFlameEyeBorder = 1.0;
+
+		this.effectController.cSplatLines = 20;
+		this.effectController.cSplatSpotStep = 0.04;
+
+		this.effectController.cTrabeculumVariation = 2.0;
+
+		this.effectController.cLifeTime = 0.9;
+		this.effectController.cGravity = 0.26;
+		this.effectController.cCount = 300;
+
+		// this.effectController.circleRadius = 1.1;
+		// this.effectController.ringRadius: 0.5,
+		// this.effectController.ringWidth: 0.1,
+		// this.effectController.flowerPetals: 6.0,
+		// this.effectController.flowerRadius: 0.5,
+		// this.effectController.flowerOffset: 0.2,
+		// this.effectController.gradationOffset: 0.0001,
+		// this.effectController.smokeVolume: 3.0,
+		// this.effectController.smokeBeta: 4.0,
+		// this.effectController.smokeDelta: 0.05,
+		// this.effectController.flameWidth: 1.0,
+		// this.effectController.flameSthis.effectController.cale = 1.0;
+		// this.effectController.this.effectController.cellSize = 1.0;
+		// this.effectController.lightningFrequenthis.effectController.cy = 1.0;
+		// this.effectController.lightningWidth: 7.0,
+		// this.effectController.coronaRadius = 0.3;
+		// this.effectController.coronaSize = 1.0;
+		//
+		// this.effectController.lensFlareRadius: 1.0,
+		// this.effectController.lensFlareLength: 1.0,
+		// this.effectController.lensFlareColor: 0.0,
+		//
+		// this.effectController.sunRadius: 1.0,
+		// this.effectController.sunColor: 0.0,
+		//
+		// this.effectController.laserWidth: 0.5,
+		// this.effectController.laserInnerWidth: 0.4,
+		// this.effectController.laserColor: 1.0,
+
+		this.effectController.cToonEnable = false;
+		this.effectController.cToonDark = 0.8;
+		this.effectController.cToonLight = 0.95;
+
+		// this.effectController.fireStrength: 1.0,
+		// this.effectController.firePower: 1.0,
+		// this.effectController.fireRange: 2.0,
+		// this.effectController.fireWidth: 0.1,
+		// this.effectController.fireColor: 0.0001,
+
+		this.effectController.cExplosionRadius = 1.75;
+		this.effectController.cExplosionDownScale = 1.25;
+		this.effectController.cExplosionGrain = 2.0;
+		this.effectController.cExplosionSpeed = 0.3;
+		this.effectController.cExplosionBallness = 2.0;
+		this.effectController.cExplosionGrowth = 2.2;
+		this.effectController.cExplosionFade = 1.6;
+		this.effectController.cExplosionDensity = 1.35;
+		this.effectController.cExplosionContrast = 1.0;
+		this.effectController.cExplosionRollingInitDamp = 0.3;
+		this.effectController.cExplosionRollingSpeed = 2.0;
+		this.effectController.cExplosionDelayRange = 0.25;
+		this.effectController.cExplosionBallSpread = 1.0;
+		this.effectController.cExplosionBloom = 0.0;
+		this.effectController.cExplosionEmission = 0.2;
+		this.effectController.cExplosionColor = 1.0;
+
+		this.effectController.cNoiseOctave = 8;
+		this.effectController.cNoiseFrequency = 1.0;
+		this.effectController.cNoiseAmplitude = 0.65;
+		this.effectController.cNoisePersistence = 0.5;
+		this.effectController.cNoiseScale = 1.0;
+		this.effectController.cNoiseSphereEnable = false;
+		this.effectController.cNoiseGraphEnable = false;
+		this.effectController.cNoiseStrength = 1.0;
+		this.effectController.cNoiseDepth = 3;
+		this.effectController.cNoiseSize = 8.0;
+		this.effectController.cNoiseLacunarity = 2.0;
+		this.effectController.cTurbulence = 0.0;
+		this.effectController.cRidge = 0.0;
+		this.effectController.cRidgeOffset = 0.9;
+		this.effectController.cGradientNoise = 0.0;
+		this.effectController.cValueNoise = 0.0;
+		this.effectController.cVoronoiNoise = 0.0;
+		this.effectController.cVoronoiCell = 0.0;
+		this.effectController.cSimplexNoise = 1.0;
+	},
+
+	onResetEffectParameters() {
+		this.resetEffectParameters();
+		this.resetParameters( this.layers[ 0 ].defaultUniforms );
+	},
+
+	onSaveImage() {
 		this.render();
 		// window.open( context.canvas.toDataURL() );
 		let dataUrl = this.canvas.toDataURL();
@@ -726,7 +755,7 @@ const app = {
 		w.document.write( "<img src='" + dataUrl + "'/>" );
 	},
 
-	savePng() {
+	onSavePng() {
 		this.render();
 		this.updateSaveBuffer();
 		this.saveCanvas.toBlob( async function ( result ) {
@@ -748,7 +777,7 @@ const app = {
 		} );
 	},
 
-	downloadPng() {
+	onDownloadPng() {
 		this.render();
 		this.updateSaveBuffer();
 		this.saveCanvas.toBlob( ( blob ) => {
@@ -759,7 +788,7 @@ const app = {
 		} );
 	},
 
-	saveSpriteSheet() {
+	onSaveSpriteSheet() {
 		let width = Math.floor( this.canvas.width / this.spriteSheet.dimension );
 		let size = width / this.canvas.width;
 		let time = this.spriteSheet.time;
@@ -804,9 +833,9 @@ const app = {
 		}
 	},
 
-	saveSpriteSheetPng() {
+	onSaveSpriteSheetPng() {
 		this.preventSave = true;
-		this.saveSpriteSheet();
+		this.onSaveSpriteSheet();
 		this.preventSave = false;
 
 		this.updateSaveBuffer();
@@ -829,9 +858,9 @@ const app = {
 		} );
 	},
 
-	downloadSpriteSheetPng() {
+	onDownloadSpriteSheetPng() {
 		this.preventSave = true;
-		this.saveSpriteSheet();
+		this.onSaveSpriteSheet();
 		this.preventSave = false;
 
 		this.updateSaveBuffer();
@@ -843,7 +872,7 @@ const app = {
 		} );
 	},
 
-	resetColorBalance() {
+	onResetColorBalance() {
 		this.effectController.cColorBalanceShadowsR = 0.0;
 		this.effectController.cColorBalanceShadowsG = 0.0;
 		this.effectController.cColorBalanceShadowsB = 0.0;
@@ -881,26 +910,26 @@ const app = {
 
 		this.gui.parsItems = [];
 
-		for ( let key in uniforms ) {
-			if (
-				key === 'resolution' ||
-				key === 'mouse' ||
-				key === 'time' ||
-				key === 'cameraPos' ||
-				key === 'cameraDir' ||
-				key === 'tDiffuse' ||
-				key.indexOf( 'toon' ) === 0 ||
-				key.indexOf( 'Enable' ) >= 0
-			)
-				continue;
+		// for ( let key in uniforms ) {
+		// 	if (
+		// 		key === 'resolution' ||
+		// 		key === 'mouse' ||
+		// 		key === 'time' ||
+		// 		key === 'cameraPos' ||
+		// 		key === 'cameraDir' ||
+		// 		key === 'tDiffuse' ||
+		// 		key.indexOf( 'toon' ) === 0 ||
+		// 		key.indexOf( 'Enable' ) >= 0
+		// 	)
+		// 		continue;
 
-			const keys = Object.keys( this.effectController );
-			for ( let key of keys ) {
-				if ( key in uniforms ) {
-					this.effectController[ key ] = uniforms[ key ].value;
-				}
-			}
-		}
+		// 	const keys = Object.keys( this.effectController );
+		// 	for ( let key of keys ) {
+		// 		if ( key in uniforms ) {
+		// 			this.effectController[ key ] = uniforms[ key ].value;
+		// 		}
+		// 	}
+		// }
 
 		//MARK: items
 		let items = {
@@ -1165,6 +1194,21 @@ const app = {
 				name: 'NoiseStrength',
 			},
 			cNoiseDepth: { minValue: 1, maxValue: 5, name: 'NoiseDepth' },
+			cNoiseLacunarity: { minValue: 1, maxValue: 4, step: 1, name: 'NoiseLacunarity' },
+			cRepeat: { minValue: 1, maxValue: 8, step: 1, name: 'Repeat' },
+			cScaleShift: { minValue: 0.0, maxValue: 1.0, name: 'ScaleShift' },
+			cBias: { minValue: -1.0, maxValue: 1.0, name: 'Bias' },
+			cGain: { minValue: -1.0, maxValue: 1.0, name: 'Gain' },
+			cInvert: { minValue: 0.0, maxValue: 1.0, name: 'Invert' },
+			cThreshold: { minValue: 0.0, maxValue: 1.0, name: 'Threshold' },
+			cTurbulence: { minValue: 0.0, maxValue: 1.0, name: 'Turbulence' },
+			cRidge: { minValue: 0.0, maxValue: 1.0, name: 'Ridge' },
+			cRidgeOffset: { minValue: 0.0, maxValue: 1.0, name: 'RidgeOffset' },
+			cGradientNoise: { minValue: 0.0, maxValue: 1.0, name: 'GradientNoise' },
+			cValueNoise: { minValue: 0.0, maxValue: 1.0, name: 'ValueNoise' },
+			cVoronoiNoise: { minValue: 0.0, maxValue: 1.0, name: 'VoronoiNoise' },
+			cVoronoiCell: { minValue: 0.0, maxValue: 1.0, name: 'VoronoiCell' },
+			cSimplexNoise: { minValue: 0.0, maxValue: 1.0, name: 'SimplexNoise' }
 		};
 
 		//MARK: override items
@@ -1198,6 +1242,13 @@ const app = {
 			Checker: {
 				cWidth: { minValue: 1.0, maxValue: 100.0 },
 				cHeight: { minValue: 1.0, maxValue: 100.0 },
+			},
+			CoherentNoise: {
+				cPowerExponent: { minValue: 0.0, maxValue: 5.0, defaultValue: 1.0 },
+				cNoiseOctave: { minValue: 1.0, maxValue: 6.0, step: 1.0, defaultValue: 6.0 },
+				cNoiseFrequency: { minValue: 1.0, maxValue: 32.0, step: 1.0, defaultValue: 4.0 },
+				cNoiseAmplitude: { minValue: 0.0, maxValue: 2.0, defaultValue: 1.0 },
+				cNoisePersistence: { minValue: 0.0,	maxValue: 1.0, defaultValue: 0.5 },
 			},
 			FbmNoise2: {
 				cNoiseOctave: { minValue: 1.0, maxValue: 3.0, defaultValue: 3.0 },
@@ -1380,6 +1431,30 @@ const app = {
 			],
 			Cloud2: [ 'cIntensity', 'cDensity', 'cThickness', 'cColor' ],
 
+			CoherentNoise: [
+				'cNoiseOctave',
+				'cNoiseFrequency',
+				'cNoiseAmplitude',
+				'cNoiseLacunarity',
+				'cNoisePersistence',
+				'cGradientNoise',
+				'cValueNoise',
+				'cVoronoiNoise',
+				'cVoronoiCell',
+				'cSimplexNoise',
+				'cRepeat',
+				'cTurbulence',
+				'cRidge',
+				'cRidgeOffset',
+				'cScaleShift',
+				'cPowerExponent',
+				'cBias',
+				'cGain',
+				'cThreshold',
+				'cInvert',
+				'cNoiseSphereEnable',
+				'cNoiseGraphEnable',
+			],
 			PerlinNoise: [ 'cNoiseOctave', 'cNoisePersistence', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
 			SeemlessNoise: [ 'cNoiseOctave', 'cNoisePersistence', 'cNoiseScale', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
 			BooleanNoise: [ 'cNoiseFrequency', 'cNoiseSphereEnable', 'cNoiseGraphEnable' ],
@@ -1447,6 +1522,10 @@ const app = {
 
 		let pars = parsTable[ this.effectController.type ];
 		for ( let i = 0; i < pars.length; i++ ) {
+			if ( pars[ i ] in uniforms ) {
+				this.effectController[ pars[ i ] ] = uniforms[ pars[ i ] ].value;
+			}
+
 			let item = items[ pars[ i ] ];
 			if ( pars[ i ].indexOf( 'Enable' ) >= 0 ) {
 				this.gui.parsItems.push( this.gui.pars.add( this.effectController, pars[ i ] ).name( item.name ) );
@@ -1472,7 +1551,7 @@ const app = {
 					}
 
 					if ( 'step' in overrideItem ) {
-						guiItem.step( override.step );
+						guiItem.step( overrideItem.step );
 					}
 
 					this.gui.parsItems.push( guiItem );

@@ -1,10 +1,6 @@
 uniform float cFrequency;
 uniform float cScale;
 
-vec2 hash2(vec2 p) {
-    return fract(sin(vec2(dot(p,vec2(127.1,311.7)),dot(p,vec2(269.5,183.3))))*43758.5453);
-}
-
 vec4 voronoi(in vec2 x) {
     vec2 n = floor(x);
     vec2 f = fract(x);
