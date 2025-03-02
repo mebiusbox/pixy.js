@@ -540,7 +540,7 @@ const lightsSpotUniforms = {
 		value: [
 			{
 				position: new THREE$1.Vector3( 0, 0, 10 ),
-				direction: new THREE$1.Vector3( 0, 0, - 1 ),
+				direction: new THREE$1.Vector3( 0, 0, -1 ),
 				color: new THREE$1.Color(),
 				distance: 10.0,
 				decay: 0.0,
@@ -667,7 +667,7 @@ var parallaxMapFragPars = "uniform float parallaxHeight;\r\nuniform float parall
 
 const parallaxMapUniforms = {
 	parallaxHeight: { value: 0.035 },
-	parallaxScale: { value: - 0.03 },
+	parallaxScale: { value: -0.03 },
 };
 
 var parallaxOcclusionMapFrag = "  vec3 vv = -geometry.viewDir * mat3(vTangent, vBinormal, vNormal);\r\n  // vec3 vv = perturbUv(-vViewPosition, normalize(vNormal), normalize(vViewPosition));\r\n  float parallaxLimit = -length(vv.xy) / vv.z;\r\n  parallaxLimit *= parallaxScale;\r\n\r\n  vec2 vOffsetDir = normalize(vv.xy);\r\n  vec2 vMaxOffset = vOffsetDir * parallaxLimit;\r\n\r\n  float nNumSamples = mix(20.0, 10.0, dot(geometry.viewDir,vNormal));\r\n  float fStepSize = 1.0 / nNumSamples;\r\n\r\n  // debugColor = vec3(vv.xy * 0.5 + vec2(0.5), 0.0);\r\n\r\n  // vec2 dPdx = dFdx(uv);\r\n  // vec2 dPdy = dFdy(uv);\r\n\r\n  float fCurrRayHeight = 1.0;\r\n  vec2 vCurrOffset = vec2(0,0);\r\n  vec2 vLastOffset = vec2(0.0);\r\n  float fLastSampledHeight = 1.;\r\n  float fCurrSampledHeight = 1.;\r\n  for (int nCurrSample = 0; nCurrSample < 50; nCurrSample++) {\r\n    if (float(nCurrSample) > nNumSamples) break;\r\n    // fCurrSampledHeight = textureGrad(tDiffuse, uv + vCurrOffset, dPdx, dPdy).a;\r\n    // fCurrSampledHeight = texture2DGradEXT(tDiffuse, uv + vCurrOffset, dPdx, dPdy).a;\r\n    // fCurrSampledHeight = texture2D(tDiffuse, uv + vCurrOffset).a;\r\n    fCurrSampledHeight = texture2D(tHeightMap, uv + vCurrOffset).r;\r\n    if (fCurrSampledHeight > fCurrRayHeight) {\r\n      float delta1 = fCurrSampledHeight - fCurrRayHeight;\r\n      float delta2 = (fCurrRayHeight + fStepSize) - fLastSampledHeight;\r\n      float ratio = delta1 / (delta1 + delta2);\r\n      vCurrOffset = ratio * vLastOffset + (1.0-ratio) * vCurrOffset;\r\n      break;\r\n    } else {\r\n      fCurrRayHeight -= fStepSize;\r\n      vLastOffset = vCurrOffset;\r\n      vCurrOffset += fStepSize * vMaxOffset;\r\n      fLastSampledHeight = fCurrSampledHeight;\r\n    }\r\n  }\r\n\r\n  uv += vCurrOffset;";
@@ -1549,12 +1549,12 @@ const ShaderUtils = {
 
 				parameters.parallaxHeight = shader.uniforms.parallaxHeight.value;
 				parameters.parallaxScale = shader.uniforms.parallaxScale.value;
-				h.add( parameters, 'parallaxHeight', -1.0, 1.0, 0.025 ).onChange( function ( value ) {
+				h.add( parameters, 'parallaxHeight', -1, 1.0, 0.025 ).onChange( function ( value ) {
 
 					updateCallback( 'parallaxHeight', value );
 
 				} );
-				h.add( parameters, 'parallaxScale', -1.0, 1.0, 0.025 ).onChange( function ( value ) {
+				h.add( parameters, 'parallaxScale', -1, 1.0, 0.025 ).onChange( function ( value ) {
 
 					updateCallback( 'parallaxScale', value );
 
@@ -1719,7 +1719,7 @@ const ShaderUtils = {
 			h = gui.addFolder( 'Distortion' );
 
 			parameters.distortionStrength = shader.uniforms.distortionStrength.value;
-			h.add( parameters, 'distortionStrength', -5.0, 5.0, 0.05 ).onChange( function ( value ) {
+			h.add( parameters, 'distortionStrength', -5, 5.0, 0.05 ).onChange( function ( value ) {
 
 				updateCallback( 'distortionStrength', value );
 
@@ -1733,12 +1733,12 @@ const ShaderUtils = {
 
 			parameters.uvScrollSpeedU = shader.uniforms.uvScrollSpeedU.value;
 			parameters.uvScrollSpeedV = shader.uniforms.uvScrollSpeedV.value;
-			h.add( parameters, 'uvScrollSpeedU', -5.0, 5.0, 0.01 ).onChange( function ( value ) {
+			h.add( parameters, 'uvScrollSpeedU', -5, 5.0, 0.01 ).onChange( function ( value ) {
 
 				updateCallback( 'uvScrollSpeedU', value );
 
 			} );
-			h.add( parameters, 'uvScrollSpeedV', -5.0, 5.0, 0.01 ).onChange( function ( value ) {
+			h.add( parameters, 'uvScrollSpeedV', -5, 5.0, 0.01 ).onChange( function ( value ) {
 
 				updateCallback( 'uvScrollSpeedV', value );
 
@@ -1838,21 +1838,21 @@ const ShaderUtils = {
 				// h.add(parameters, "directLightX", -1.0, 1.0, 0.025).name("x").onChange(directLightDirCallback);
 				// h.add(parameters, "directLightY", -1.0, 1.0, 0.025).name("y").onChange(directLightDirCallback);
 				// h.add(parameters, "directLightZ", -1.0, 1.0, 0.025).name("z").onChange(directLightDirCallback);
-				h.add( parameters, 'directLightX', -1.0, 1.0, 0.025 )
+				h.add( parameters, 'directLightX', -1, 1.0, 0.025 )
 					.name( 'x' )
 					.onChange( function ( value ) {
 
 						callback( 'directLightX', value );
 
 					} );
-				h.add( parameters, 'directLightY', -1.0, 1.0, 0.025 )
+				h.add( parameters, 'directLightY', -1, 1.0, 0.025 )
 					.name( 'y' )
 					.onChange( function ( value ) {
 
 						callback( 'directLightY', value );
 
 					} );
-				h.add( parameters, 'directLightZ', -1.0, 1.0, 0.025 )
+				h.add( parameters, 'directLightZ', -1, 1.0, 0.025 )
 					.name( 'z' )
 					.onChange( function ( value ) {
 
@@ -1888,21 +1888,21 @@ const ShaderUtils = {
 				// h.add(parameters, "pointLightX", -10.0, 10.0, 0.025).name("x").onChange(pointLightPosCallback);
 				// h.add(parameters, "pointLightY", -10.0, 10.0, 0.025).name("y").onChange(pointLightPosCallback);
 				// h.add(parameters, "pointLightZ", -10.0, 10.0, 0.025).name("z").onChange(pointLightPosCallback);
-				h.add( parameters, 'pointLightX', -10.0, 10.0, 0.025 )
+				h.add( parameters, 'pointLightX', -10, 10.0, 0.025 )
 					.name( 'x' )
 					.onChange( function ( value ) {
 
 						callback( 'pointLightX', value );
 
 					} );
-				h.add( parameters, 'pointLightY', -10.0, 10.0, 0.025 )
+				h.add( parameters, 'pointLightY', -10, 10.0, 0.025 )
 					.name( 'y' )
 					.onChange( function ( value ) {
 
 						callback( 'pointLightY', value );
 
 					} );
-				h.add( parameters, 'pointLightZ', -10.0, 10.0, 0.025 )
+				h.add( parameters, 'pointLightZ', -10, 10.0, 0.025 )
 					.name( 'z' )
 					.onChange( function ( value ) {
 
@@ -1953,21 +1953,21 @@ const ShaderUtils = {
 				// h.add(parameters, "spotLightX", -10.0, 10.0, 0.025).name("x").onChange(spotLightPosCallback);
 				// h.add(parameters, "spotLightY", -10.0, 10.0, 0.025).name("y").onChange(spotLightPosCallback);
 				// h.add(parameters, "spotLightZ", -10.0, 10.0, 0.025).name("z").onChange(spotLightPosCallback);
-				h.add( parameters, 'spotLightX', -10.0, 10.0, 0.025 )
+				h.add( parameters, 'spotLightX', -10, 10.0, 0.025 )
 					.name( 'x' )
 					.onChange( function ( value ) {
 
 						callback( 'spotLightX', value );
 
 					} );
-				h.add( parameters, 'spotLightY', -10.0, 10.0, 0.025 )
+				h.add( parameters, 'spotLightY', -10, 10.0, 0.025 )
 					.name( 'y' )
 					.onChange( function ( value ) {
 
 						callback( 'spotLightY', value );
 
 					} );
-				h.add( parameters, 'spotLightZ', -10.0, 10.0, 0.025 )
+				h.add( parameters, 'spotLightZ', -10, 10.0, 0.025 )
 					.name( 'z' )
 					.onChange( function ( value ) {
 
@@ -3806,15 +3806,15 @@ function createShadowedLight( x, y, z, color, intensity ) {
 	const d = 1;
 	light.position.set( x, y, z );
 	light.castShadow = true;
-	light.shadow.camera.left = -d;
+	light.shadow.camera.left = -1;
 	light.shadow.camera.right = d;
 	light.shadow.camera.top = d;
-	light.shadow.camera.bottom = -d;
+	light.shadow.camera.bottom = -1;
 	light.shadow.camera.near = 1;
 	light.shadow.camera.far = 4;
 	light.shadow.mapSize.width = 1024;
 	light.shadow.mapSize.height = 1024;
-	light.shadow.bias = -0.005;
+	light.shadow.bias = -5e-3;
 	return light;
 
 }
@@ -4193,12 +4193,7 @@ const Solar = {
 			// Rayleigh Scattering
 			// lambda in um
 			const tauR = Math.exp( -m * 0.008735 * Math.pow( lambda[ i ], -4.08 ) );
-
-			// Aerosal (water + dust) attenuation
-			// beta - amount of aerosols present
-			// alpha - ratio of small to large particle sizes. (0:4, usually 1.3)
-			const alpha = 1.3;
-			const tauA = Math.exp( -m * beta * Math.pow( lambda[ i ], -alpha ) ); // lambda should be in um
+			const tauA = Math.exp( -m * beta * Math.pow( lambda[ i ], -1.3 ) ); // lambda should be in um
 
 			tau[ i ] = tauR * tauA;
 
@@ -4481,7 +4476,7 @@ class Ocean extends THREE$1.Object3D {
 		const projectionMatrix = this.mirrorCamera.projectionMatrix;
 		q.x = ( Math.sign( this.clipPlane.x ) + projectionMatrix.elements[ 8 ] ) / projectionMatrix.elements[ 0 ];
 		q.y = ( Math.sign( this.clipPlane.y ) + projectionMatrix.elements[ 9 ] ) / projectionMatrix.elements[ 5 ];
-		q.z = -1.0;
+		q.z = -1;
 		q.w = ( 1.0 + projectionMatrix.elements[ 10 ] ) / projectionMatrix.elements[ 14 ];
 
 		// Calculate the scaled plane vector
@@ -6487,7 +6482,7 @@ class SSAOPass extends ScreenPass {
 
 		const rad = this.radius;
 		const rad2 = rad * rad;
-		const negInvRad2 = -1.0 / rad2;
+		const negInvRad2 = -1 / rad2;
 
 		const angleBias = radians( this.angleBias );
 		const tanAngleBias = Math.tan( angleBias );
@@ -6503,8 +6498,8 @@ class SSAOPass extends ScreenPass {
 		const invFocal1 = 1.0 / focal1;
 		const invFocal2 = 1.0 / focal2;
 		const uvToVA0 = 2.0 * invFocal1;
-		const uvToVA1 = -2.0 * invFocal2;
-		const uvToVB0 = -1.0 * invFocal1;
+		const uvToVA1 = -2 * invFocal2;
+		const uvToVB0 = -1 * invFocal1;
 		const uvToVB1 = 1.0 * invFocal2;
 
 		this.makeUniforms.radiusParams.value.set( rad, rad2, negInvRad2, maxRadius );
@@ -6591,10 +6586,10 @@ const brushStrokeUniforms = {
 	cAlpha: { value: 0.58 },
 	cAmplitude: { value: 0.24 },
 	cAngle: { value: 0.0 },
-	cBrushStrokeX1: { value: - 0.4 },
+	cBrushStrokeX1: { value: -0.4 },
 	cBrushStrokeY1: { value: 0.38 },
-	cBrushStrokeX2: { value: - 0.09 },
-	cBrushStrokeY2: { value: - 0.61 },
+	cBrushStrokeX2: { value: -0.09 },
+	cBrushStrokeY2: { value: -0.61 },
 	cColor: { value: 1.0 },
 };
 

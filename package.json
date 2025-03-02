@@ -33,7 +33,7 @@
     "lint:fix": "npm run lint -- --fix",
     "lint:file": "eslint",
     "copy:three": "node scripts/cp.js",
-    "serve": "serve -p 8086 samples"
+    "serve": "serve -p 8086"
   },
   "keywords": [
     "threejs",
@@ -46,16 +46,19 @@
   },
   "homepage": "https://mebiusbox.github.io/",
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-terser": "^0.4.4",
-    "eslint": "^8.37.0",
+    "eslint": "^9.21.0",
     "eslint-config-mdcs": "^5.0.0",
-    "eslint-plugin-compat": "^4.2.0",
-    "eslint-plugin-html": "^7.1.0",
-    "eslint-plugin-import": "^2.29.0",
-    "fs-extra": "^11.1.1",
-    "rollup": "^3.20.2",
+    "eslint-plugin-compat": "^6.0.2",
+    "eslint-plugin-html": "^8.1.2",
+    "eslint-plugin-import": "^2.31.0",
+    "fs-extra": "^11.3.0",
+    "rollup": "^4.34.9",
     "serve": "^14.2.4",
-    "three": "^0.159.0"
+    "three": "^0.174.0"
+  },
+  "volta": {
+    "node": "22.14.0"
   }
 }
