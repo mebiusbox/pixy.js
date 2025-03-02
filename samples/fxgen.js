@@ -6,7 +6,7 @@ import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { CopyShader } from 'three/addons/shaders/CopyShader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
-if ( WebGL.isWebGLAvailable() === false ) {
+if ( WebGL.isWebGL2Available() === false ) {
 	document.body.appendChild( WebGL.getWebGLErrorMessage() );
 }
 
