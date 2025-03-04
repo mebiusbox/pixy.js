@@ -1,0 +1,42 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "build",
+            "problemMatcher": []
+        },
+        {
+          "type": "npm",
+          "script": "build:fxgen",
+          "problemMatcher": []
+        },
+        {
+          "type": "npm",
+          "script": "build:all",
+          "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "build:shaderchunk",
+            "problemMatcher": []
+        },
+        {
+            "type": "npm",
+            "script": "serve",
+            "problemMatcher": []
+        },
+        {
+          "type": "npm",
+          "script": "lint:file -- ${relativeFile}",
+          "problemMatcher": ["$eslint-compact"]
+        },
+        {
+          "type": "npm",
+          "script": "lint:file -- ${relativeFile} --fix",
+          "problemMatcher": ["$eslint-compact"]
+        }
+    ]
+}
