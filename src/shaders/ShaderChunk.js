@@ -23,9 +23,6 @@ import billboardVert from './ShaderChunk/billboardVert.glsl';
 import billboardVertEnd from './ShaderChunk/billboardVertEnd.glsl';
 import billboardVertPars from './ShaderChunk/billboardVertPars.glsl';
 import billboardYVert from './ShaderChunk/billboardYVert.glsl';
-import bokehFrag from './ShaderChunk/bokehFrag.glsl';
-import { bokehUniforms } from './ShaderChunk/bokehUniforms.js';
-import bokehVert from './ShaderChunk/bokehVert.glsl';
 import bsdfs from './ShaderChunk/bsdfs.glsl';
 import bumpMapFrag from './ShaderChunk/bumpMapFrag.glsl';
 import bumpMapFragPars from './ShaderChunk/bumpMapFragPars.glsl';
@@ -64,11 +61,7 @@ import depthFrag from './ShaderChunk/depthFrag.glsl';
 import depthFragPars from './ShaderChunk/depthFragPars.glsl';
 import depthShadowFrag from './ShaderChunk/depthShadowFrag.glsl';
 import depthShadowFragPars from './ShaderChunk/depthShadowFragPars.glsl';
-import depthShadowReceiveFrag from './ShaderChunk/depthShadowReceiveFrag.glsl';
-import { depthShadowReceiveUniforms } from './ShaderChunk/depthShadowReceiveUniforms.js';
-import depthShadowReceiveVert from './ShaderChunk/depthShadowReceiveVert.glsl';
 import { depthShadowUniforms } from './ShaderChunk/depthShadowUniforms.js';
-import depthShadowVert from './ShaderChunk/depthShadowVert.glsl';
 import discardFrag from './ShaderChunk/discardFrag.glsl';
 import { displacementMapUniforms } from './ShaderChunk/displacementMapUniforms.js';
 import displacementMapVert from './ShaderChunk/displacementMapVert.glsl';
@@ -100,9 +93,6 @@ import { emissiveMapUniforms } from './ShaderChunk/emissiveMapUniforms.js';
 import { emissiveUniforms } from './ShaderChunk/emissiveUniforms.js';
 import endFrag from './ShaderChunk/endFrag.glsl';
 import endFragDebug from './ShaderChunk/endFragDebug.glsl';
-import fakeSunFrag from './ShaderChunk/fakeSunFrag.glsl';
-import { fakeSunUniforms } from './ShaderChunk/fakeSunUniforms.js';
-import fakeSunVert from './ShaderChunk/fakeSunVert.glsl';
 import fogFrag from './ShaderChunk/fogFrag.glsl';
 import fogFragPars from './ShaderChunk/fogFragPars.glsl';
 import { fogUniforms } from './ShaderChunk/fogUniforms.js';
@@ -117,12 +107,6 @@ import { glassUniforms } from './ShaderChunk/glassUniforms.js';
 import glassVert from './ShaderChunk/glassVert.glsl';
 import glsl3Frag from './ShaderChunk/glsl3Frag.glsl';
 import glsl3Vert from './ShaderChunk/glsl3Vert.glsl';
-import godRayCompositeFrag from './ShaderChunk/godRayCompositeFrag.glsl';
-import { godRayCompositeUniforms } from './ShaderChunk/godRayCompositeUniforms.js';
-import godRayCompositeVert from './ShaderChunk/godRayCompositeVert.glsl';
-import godRayFrag from './ShaderChunk/godRayFrag.glsl';
-import { godRayUniforms } from './ShaderChunk/godRayUniforms.js';
-import godRayVert from './ShaderChunk/godRayVert.glsl';
 import { grassUniforms } from './ShaderChunk/grassUniforms.js';
 import grassVert from './ShaderChunk/grassVert.glsl';
 import grassVertPars from './ShaderChunk/grassVertPars.glsl';
@@ -255,8 +239,6 @@ import ssaoFrag from './ShaderChunk/ssaoFrag.glsl';
 import { ssaoUniforms } from './ShaderChunk/ssaoUniforms.js';
 import ssaoVert from './ShaderChunk/ssaoVert.glsl';
 import standardAreaLightFrag from './ShaderChunk/standardAreaLightFrag.glsl';
-import standardDisneyFrag from './ShaderChunk/standardDisneyFrag.glsl';
-import standardDisneyFragPars from './ShaderChunk/standardDisneyFragPars.glsl';
 import standardFrag from './ShaderChunk/standardFrag.glsl';
 import standardFragPars from './ShaderChunk/standardFragPars.glsl';
 import standardOrenNayarFrag from './ShaderChunk/standardOrenNayarFrag.glsl';
@@ -324,9 +306,6 @@ export var ShaderChunk = {
 	billboardVertEnd: billboardVertEnd,
 	billboardVertPars: billboardVertPars,
 	billboardYVert: billboardYVert,
-	bokehFrag: bokehFrag,
-	bokehUniforms: bokehUniforms,
-	bokehVert: bokehVert,
 	bsdfs: bsdfs,
 	bumpMapFrag: bumpMapFrag,
 	bumpMapFragPars: bumpMapFragPars,
@@ -365,11 +344,7 @@ export var ShaderChunk = {
 	depthFragPars: depthFragPars,
 	depthShadowFrag: depthShadowFrag,
 	depthShadowFragPars: depthShadowFragPars,
-	depthShadowReceiveFrag: depthShadowReceiveFrag,
-	depthShadowReceiveUniforms: depthShadowReceiveUniforms,
-	depthShadowReceiveVert: depthShadowReceiveVert,
 	depthShadowUniforms: depthShadowUniforms,
-	depthShadowVert: depthShadowVert,
 	discardFrag: discardFrag,
 	displacementMapUniforms: displacementMapUniforms,
 	displacementMapVert: displacementMapVert,
@@ -401,9 +376,6 @@ export var ShaderChunk = {
 	emissiveUniforms: emissiveUniforms,
 	endFrag: endFrag,
 	endFragDebug: endFragDebug,
-	fakeSunFrag: fakeSunFrag,
-	fakeSunUniforms: fakeSunUniforms,
-	fakeSunVert: fakeSunVert,
 	fogFrag: fogFrag,
 	fogFragPars: fogFragPars,
 	fogUniforms: fogUniforms,
@@ -418,12 +390,6 @@ export var ShaderChunk = {
 	glassVert: glassVert,
 	glsl3Frag: glsl3Frag,
 	glsl3Vert: glsl3Vert,
-	godRayCompositeFrag: godRayCompositeFrag,
-	godRayCompositeUniforms: godRayCompositeUniforms,
-	godRayCompositeVert: godRayCompositeVert,
-	godRayFrag: godRayFrag,
-	godRayUniforms: godRayUniforms,
-	godRayVert: godRayVert,
 	grassUniforms: grassUniforms,
 	grassVert: grassVert,
 	grassVertPars: grassVertPars,
@@ -556,8 +522,6 @@ export var ShaderChunk = {
 	ssaoUniforms: ssaoUniforms,
 	ssaoVert: ssaoVert,
 	standardAreaLightFrag: standardAreaLightFrag,
-	standardDisneyFrag: standardDisneyFrag,
-	standardDisneyFragPars: standardDisneyFragPars,
 	standardFrag: standardFrag,
 	standardFragPars: standardFragPars,
 	standardOrenNayarFrag: standardOrenNayarFrag,

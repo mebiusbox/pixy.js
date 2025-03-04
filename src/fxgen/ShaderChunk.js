@@ -182,9 +182,9 @@ import ringAnimFrag from './ShaderChunk/ringAnimFrag.glsl';
 import ringFrag from './ShaderChunk/ringFrag.glsl';
 import ringFragPars from './ShaderChunk/ringFragPars.glsl';
 import { ringUniforms } from './ShaderChunk/ringUniforms.js';
-import seemlessNoiseFrag from './ShaderChunk/seemlessNoiseFrag.glsl';
-import seemlessNoiseFragPars from './ShaderChunk/seemlessNoiseFragPars.glsl';
-import { seemlessNoiseUniforms } from './ShaderChunk/seemlessNoiseUniforms.js';
+import seamlessNoiseFrag from './ShaderChunk/seamlessNoiseFrag.glsl';
+import seamlessNoiseFragPars from './ShaderChunk/seamlessNoiseFragPars.glsl';
+import { seamlessNoiseUniforms } from './ShaderChunk/seamlessNoiseUniforms.js';
 import silexarsFrag from './ShaderChunk/silexarsFrag.glsl';
 import smokeFrag from './ShaderChunk/smokeFrag.glsl';
 import smokeFragPars from './ShaderChunk/smokeFragPars.glsl';
@@ -426,9 +426,9 @@ export var ShaderChunk = {
 	ringFrag: ringFrag,
 	ringFragPars: ringFragPars,
 	ringUniforms: ringUniforms,
-	seemlessNoiseFrag: seemlessNoiseFrag,
-	seemlessNoiseFragPars: seemlessNoiseFragPars,
-	seemlessNoiseUniforms: seemlessNoiseUniforms,
+	seamlessNoiseFrag: seamlessNoiseFrag,
+	seamlessNoiseFragPars: seamlessNoiseFragPars,
+	seamlessNoiseUniforms: seamlessNoiseUniforms,
 	silexarsFrag: silexarsFrag,
 	smokeFrag: smokeFrag,
 	smokeFragPars: smokeFragPars,

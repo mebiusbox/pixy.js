@@ -91,43 +91,6 @@
 
 	var billboardYVert = "  mat3 invMatrix;\r\n  invMatrix[2] = normalize(vec3(ViewInverse[2].x, 0.0, ViewInverse[2].z));\r\n  invMatrix[0] = normalize(cross(vec3(0.0, 1.0, 0.0), invMatrix[2]));\r\n  invMatrix[1] = cross(invMatrix[2], invMatrix[0]);";
 
-	var bokehFrag = "#include <common>\r\n\r\nvarying vec2 vUv;\r\n\r\nuniform sampler2D tColor;\r\nuniform sampler2D tDepth;\r\nuniform float textureWidth;\r\nuniform float textureHeight;\r\n\r\nuniform float focalDepth;\r\nuniform float focalLength;\r\nuniform float fstop;\r\nuniform bool showFocus;\r\n\r\n// make sure that these two values are the same for your camera, otherwise distances will be wrong\r\nuniform float znear;\r\nuniform float zfar;\r\n\r\n// user variables\r\nconst int samples = SAMPLES;\r\nconst int rings = RINGS;\r\n\r\nconst int maxringsamples = rings * samples;\r\n\r\nuniform bool manualdof;\r\nfloat ndofstart = 1.0;\r\nfloat ndofdist = 2.0;\r\nfloat fdofstart = 1.0;\r\nfloat fdofdist = 3.0;\r\n\r\nfloat CoC = 0.03;\r\n\r\nuniform bool vignetting;\r\nfloat vignout = 1.3;\r\nfloat vignin = 0.0;\r\nfloat vignfade = 22.0;\r\n\r\nuniform bool shaderFocus;\r\n// disable if you use external focalDepth value\r\n\r\nuniform vec2 focusCoords;\r\n// autofocus point on screen (0.0, 0.0 - left lower corner, 1.0, 1.0 - upper right)\r\n// if center of screen use vec2(0.5, 0.5)\r\n\r\nuniform float maxblur;\r\n// clamp value o fmax blur (0.0 = no blur, 1.0 default)\r\n\r\nuniform float threshold;\r\nuniform float gain;\r\n\r\nuniform float bias;\r\nuniform float fringe;\r\n\r\nuniform bool noise;\r\n\r\nuniform float dithering;\r\n\r\nuniform bool depthblur;\r\nfloat dbsize = 1.25;\r\n\r\n// next part is experimental\r\n// not looking good with small sample and ring count\r\n// looks okay starting from samples = 4, rings = 4\r\n\r\nuniform bool pentagon;\r\nfloat feather = 0.4;\r\n\r\nfloat penta(vec2 coords) {\r\n// pentagonal shape\r\n  float scale = float(rings) - 1.3;\r\n  vec4 HS0 = vec4( 1.0,         0.0,         0.0, 1.0);\r\n  vec4 HS1 = vec4( 0.309016994, 0.951056516, 0.0, 1.0);\r\n  vec4 HS2 = vec4(-0.809016994, 0.587785252, 0.0, 1.0);\r\n  vec4 HS3 = vec4(-0.809016994,-0.587785252, 0.0, 1.0);\r\n  vec4 HS4 = vec4( 0.309016994,-0.951056516, 0.0, 1.0);\r\n  vec4 HS5 = vec4( 0.0,         0.0,         1.0, 1.0);\r\n  vec4 one = vec4(1.0);\r\n  vec4 P = vec4((coords), vec2(scale, scale));\r\n  vec4 dist = vec4(0.0);\r\n  float inorout = -4.0;\r\n\r\n  dist.x = dot(P, HS0);\r\n  dist.y = dot(P, HS1);\r\n  dist.z = dot(P, HS2);\r\n  dist.w = dot(P, HS3);\r\n\r\n  dist = smoothstep(-feather, feather, dist);\r\n\r\n  inorout += dot(dit, one);\r\n\r\n  dist.x = dot(P, HS4);\r\n  dist.y = HS5.w - abs(P.z);\r\n  dist = smoothstep(-feather, feather, dist);\r\n  inorout += dist.x;\r\n  return clamp(inorout, 0.0, 1.0);\r\n}\r\n\r\nfloat bdepth(vec2 coords) {\r\n// Depth buffer blur\r\n  float d = 0.0;\r\n  float kernel[9];\r\n  vec2 offset[9];\r\n  vec2 wh = vec2(1.0 / textureWidth, 1.0 / textureHeight) * dbsize;\r\n\r\n  offset[0] = vec2(-wh.x, -wh.y);\r\n  offset[1] = vec2(0.0,   -wh.y);\r\n  offset[2] = vec2(wh.x,  -wh.y);\r\n\r\n  offset[3] = vec2(-wh.x, 0.0);\r\n  offset[4] = vec2(0.0,   0.0);\r\n  offset[5] = vec2(wh.x,  0.0);\r\n\r\n  offset[6] = vec2(-wh.x, wh.y);\r\n  offset[7] = vec2(0.0,   wh.y);\r\n  offset[8] = vec2(wh.x,  wh.y);\r\n\r\n  kernel[0] = 1.0 / 16.0; kernel[1] = 2.0 / 16.0; kernel[2] = 1.0 / 16.0;\r\n  kernel[3] = 2.0 / 16.0; kernel[4] = 4.0 / 16.0; kernel[5] = 2.0 / 16.0;\r\n  kernel[6] = 1.0 / 16.0; kernel[7] = 2.0 / 16.0; kernel[8] = 1.0 / 16.0;\r\n\r\n  for (int i=0; i<9; i++) {\r\n    float tmp = texture2D(tDepth, coords + offset[i]).r;\r\n    d += tmp * kernel[i];\r\n  }\r\n\r\n  return d;\r\n}\r\n\r\nvec3 color(vec2 coords, float blur) {\r\n// processing the sample\r\n  vec3 col = vec3(0.0);\r\n  vec2 texel = vec2(1.0 / textureWidth, 1.0 / textureHeight);\r\n\r\n  col.r = texture2D(tColor, coords + vec2(0.0, 1.0) * texel * fringe * blur).r;\r\n  col.g = texture2D(tColor, coords + vec2(-0.866, -0.5) * texel * fringe * blur).g;\r\n  col.b = texture2D(tColor, coords + vec2(0.866, -0.5) * texel * fringe * blur).b;\r\n\r\n  vec3 lumcoeff = vec3(0.299, 0.587, 0.114);\r\n  float lum = dot(col.rgb, lumcoeff);\r\n  float thresh = max((lum - threshold) * gain, 0.0);\r\n  return col + mix(vec3(0.0), col, thresh * blur);\r\n}\r\n\r\nvec3 debugFocus(vec3 col, float blur, float depth) {\r\n  float edge = 0.002 * depth;\r\n  float m = clamp(smoothstep(0.0, edge, blur), 0.0, 1.0);\r\n  float e = clamp(smoothstep(1.0 - edge, 1.0, blur), 0.0, 1.0);\r\n\r\n  col = mix(col, vec3(1.0, 0.5, 0.0), (1.0 - m) * 0.6);\r\n  col = mix(col, vec3(0.0, 0.5, 1.0), ((1.0 - e) - (1.0 - m)) * 0.2);\r\n\r\n  return col;\r\n}\r\n\r\nfloat linearize(float depth) {\r\n  return -zfar * znear / (depth * (zfar - znear) - zfar);\r\n}\r\n\r\nfloat vignette() {\r\n  float dist = distance(vUv.xy, vec2(0.5, 0.5));\r\n  dist = smoothstep(vignout + (fstop / vignfade), vignin + (fstop / vignfade), dist);\r\n  return clamp(dist, 0.0, 1.0);\r\n}\r\n\r\nfloat gather(float i, float j, int ringsamples, inout vec3 col, float w, float h, float blur) {\r\n  float rings2 = float(rings);\r\n  step = PI * 2.0 / float(ringsamples);\r\n  float pw = cos(j * step) * i;\r\n  float ph = sin(j * step) * i;\r\n  float p = 1.0;\r\n  if (pentagon) {\r\n    p = penta(vec2(pw, ph));\r\n  }\r\n  col += color(vUv.xy + vec2(pw*w, ph*h), blur) * mix(1.0, i/rings2, bias) * p;\r\n  return 1.0 * mix(1.0, i/rings2, bias) * p;\r\n}\r\n\r\nvoid main() {\r\n// scene depth calculation\r\n  float depth = linearize(texture2D(tDepth, vUv.xy).x);\r\n\r\n// Blur depth?\r\n  if (depthblur) {\r\n    depth = linearize(bdepth(vUv.xy));\r\n  }\r\n\r\n// focal plane calculation\r\n  float fDepth = focalDepth;\r\n\r\n  if (shaderFocus) {\r\n    fDpeth = linearize(texture2D(tDepth, focusCoords).x);\r\n  }\r\n\r\n// dof blur factor calculation\r\n\r\n  float blur = 0.0;\r\n\r\n  if (manualdof) {\r\n    float a = depth - fDepth;\r\n    float b = (a - fdofstart) / fdofdist;\r\n    float c = (-a - ndofstart) / ndofdist;\r\n    blur = (a > 0.0) ? b : c;\r\n  } else {\r\n    float f = focalLength;\r\n    float d = fDepth * 1000.0;\r\n    float o = depth * 1000.0;\r\n\r\n    float a = (o*f) / (o-f);\r\n    float b = (d*f) / (d-f);\r\n    float c = (d-f) / (d * fstop * CoC);\r\n\r\n    blur = abs(a-b) * c;\r\n  }\r\n\r\n  blur = clamp(blur, 0.0, 1.0);\r\n\r\n// calculation of pattern for dithering\r\n\r\n  vec2 noise = vec2(rand(vUv.xy), rand(vUv.xy + vec2(0.4, 0.6))) * dithering * blur;\r\n\r\n// getting blur x and y step factor\r\n\r\n  float w = (1.0 / textureWidth) * blur * maxblur + noise.x;\r\n  float h = (1.0 / textureHeight) * blur * maxblur + noise.y;\r\n\r\n// calculation of final color\r\n\r\n  vec3 col = vec3(0.0);\r\n\r\n  if (blur < 0.05) {\r\n// some optimization thingy\r\n    col = texture2D(tColor, vUv.xy).rgb;\r\n  } else {\r\n    col = texture2D(tColor, vuv.xy).rgb;\r\n    float s = 1.0;\r\n    int ringsamples;\r\n\r\n    for (int i=1; i<=rings; i++) {\r\n// unboxstart\r\n      ringsamples = i * samples;\r\n      for (int j=0; j<maxringsamples; j++) {\r\n        if (j >= ringsamples) break;\r\n        s += gather(float(i), float(j), ringsamples, col, w, h, blur);\r\n      }\r\n// unboxend\r\n    }\r\n\r\n    col /= s;\r\n  }\r\n\r\n  if (showFocus) {\r\n    col = debugFocus(col, blur, depth);\r\n  }\r\n\r\n  if (vignetting) {\r\n    col *= vignette();\r\n  }\r\n\r\n  gl_FragColor.rgb = col;\r\n  gl_FragColor.a = 1.0;\r\n}";
-
-	const bokehUniforms = {
-		textureWidth: { value: 1.0 },
-		textureHeight: { value: 1.0 },
-		focalDepth: { value: 1.0 },
-		focalLength: { value: 24.0 },
-		fstop: { value: 0.9 },
-
-		tColor: { value: null },
-		tDepth: { value: null },
-
-		maxblur: { value: 1.0 },
-
-		showFocus: { value: 0 },
-		manualdof: { value: 0 },
-		vignetting: { value: 0 },
-		depthblur: { value: 0 },
-
-		threshold: { value: 0.5 },
-		gain: { value: 2.0 },
-		bias: { value: 0.5 },
-		fringe: { value: 0.7 },
-
-		znear: { value: 0.1 },
-		zfar: { value: 100 },
-
-		noise: { value: 1 },
-		dithering: { value: 0.0001 },
-		pentagon: { value: 0 },
-
-		shaderFocus: { value: 1 },
-		focusCoords: { value: new THREE__namespace.Vector2() },
-	};
-
-	var bokehVert = "varying vec2 vUv;\r\nvoid main() {\r\n  vUv = uv;\r\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n}";
-
 	var bsdfs = "vec3 DiffuseLambert(vec3 diffuseColor) {\r\n  return RECIPROCAL_PI * diffuseColor;\r\n}\r\n\r\n// KANSAI CEDEC2015: Final Fantasy 零式HD リマスター\r\nvec3 DiffuseOrenNayar(vec3 diffuseColor, float NoV, float NoL, float LoV, float roughness) {\r\n  float s = LoV - NoL * NoV;\r\n  float t = rcp(max(NoL, NoV) + 1e-5);\r\n  t = (s < 0.0) ? 1.0 : t;\r\n  float st = s*t;\r\n  \r\n  // ラフネスが 0.0 ～ 1.0 になるように限定すると高速近似可能\r\n  // 参照：A tiny improvement of Oren-Nayar reflectance model\r\n  // http://mimosa-pudica.net/improved-oren-nayar.html\r\n  float a = rcp((PI * 0.5 - 2.0/3.0) * roughness + PI);\r\n  float b = roughness * a;\r\n  return diffuseColor * NoL * (a + b*st);\r\n}\r\n\r\n// compute fresnel specular factor for given base specular and product\r\n// product could be NoV or VoH depending on used technique\r\n// vec3 F_Schlick(vec3 f0, float product) {\r\n//   return mix(f0, vec3(1.0), pow(1.0 - product, 5.0));\r\n// }\r\n\r\nvec3 F_Schlick(vec3 specularColor, vec3 H, vec3 V) {\r\n  return (specularColor + (1.0 - specularColor) * pow(1.0 - saturate(dot(V, H)), 5.0));\r\n}\r\n\r\nvec3 F_SchlickApprox(vec3 specularColor, float VoH) {\r\n\r\n  // Original approximation by Christophe Schlick '94\r\n  // float fresnel = pow(1.0 - product, 5.0);\r\n  \r\n  // Optimized variant (presented by Epic at SIGGRAPH '13)\r\n  float fresnel = exp2((-5.55473 * VoH - 6.98316) * VoH);\r\n  \r\n  // Anything less than 2% is physically impossible and is instead considered to be shadowing\r\n  // return specularColor + (saturate(50.0 * specularColor.g) - specularColor) * fresnel;\r\n  return specularColor + (vec3(1.0) - specularColor) * fresnel;\r\n}\r\n\r\nvec3 F_CookTorrance(vec3 specularColor, vec3 H, vec3 V) {\r\n  vec3 n = (1.0 + sqrt(specularColor)) / (1.0 - sqrt(specularColor));\r\n  float c = saturate(dot(V, H));\r\n  vec3 g = sqrt(n * n + c * c - 1.0);\r\n  \r\n  vec3 part1 = (g - c) / (g + c);\r\n  vec3 part2 = ((g + c) * c - 1.0) / ((g - c) * c + 1.0);\r\n  \r\n  return max(vec3(0.0), 0.5 * part1 * part1 * (1.0 + part2 + part2));\r\n}\r\n\r\n\r\n/// SPECULAR D: MICROFACET DISTRIBUTION FUNCTION\r\n\r\n// Microfacet Models for Refraction through Rough Surface - equation (33)\r\n// http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html\r\n// \"a\" is \"roughness squared\" in Disney 's reparameterization\r\nfloat D_GGX(float a, float NoH) {\r\n  // Isotropic ggx\r\n  float a2 = a*a;\r\n  float NoH2 = NoH*NoH;\r\n  float d = NoH2 * (a2 - 1.0) + 1.0;\r\n  return a2 / (PI * d * d);\r\n}\r\n\r\nfloat D_GGX_AreaLight(float a, float aP, float NoH) {\r\n  float a2 = a*a;\r\n  float aP2 = aP*aP;\r\n  float NoH2 = NoH*NoH;\r\n  float d = NoH2 * (a2 - 1.0) + 1.0;\r\n  return (a2*aP2) / (pow(NoH2 * (a2-1.0) + 1.0, 2.0) * PI);\r\n}\r\n\r\n// following functions are copies fo UE4\r\n// for computing cook-torrance specular lighitng terms\r\n// https://gist.github.com/galek/53557375251e1a942dfa\r\nfloat D_Blinn(in float a, in float NoH) {\r\n  float a2 = a * a;\r\n  float n = 2.0 / (a2*a2) - 2.0;\r\n  return (n + 2.0) / (2.0 * PI) * pow(NoH, n);\r\n}\r\n\r\nfloat D_BlinnPhong(float a, float NoH) {\r\n  float a2 = a * a;\r\n  return (1.0 / (PI * a2)) * pow(NoH, 2.0 / a2 - 2.0);\r\n}\r\n\r\n// https://gist.github.com/galek/53557375251e1a942dfa\r\nfloat D_Beckmann(float a, float NoH) {\r\n  float a2 = a * a;\r\n  float NoH2 = NoH * NoH;\r\n  \r\n  return (1.0 / (PI * a2 * NoH2 * NoH2 + 1e-5)) * exp((NoH2 - 1.0) / (a2 * NoH2));\r\n}\r\n\r\n\r\n/// SPECULAR G: GEOMETRIC ATTENUATION\r\n\r\n\r\nfloat G_Implicit(float a, float NoV, float NoL) {\r\n  return NoL * NoL;\r\n}\r\n\r\nfloat G_BlinngPhong_Implicit(float a, float NoV, float NoL) {\r\n  // geometry term is (n dot l)(n dot v) / 4(n dot l)(n dot v)\r\n  return 0.25;\r\n}\r\n\r\nfloat G_Newmann(float a, float NoV, float NoL) {\r\n  return (NoL * NoV) / max(NoL, NoV);\r\n}\r\n\r\nfloat G_CookTorrance(float a, float NoV, float NoL, float NoH, float VoH) {\r\n  return min(1.0, min((2.0 * NoH * NoV) / VoH, (2.0 * NoH * NoL) / VoH));\r\n}\r\n\r\nfloat G_Kelemen(float a, float NoV, float NoL, float LoV) {\r\n  return (2.0 * NoL * NoV) / (1.0 + LoV);\r\n}\r\n\r\nfloat G_Beckmann(float a, float product) {\r\n  float c = product / (a * sqrt(1.0 - product * product));\r\n  if (c >= 1.6) {\r\n    return 1.0;\r\n  }\r\n  else {\r\n    float c2 = c * c;\r\n    return (3.535 * c + 2.181 * c2) / (1.0 + 2.276 * c + 2.577 * c2);\r\n  }\r\n}\r\n\r\nfloat G_Smith_Beckmann(float a, float NoV, float NoL) {\r\n  return G_Beckmann(a, NoV) * G_Beckmann(a, NoL);\r\n}\r\n\r\n// Smith approx\r\n// Microfacet Models for Refraction through Rough Surface - equation (34)\r\n// http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html\r\n// \"a\" is \"roughness squared\" in Disney 's reparameterization\r\nfloat G_Smith_GGX(float a, float NoV, float NoL) {\r\n  // geometry term = dot(G(l), G(v)) / 4 * dot(n,l) * dot(n,v)\r\n  float a2 = a * a;\r\n  float gl = NoL + sqrt(a2 + (1.0 - a2) * pow2(NoL));\r\n  float gv = NoV + sqrt(a2 + (1.0 - a2) * pow2(NoV));\r\n  return 1.0 / (gl*gv);\r\n}\r\n\r\n// from page 12, listing 2 of http://www.frostbite.com/wp-content/uploads/2014/11/course_notes_moving_frostbite_to_pbr_v2.pdf\r\nfloat G_SmithCorrelated_GGX(float a, float NoV, float NoL) {\r\n  float a2 = a * a;\r\n  \r\n  // NoL and NoV are explicitly swapped. This is not a mistake\r\n  float gv = NoL * sqrt(a2 + (1.0 - a2) * pow2(NoV));\r\n  float gl = NoV * sqrt(a2 + (1.0 - a2) * pow2(NoL));\r\n  \r\n  return 0.5 / max(gv+gl, EPSILON);\r\n}\r\n\r\n// Schlick's Geometric approximation. Note this is edited by Epic to match\r\n// a modification disney made (And ignoring there modifications,\r\n// if you want to do your own research you need to know up front the Schlick originally\r\n// approximated the wrong fomula, so be careful to make sure you choose the corrected\r\n// Schlick if you find it online)\r\nfloat G_Smith_Schlick_GGX(float a, float NoV, float NoL) {\r\n  float k = a * a * 0.5;\r\n  float gl = NoL / (NoL * (1.0 - k) + k);\r\n  float gv = NoV / (NoV * (1.0 - k) + k);\r\n  return gl*gv;\r\n}\r\n\r\n// Tuned to match behavior of Vis_Smith\r\n// [Schlick 1994, \"An Inexpensive BRDF Model for Physically-Based Rendering\"]\r\nfloat G_Schlick(in float a, in float NoV, in float NoL) {\r\n  float k = a * 0.5;\r\n  float V = NoV * (1.0 - k) + k;\r\n  float L = NoL * (1.0 - k) + k;\r\n  return 0.25 / (V * L);\r\n}\r\n\r\nfloat G_SchlickApprox(in float a, in float NdotV, in float NdotL) {\r\n  float V = NdotL * (NdotV * (1.0 - a) + a);\r\n  float L = NdotV * (NdotL * (1.0 - a) + a);\r\n  return 0.5 / (V + L + 1e-5);\r\n}\r\n\r\n// [ Lazarov 2013 \"Getting More Physical in Call of Duty: Black Ops II\" ]\r\n// Adaptation to fit our G term\r\n// ref: https://www.unrealengine.com/blog/physically-based-shading-on-mobile - environmentBRDF for GGX on mobile\r\n// BRDF_Specular_GGX_Environment\r\nvec3 EnvBRDFApprox(vec3 specularColor, float roughness, float NoV) {\r\n  const vec4 c0 = vec4(-1, -0.0275, -0.572, 0.022);\r\n  const vec4 c1 = vec4(1, 0.0425, 1.04, -0.04 );\r\n  vec4 r = roughness * c0 + c1;\r\n  float a004 = min(r.x * r.x, exp2(-9.28 * NoV)) * r.x + r.y;\r\n  vec2 AB = vec2(-1.04, 1.04) * a004 + r.zw;\r\n  return specularColor * AB.x + AB.y;\r\n}\r\n\r\n// three.js (bsdfs.glsl)\r\n// source: http://simonstechblog.blogspot.ca/2011/12/microfacet-brdf.html\r\nfloat GGXRoughnessToBlinnExponent(const in float ggxRoughness) {\r\n  return 2.0 / pow2(ggxRoughness + 0.0001) - 2.0;\r\n}\r\n\r\nfloat BlinnExponentToGGXRoughness(const in float blinnExponent) {\r\n  return sqrt(2.0 / (blinnExponent + 2.0));\r\n}\r\n\r\n/// DISNEY\r\n\r\nfloat F_Schlick_Disney(float u) {\r\n  float m = saturate(1.0 - u);\r\n  float m2 = m * m;\r\n  return m2 * m2 * m;\r\n}\r\n\r\nfloat GTR2_aniso(float NoH, float HoX, float HoY, float ax, float ay) {\r\n  return 1.0 / (PI * ax*ay * pow2(pow2(HoX/ax) + pow2(HoY/ay) + NoH*NoH));\r\n}\r\n    \r\nfloat smithG_GGX(float NoV, float alphaG) {\r\n  float a = alphaG * alphaG;\r\n  float b = NoV * NoV;\r\n  return 1.0 / (NoV + sqrt(a + b - a*b));\r\n}\r\n    \r\nfloat GTR1(float NoH, float a) {\r\n  if (a >= 1.0) {\r\n    return 1.0 / PI;\r\n  }\r\n      \r\n  float a2 = a*a;\r\n  float t = 1.0 + (a2 - 1.0) * NoH * NoH;\r\n  return (a2 - 1.0) / (PI * log(a2) * t);\r\n}";
 
 	var bumpMapFrag = "  geometry.normal = perturbNormalArb(-vViewPosition, normalize(vNormal), dHdxy_fwd());";
@@ -245,22 +208,9 @@
 
 	var depthShadowFragPars = "uniform sampler2D tShadow;";
 
-	var depthShadowReceiveFrag = "uniform sampler2D tDiffuse;\r\nuniform sampler2D tShadow;\r\nvarying vec4 depth;\r\nvarying vec4 shadowMapUV;\r\nvarying vec2 vUv;\r\n\r\n// http://aras-p.info/blog/2009/07/30/encoding-floats-to-rgba-the-final/\r\nfloat DecodeFloatRGBA(vec4 rgba) {\r\n  return dot(rgba, vec4(1.0, 1.0/255.0, 1.0/65025.0, 1.0/16581375.0));\r\n}\r\n\r\nvoid main() {\r\n  float d = DecodeFloatRGBA(texture2DProj(tShadow, shadowMapUV));\r\n  vec4 diffuse = texture2D(tDiffuse, vUv);\r\n  vec4 color = (d * depth.w < depth.z-0.03) ? vec4(0) : vec4(1);\r\n  gl_FragColor = diffuse * color;\r\n  // gl_FragColor.rgb = vec3(shadowMapUV.x, shadowMapUV.y, 1.0);\r\n  // gl_FragColor.rgb = shadow.xxx;\r\n  // gl_FragColor.rgb = texture2D(tShadow, vUv).xxx;\r\n}";
-
-	const depthShadowReceiveUniforms = {
-		mLightViewProjection: { value: new THREE__namespace.Matrix4() },
-		mShadowMatrix: { value: new THREE__namespace.Matrix4() },
-		tDiffuse: { value: null },
-		tShadow: { value: null },
-	};
-
-	var depthShadowReceiveVert = "uniform mat4 mLightViewProjection;\r\nuniform mat4 mShadowMatrix;\r\nvarying vec4 depth;\r\nvarying vec4 shadowMapUV;\r\nvarying vec2 vUv;\r\nvoid main() {\r\n  vUv = uv;\r\n  depth = mLightViewProjection * modelMatrix * vec4(position, 1.0);\r\n  shadowMapUV = mShadowMatrix * modelMatrix * vec4(position, 1.0);\r\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n}";
-
 	const depthShadowUniforms = {
 		tShadow: { value: null },
 	};
-
-	var depthShadowVert = "uniform mat4 mLightViewProjection;\r\nvarying vec4 vShadowMapUV;\r\nvoid main() {\r\n  vec4 pos = mLightViewProjection * modelMatrix * vec4(position, 1.0);\r\n  gl_Position = pos;\r\n  vShadowMapUV = pos;\r\n}";
 
 	var discardFrag = "  if (material.opacity <= 0.5) discard;";
 
@@ -350,17 +300,6 @@
 
 	var endFragDebug = "gl_FragColor.rgb = debugColor;";
 
-	var fakeSunFrag = "uniform vec2 sunPos; // screen space\r\nuniform float aspect;\r\nuniform vec3 sunColor;\r\nuniform vec3 bgColor;\r\nvarying vec2 vUv;\r\nvoid main() {\r\n  vec2 diff = vUv - sunPos;\r\n  \r\n  // Correct for aspect ratio\r\n  diff.x *= aspect;\r\n  \r\n  float prop = clamp(length(diff) / 0.5, 0.0, 1.0);\r\n  prop = 0.35 * pow(1.0 - prop, 3.0);\r\n  gl_FragColor.xyz = mix(sunColor, bgColor, 1.0 - prop);\r\n  gl_FragColor.a = 1.0;\r\n}";
-
-	const fakeSunUniforms = {
-		sunPos: { value: new THREE__namespace.Vector2() },
-		aspect: { value: 1.0 },
-		sunColor: { value: new THREE__namespace.Color() },
-		bgColor: { value: new THREE__namespace.Color() },
-	};
-
-	var fakeSunVert = "varying vec2 vUv;\r\nvoid main() {\r\n  vUv = uv;\r\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n}";
-
 	var fogFrag = "  outgoingLight = fogColor * vFogFactor + outgoingLight * (1.0 - vFogFactor);";
 
 	var fogFragPars = "uniform vec3 fogColor;\r\nvarying float vFogFactor;";
@@ -400,26 +339,6 @@
 	var glsl3Frag$1 = "precision mediump sampler2DArray;\r\n#define varying in\r\n#ifndef MULTIRENDERCOLOR\r\nlayout(location = 0) out highp vec4 outFragColor;\r\n#endif\r\n#define gl_FragColor outFragColor\r\n#define gl_FragDepthEXT gl_FragDepth\r\n#define texture2D texture\r\n#define textureCube texture\r\n#define texture2DProj textureProj\r\n#define texture2DLodEXT textureLod\r\n#define texture2DProjLodEXT textureProjLod\r\n#define textureCubeLodEXT textureLod\r\n#define texture2DGradEXT textureGrad\r\n#define texture2DProjGradEXT textureProjGrad\r\n#define textureCubeGradEXT textureGrad\r\nprecision highp float;\r\nprecision highp int;\r\n#define HIGH_PRECISION";
 
 	var glsl3Vert$1 = "precision mediump sampler2DArray;\r\n#define attribute in\r\n#define varying out\r\n#define texture2D texture\r\nprecision highp float;\r\nprecision highp int;\r\n#define HIGH_PRECISION";
-
-	var godRayCompositeFrag = "uniform sampler2D tColors;\r\nuniform sampler2D tGodRays;\r\nuniform float intensity;\r\nvarying vec2 vUv;\r\n\r\nvoid main() {\r\n  // Since THREE.MeshDepthMaterial renders foreground objects white and background\r\n  // objects black, the god-rays will be white streaks. \r\n  // Therefore value is inverted\r\n  // before being combined with tColors\r\n  gl_FragColor = texture2D(tColors, vUv) + intensity * vec4(1.0 - texture2D(tGodRays, vUv).r);\r\n  gl_FragColor.a = 1.0;\r\n}";
-
-	var godRayCompositeUniforms = {
-		intensity: { value: 1.0 },
-		tColors: { value: null },
-		tGodRays: { value: null },
-	};
-
-	var godRayCompositeVert = "varying vec2 vUv;\r\nvoid main() {\r\n  vUv = uv;\r\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n}";
-
-	var godRayFrag = "#define TAPS_PER_PASS 6.0\r\nuniform sampler2D tDiffuse;\r\nuniform vec2 sunPos;\r\nuniform float stepSize;\r\nvarying vec2 vUv;\r\nvoid main() {\r\n\r\n  // delta from current pixel to sun position\r\n  vec2 delta = sunPos - vUv;\r\n  float dist = length(delta);\r\n  \r\n  // Step vector (uv space)\r\n  vec2 stepv = stepSize * delta / dist;\r\n  \r\n  // Number of iterations between pixel and sun\r\n  float iters = dist / stepSize;\r\n  vec2 uv = vUv.xy;\r\n  float col = 0.0;\r\n  \r\n  // Unrolling loop manuarry makes it work in ANGLE\r\n  if (0.0 <= iters && uv.y < 1.0) col += texture2D(tDiffuse, uv).r;\r\n  uv += stepv;\r\n  if (1.0 <= iters && uv.y < 1.0) col += texture2D(tDiffuse, uv).r;\r\n  uv += stepv;\r\n  if (2.0 <= iters && uv.y < 1.0) col += texture2D(tDiffuse, uv).r;\r\n  uv += stepv;\r\n  if (3.0 <= iters && uv.y < 1.0) col += texture2D(tDiffuse, uv).r;\r\n  uv += stepv;\r\n  if (4.0 <= iters && uv.y < 1.0) col += texture2D(tDiffuse, uv).r;\r\n  uv += stepv;\r\n  if (5.0 <= iters && uv.y < 1.0) col += texture2D(tDiffuse, uv).r;\r\n  uv += stepv;\r\n  \r\n  // Should technicallry be dividing by 'iters', but 'TAPS_PER_PASS' smooths out\r\n  // objectionable artifacts, in particular near the position.\r\n  // The side effect is that the result is darker than it should be around the sun, \r\n  // as TAPS_PER_PASS is greater than the number of sampler actually accumulated.\r\n  // When the result is inverted (in the shader 'GodLaysCombine', \r\n  // this produces a slight bright spot at the position of the sun,\r\n  // even when it is occluded.\r\n  gl_FragColor = vec4(col / TAPS_PER_PASS);\r\n  gl_FragColor.a = 1.0;\r\n}";
-
-	var godRayUniforms = {
-		tDiffuse: { value: null },
-		sunPos: { value: new THREE__namespace.Vector2() },
-		stepSize: { value: 1.0 },
-	};
-
-	var godRayVert = "varying vec2 vUv;\r\nvoid main() {\r\n  vUv = uv;\r\n  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\r\n}";
 
 	const grassUniforms = {
 		grassWindDirection: { value: new THREE__namespace.Vector3( 1, 0, 0 ) },
@@ -877,10 +796,6 @@
 
 	var standardAreaLightFrag = "void computeAreaLight(const in AreaLight areaLight, const in GeometricContext geometry, const in Material material, inout ReflectedLight reflectedLight) {\r\n  vec3 L = areaLight.position - geometry.position;\r\n  float Ld = length(L);\r\n\r\n  if (areaLight.distance == 0.0 || Ld < areaLight.distance) {\r\n    \r\n    vec3 Ln = normalize(L);\r\n  \r\n    vec3 N = geometry.normal;\r\n    vec3 V = geometry.viewDir;\r\n  \r\n    vec3 r = reflect(-V,N);\r\n    vec3 centerToRay = dot(L,r)*r - L;\r\n    vec3 closestPoint = L + centerToRay * clamp(areaLight.radius / length(centerToRay), 0.0, 1.0);\r\n    Ln = normalize(closestPoint);\r\n    \r\n    float NoL = saturate(dot(N, Ln));\r\n    float NoV = saturate(dot(N, V));\r\n    vec3 H = normalize(Ln+V);\r\n    float NoH = saturate(dot(N, H));\r\n    float VoH = saturate(dot(V, H));\r\n    float LoV = saturate(dot(Ln, V));\r\n    float a = pow2(material.specularRoughness);\r\n    \r\n    float Lc = pow(saturate(-Ld / areaLight.distance + 1.0), areaLight.decay);\r\n    float alphaPrime = clamp(areaLight.distance / (Ld*2.0) + a, 0.0, 1.0);\r\n    float D = D_GGX_AreaLight(a, alphaPrime, NoH);\r\n    float G = PBR_Specular_G(material.specularRoughness, NoV, NoL, NoH, VoH, LoV);\r\n    vec3 F = PBR_Specular_F(material.specularColor, V, H) / (4.0 * NoL * NoV + 1e-5);\r\n    \r\n    vec3 cdiff = DiffuseLambert(material.diffuseColor);\r\n    vec3 cspec = F*(G*D);\r\n    \r\n    vec3 irradiance = areaLight.color * NoL * Lc;\r\n    irradiance *= PI; // punctual light\r\n    \r\n    reflectedLight.directDiffuse += irradiance * cdiff;\r\n    reflectedLight.directSpecular += irradiance * cspec;\r\n  }\r\n}";
 
-	var standardDisneyFrag = "  vec3 X = vTangent;\r\n  vec3 Y = vBinormal;\r\n  float NoL = saturate(dot(N, L));\r\n  float NoV = saturate(dot(N, V));\r\n  vec3 H = normalize(L+V);\r\n  float NoH = saturate(dot(N, H));\r\n  float VoH = saturate(dot(V, H));\r\n  float LoV = saturate(dot(L, V));\r\n  float LoH = saturate(dot(L, H));\r\n  float a = max(0.001, pow2(material.specularRoughness));\r\n        \r\n  float luminance = 0.3 * material.diffuseColor.x + 0.6 * material.diffuseColor.y + 0.1 * material.diffuseColor.z;\r\n        \r\n  vec3 tint = luminance > 0.0 ? material.diffuseColor / luminance : vec3(1.0);\r\n  specularColor = mix(0.5 * 0.08 * mix(vec3(1.0), tint, SpecularTint), material.diffuseColor, Metallic);\r\n  vec3 CSheen = mix(vec3(1.0), tint, SheenTint);\r\n        \r\n  // Diffuse fresnel - go from 1 at normal incidence to .5 at grazing\r\n  // and mxi in diffuse retro-reflection based on roughness\r\n  float FL = F_Schlick_Disney(NoL);\r\n  float FV = F_Schlick_Disney(NoV);\r\n  float Fd90 = 0.5 + 2.0 * LoH * LoH * a;\r\n  float Fd = mix(1.0, Fd90, FL) * mix(1.0, Fd90, FV);\r\n        \r\n  // Based on Hanrahan-Krueger brdf approximation of isotropic bssrdf\r\n  // 1.25 scale is used to (roughly) preserve albedo\r\n  // Fss90 used to \"flatten\" retroreflection based on roughness\r\n  float Fss90 = LoH * LoH * a;\r\n  float Fss = mix(1.0, Fss90, FL) * mix(1.0, Fss90, FV);\r\n  float ss = 1.25 * (Fss * (1.0 / (NoL + NoV + 1e-5) - 0.5) + 0.5);\r\n        \r\n  // Specular\r\n  float aspect = sqrt(1.0 - Anisotropic * 0.9);\r\n  float ax = max(0.001, pow2(a) / aspect);\r\n  float ay = max(0.001, pow2(a) * aspect);\r\n  float Ds = GTR2_aniso(NoH, dot(H, X), dot(H, Y), ax, ay);\r\n  float FH = F_Schlick_Disney(LoH);\r\n  vec3 Fs = mix(specularColor, vec3(1.0), FH);\r\n  float roughg = pow2(a * 0.5 + 0.5);\r\n  float Gs = smithG_GGX(NoL , roughg) * smithG_GGX(NoV, roughg);\r\n        \r\n  // Sheen\r\n  vec3 Fsheen = FH * Sheen * CSheen;\r\n        \r\n  // Clearcoat (ior = 1.5 -> F0 = 0.04)\r\n  float Dr = GTR1(NoH, mix(0.1, 0.001, ClearcoatGloss));\r\n  float Fr = mix(0.04, 1.0, FH);\r\n  float Gr = smithG_GGX(NoL, 0.25) * smithG_GGX(NoV, 0.25);\r\n  diffuse = ((1.0 / PI) * mix(Fd, ss, Subsurface) * material.diffuseColor + Fsheen) * (1.0 - Metallic);\r\n  reflectedLight.directDiffuse += (diffuse + Gs*Fs*Ds + 0.25*Clearcoat*Gr*Fr*Dr) * NoL * Lc;\r\n  reflectedLight.directSpecular += (0.25*Clearcoat*Gr*Fr*Dr) * NoL * Lc;";
-
-	var standardDisneyFragPars = "uniform float Subsurface;\r\nuniform float SpecularTint;\r\nuniform float Anisotropic;\r\nuniform float Sheen;\r\nuniform float SheenTint;\r\nuniform float Clearcoat;\r\nuniform float ClearcoatGloss;\r\nfloat Metallic;";
-
 	var standardFrag = "  vec3 N = geometry.normal;\r\n  vec3 L = directLight.direction;\r\n  vec3 V = geometry.viewDir;\r\n\r\n  float NoL = saturate(dot(N, L));\r\n  float NoV = saturate(dot(N, V));\r\n  vec3 H = normalize(L+V);\r\n  float NoH = saturate(dot(N, H));\r\n  float VoH = saturate(dot(V, H));\r\n  float LoV = saturate(dot(L, V));\r\n          \r\n  float a = pow2(material.specularRoughness);\r\n\r\n  vec3 cdiff = DiffuseLambert(material.diffuseColor);\r\n  vec3 cspec = PBR_Specular_CookTorrance(material.specularColor, H, V, L, a, NoL, NoV, NoH, VoH, LoV);\r\n\r\n  vec3 irradiance = directLight.color * NoL;\r\n  irradiance *= PI; // punctual light\r\n\r\n  reflectedLight.directDiffuse += cdiff * irradiance;\r\n  reflectedLight.directSpecular += cspec * irradiance;";
 
 	var standardFragPars = "uniform float roughness;\r\nuniform float metalness;\r\n\r\nfloat PBR_Specular_D(float a, float NoH) {\r\n  // return D_BlinnPhong(a, NoH);\r\n  // return D_Beckmann(a, NoH);\r\n  return D_GGX(a, NoH);\r\n}\r\n\r\nfloat PBR_Specular_G(float a, float NoV, float NoL, float NoH, float VoH, float LoV) {\r\n  // return G_Implicit(a, NoV, NoL);\r\n  // return G_Neuman(a, NoV, NoL);\r\n  // return G_CookTorrance(a, NoV, NoL, NoH, VoH);\r\n  // return G_Keleman(a, NoV, NoL, LoV);\r\n  // return G_Smith_Beckmann(a, NoV, NoL);\r\n  // return G_Smith_GGX(a, NoV, NoL);\r\n  return G_Smith_Schlick_GGX(a, NoV, NoL);\r\n  // return G_SmithCorrelated_GGX(a, NoV, NoL);\r\n}\r\n\r\nvec3 PBR_Specular_F(vec3 specularColor, vec3 H, vec3 V) {\r\n  // return F_None(specularColor);\r\n  // return F_Schlick(specularColor, H, V);\r\n  return F_SchlickApprox(specularColor, saturate(dot(H,V)));\r\n  // return F_CookTorrance(specularColor, H, V);\r\n}\r\n\r\n// Calculates specular intensity according to the Cook - Torrance model\r\n// F: Fresnel - 入射角に対する反射光の量\r\n// D: Microfacet Distribution - 与えられた方向に向いているマイクロファセットの割合\r\n// G: Geometrical Attenuation - マイクロファセットの自己シャドウ\r\nvec3 PBR_Specular_CookTorrance(vec3 specularColor, vec3 H, vec3 V, vec3 L, float a, float NoL, float NoV, float NoH, float VoH, float LoV) {\r\n  float D = PBR_Specular_D(a, NoH);\r\n  float G = PBR_Specular_G(a, NoV, NoL, NoH, VoH, LoV);\r\n  vec3 F = PBR_Specular_F(specularColor, V, H) / (4.0 * NoL * NoV + 1e-5);\r\n  return F * (D*G);\r\n}\r\n";
@@ -1018,9 +933,6 @@
 		billboardVertEnd: billboardVertEnd,
 		billboardVertPars: billboardVertPars,
 		billboardYVert: billboardYVert,
-		bokehFrag: bokehFrag,
-		bokehUniforms: bokehUniforms,
-		bokehVert: bokehVert,
 		bsdfs: bsdfs,
 		bumpMapFrag: bumpMapFrag,
 		bumpMapFragPars: bumpMapFragPars,
@@ -1059,11 +971,7 @@
 		depthFragPars: depthFragPars,
 		depthShadowFrag: depthShadowFrag,
 		depthShadowFragPars: depthShadowFragPars,
-		depthShadowReceiveFrag: depthShadowReceiveFrag,
-		depthShadowReceiveUniforms: depthShadowReceiveUniforms,
-		depthShadowReceiveVert: depthShadowReceiveVert,
 		depthShadowUniforms: depthShadowUniforms,
-		depthShadowVert: depthShadowVert,
 		discardFrag: discardFrag,
 		displacementMapUniforms: displacementMapUniforms,
 		displacementMapVert: displacementMapVert,
@@ -1095,9 +1003,6 @@
 		emissiveUniforms: emissiveUniforms,
 		endFrag: endFrag,
 		endFragDebug: endFragDebug,
-		fakeSunFrag: fakeSunFrag,
-		fakeSunUniforms: fakeSunUniforms,
-		fakeSunVert: fakeSunVert,
 		fogFrag: fogFrag,
 		fogFragPars: fogFragPars,
 		fogUniforms: fogUniforms,
@@ -1112,12 +1017,6 @@
 		glassVert: glassVert,
 		glsl3Frag: glsl3Frag$1,
 		glsl3Vert: glsl3Vert$1,
-		godRayCompositeFrag: godRayCompositeFrag,
-		godRayCompositeUniforms: godRayCompositeUniforms,
-		godRayCompositeVert: godRayCompositeVert,
-		godRayFrag: godRayFrag,
-		godRayUniforms: godRayUniforms,
-		godRayVert: godRayVert,
 		grassUniforms: grassUniforms,
 		grassVert: grassVert,
 		grassVertPars: grassVertPars,
@@ -1250,8 +1149,6 @@
 		ssaoUniforms: ssaoUniforms,
 		ssaoVert: ssaoVert,
 		standardAreaLightFrag: standardAreaLightFrag,
-		standardDisneyFrag: standardDisneyFrag,
-		standardDisneyFragPars: standardDisneyFragPars,
 		standardFrag: standardFrag,
 		standardFragPars: standardFragPars,
 		standardOrenNayarFrag: standardOrenNayarFrag,
@@ -7198,11 +7095,11 @@
 		cPowerExponent: { value: 1.0 },
 	};
 
-	var seemlessNoiseFrag = "float map = min(resolution.x, resolution.y) * cNoiseScale;\r\nvec2 t = mod(pin.coord.xy + vec2(time * 10.0), map);\r\nfloat n = psnoise(t, t / map, vec2(map));\r\npout.color = vec3(n);\r\n\r\nfloat graph = psnoise(t.xx, t.xx/map, vec2(map));";
+	var seamlessNoiseFrag = "float map = min(resolution.x, resolution.y) * cNoiseScale;\r\nvec2 t = mod(pin.coord.xy + vec2(time * 10.0), map);\r\nfloat n = psnoise(t, t / map, vec2(map));\r\npout.color = vec3(n);\r\n\r\nfloat graph = psnoise(t.xx, t.xx/map, vec2(map));";
 
-	var seemlessNoiseFragPars = "uniform float cNoiseScale;";
+	var seamlessNoiseFragPars = "uniform float cNoiseScale;";
 
-	const seemlessNoiseUniforms = {
+	const seamlessNoiseUniforms = {
 		cNoiseScale: { value: 1.0 },
 	};
 
@@ -7557,9 +7454,9 @@
 		ringFrag: ringFrag,
 		ringFragPars: ringFragPars,
 		ringUniforms: ringUniforms,
-		seemlessNoiseFrag: seemlessNoiseFrag,
-		seemlessNoiseFragPars: seemlessNoiseFragPars,
-		seemlessNoiseUniforms: seemlessNoiseUniforms,
+		seamlessNoiseFrag: seamlessNoiseFrag,
+		seamlessNoiseFragPars: seamlessNoiseFragPars,
+		seamlessNoiseUniforms: seamlessNoiseUniforms,
 		silexarsFrag: silexarsFrag,
 		smokeFrag: smokeFrag,
 		smokeFragPars: smokeFragPars,
@@ -7762,7 +7659,7 @@
 			this.addUniform( uniforms, [ 'COHERENTNOISE' ], 'coherentNoiseUniforms' );
 			this.addUniform( uniforms, [ 'FBMNOISE2' ], 'fbmNoise2Uniforms' );
 			this.addUniform( uniforms, [ 'FBMNOISE3' ], 'fbmNoise3Uniforms' );
-			this.addUniform( uniforms, [ 'SEEMLESSNOISE' ], 'seemlessNoiseUniforms' );
+			this.addUniform( uniforms, [ 'SEAMLESSNOISE' ], 'seamlessNoiseUniforms' );
 			this.addUniform( uniforms, [ 'MARBLENOISE' ], 'marbleNoiseUniforms' );
 			this.addUniform( uniforms, [ 'TESSNOISE' ], 'tessNoiseUniforms' );
 			this.addUniform( uniforms, [ 'GRADIENTNOISE' ], 'gradientNoiseUniforms' );
@@ -7877,7 +7774,7 @@
 			this.addCode( codes, [ 'TURBULENTNOISE' ], 'turbulentNoiseFragPars' );
 			this.addCode( codes, [ 'SPARKNOISE' ], 'sparkNoiseFragPars' );
 			this.addCode( codes, [ 'RANDOMNOISE' ], 'randomNoiseFragPars' );
-			this.addCode( codes, [ 'SEEMLESSNOISE' ], 'seemlessNoiseFragPars' );
+			this.addCode( codes, [ 'SEAMLESSNOISE' ], 'seamlessNoiseFragPars' );
 			this.addCode( codes, [ 'TESSNOISE' ], 'tessNoiseFragPars' );
 			this.addCode( codes, [ 'GRADIENTNOISE' ], 'gradientNoiseFragPars' );
 			this.addCode( codes, [ '+HEIGHT2NORMAL', '+HEIGHT2NORMALSOBEL' ], 'height2NormalFragPars' );
@@ -7963,7 +7860,7 @@
 			this.addCode( codes, [ 'RANDOMNOISE' ], 'randomNoiseFrag' );
 			this.addCode( codes, [ 'MANDELBLOT' ], 'mandelblotFrag' );
 			this.addCode( codes, [ 'JULIA' ], 'juliaFrag' );
-			this.addCode( codes, [ 'SEEMLESSNOISE' ], 'seemlessNoiseFrag' );
+			this.addCode( codes, [ 'SEAMLESSNOISE' ], 'seamlessNoiseFrag' );
 			this.addCode( codes, [ 'MARBLENOISE' ], 'marbleNoiseFrag' );
 			this.addCode( codes, [ 'TESSNOISE' ], 'tessNoiseFrag' );
 			this.addCode( codes, [ 'GRADIENTNOISE' ], 'gradientNoiseFrag' );

@@ -146,7 +146,7 @@ class FxgenShader {
 		this.addUniform( uniforms, [ 'COHERENTNOISE' ], 'coherentNoiseUniforms' );
 		this.addUniform( uniforms, [ 'FBMNOISE2' ], 'fbmNoise2Uniforms' );
 		this.addUniform( uniforms, [ 'FBMNOISE3' ], 'fbmNoise3Uniforms' );
-		this.addUniform( uniforms, [ 'SEEMLESSNOISE' ], 'seemlessNoiseUniforms' );
+		this.addUniform( uniforms, [ 'SEAMLESSNOISE' ], 'seamlessNoiseUniforms' );
 		this.addUniform( uniforms, [ 'MARBLENOISE' ], 'marbleNoiseUniforms' );
 		this.addUniform( uniforms, [ 'TESSNOISE' ], 'tessNoiseUniforms' );
 		this.addUniform( uniforms, [ 'GRADIENTNOISE' ], 'gradientNoiseUniforms' );
@@ -261,7 +261,7 @@ class FxgenShader {
 		this.addCode( codes, [ 'TURBULENTNOISE' ], 'turbulentNoiseFragPars' );
 		this.addCode( codes, [ 'SPARKNOISE' ], 'sparkNoiseFragPars' );
 		this.addCode( codes, [ 'RANDOMNOISE' ], 'randomNoiseFragPars' );
-		this.addCode( codes, [ 'SEEMLESSNOISE' ], 'seemlessNoiseFragPars' );
+		this.addCode( codes, [ 'SEAMLESSNOISE' ], 'seamlessNoiseFragPars' );
 		this.addCode( codes, [ 'TESSNOISE' ], 'tessNoiseFragPars' );
 		this.addCode( codes, [ 'GRADIENTNOISE' ], 'gradientNoiseFragPars' );
 		this.addCode( codes, [ '+HEIGHT2NORMAL', '+HEIGHT2NORMALSOBEL' ], 'height2NormalFragPars' );
@@ -347,7 +347,7 @@ class FxgenShader {
 		this.addCode( codes, [ 'RANDOMNOISE' ], 'randomNoiseFrag' );
 		this.addCode( codes, [ 'MANDELBLOT' ], 'mandelblotFrag' );
 		this.addCode( codes, [ 'JULIA' ], 'juliaFrag' );
-		this.addCode( codes, [ 'SEEMLESSNOISE' ], 'seemlessNoiseFrag' );
+		this.addCode( codes, [ 'SEAMLESSNOISE' ], 'seamlessNoiseFrag' );
 		this.addCode( codes, [ 'MARBLENOISE' ], 'marbleNoiseFrag' );
 		this.addCode( codes, [ 'TESSNOISE' ], 'tessNoiseFrag' );
 		this.addCode( codes, [ 'GRADIENTNOISE' ], 'gradientNoiseFrag' );
