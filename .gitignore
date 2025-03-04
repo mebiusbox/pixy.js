@@ -6,3 +6,10 @@ node_modules
 npm-debug.log
 *.bak
 *.log
+
+samples/assets/textures
+!samples/assets/hdr/mealie_road_4k.hdr
+!samples/assets/ue4/T_CobbleStone_Pebble_D.png
+!samples/assets/ue4/T_CobbleStone_Pebble_H.png
+
+src/shaders/ShaderLib
