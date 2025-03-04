@@ -119,7 +119,7 @@ const app = {
 		mesh = new THREE.Mesh( geo, new THREE.MeshBasicMaterial() );
 		this.scene.add( mesh );
 
-		//! TEXTUER MAP
+		//! TEXTURE MAP
 
 		// Noise Texture (for CLOUDS)
 		// noiseTexture = new THREE.TextureLoader().load('assets/textures/shadertoy/tex16.png');
@@ -547,7 +547,7 @@ const app = {
 		h.add( this.effectController, 'cColorBalanceHighlightsB', -1.0, 1.0, 0.025 ).name( 'Highlights-B' );
 		h.add( this, 'onResetColorBalance' ).name('reset');
 		h.open( false );
-		// h.add(this.effectController, "colorBlanacePreserveLuminosity");
+		// h.add(this.effectController, "colorBalancePreserveLuminosity");
 		this.gui.cb = h;
 
 		h = this.gui.root.addFolder( 'SpriteSheet' );
@@ -1601,15 +1601,18 @@ const app = {
 		const tolerance = Math.round( this.alphaOptions.tolerance * 255.0 );
 		const imageData = ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
 		let buffer = imageData.data;
-		for ( let i = 0; i < buffer.length; i += 4 ) {
-			const r = buffer[ i + 0 ] > tolerance ? 255 : buffer[ i + 0 ] < threshold ? 0 : buffer[ i + 0 ];
-			const g = buffer[ i + 1 ] > tolerance ? 255 : buffer[ i + 1 ] < threshold ? 0 : buffer[ i + 1 ];
-			const b = buffer[ i + 2 ] > tolerance ? 255 : buffer[ i + 2 ] < threshold ? 0 : buffer[ i + 2 ];
-			const mono = Math.round( Math.max( r, g, b ) ); // max
-			// const mono = Math.round((r+g+b)/3.0);	// average
-			// const mono = Math.round(0.2989*r + 0.5870*g + 0.114*b);	// weighted average
-			// const mono = Math.round(0.21*r + 0.72*r + 0.07*b);	// luminosity
-			buffer[ i + 3 ] = mono;
+		const availableAlphaTypes = ["Frame"];
+		if (availableAlphaTypes.includes(this.effectController.type)) {
+			for ( let i = 0; i < buffer.length; i += 4 ) {
+				const r = buffer[ i + 0 ] > tolerance ? 255 : buffer[ i + 0 ] < threshold ? 0 : buffer[ i + 0 ];
+				const g = buffer[ i + 1 ] > tolerance ? 255 : buffer[ i + 1 ] < threshold ? 0 : buffer[ i + 1 ];
+				const b = buffer[ i + 2 ] > tolerance ? 255 : buffer[ i + 2 ] < threshold ? 0 : buffer[ i + 2 ];
+				const mono = Math.round( Math.max( r, g, b ) ); // max
+				// const mono = Math.round((r+g+b)/3.0);	// average
+				// const mono = Math.round(0.2989*r + 0.5870*g + 0.114*b);	// weighted average
+				// const mono = Math.round(0.21*r + 0.72*r + 0.07*b);	// luminosity
+				buffer[ i + 3 ] = mono;
+			}
 		}
 
 		imageData.data.set( buffer );
