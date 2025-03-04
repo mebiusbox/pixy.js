@@ -25,14 +25,13 @@
   ],
   "scripts": {
     "build": "rollup -c",
-    "build:shaderchunk": "python scripts/generateShaderChunk.py ./src/shaders/",
-    "build:fxgen": "python scripts/generateShaderChunk.py ./src/fxgen/",
+    "build:shaderchunk": "node scripts/generateShaderChunk.js ./src/shaders/",
+    "build:fxgen": "node scripts/generateShaderChunk.js ./src/fxgen/",
     "build:all": "npm run build:shaderchunk & npm run build:fxgen & npm run build",
     "dev": "rollup -c -w",
     "lint": "eslint src",
     "lint:fix": "npm run lint -- --fix",
     "lint:file": "eslint",
-    "copy:three": "node scripts/cp.js",
     "serve": "serve -p 8086"
   },
   "keywords": [
@@ -53,7 +52,7 @@
     "eslint-plugin-compat": "^6.0.2",
     "eslint-plugin-html": "^8.1.2",
     "eslint-plugin-import": "^2.31.0",
-    "fs-extra": "^11.3.0",
+    "glob": "^11.0.1",
     "rollup": "^4.34.9",
     "serve": "^14.2.4",
     "three": "^0.174.0"
