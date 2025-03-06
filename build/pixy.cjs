@@ -7877,7 +7877,7 @@ class FxgenShader {
 				'+TURBULENTNOISE',
 				'+SPARKNOISE',
 				'+RANDOMNOISE',
-				'+SEEMLESSNOISE',
+				'+SEAMLESSNOISE',
 				'+MARBLENOISE',
 				'+TESSNOISE',
 				'+GRADIENTNOISE'

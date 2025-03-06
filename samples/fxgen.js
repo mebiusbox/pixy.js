@@ -1601,8 +1601,8 @@ const app = {
 		const tolerance = Math.round( this.alphaOptions.tolerance * 255.0 );
 		const imageData = ctx.getImageData( 0, 0, this.canvas.width, this.canvas.height );
 		let buffer = imageData.data;
-		const availableAlphaTypes = ["Frame"];
-		if (availableAlphaTypes.includes(this.effectController.type)) {
+		const availableAlphaTypes = ["Flame"];
+		if (!availableAlphaTypes.includes(this.effectController.type)) {
 			for ( let i = 0; i < buffer.length; i += 4 ) {
 				const r = buffer[ i + 0 ] > tolerance ? 255 : buffer[ i + 0 ] < threshold ? 0 : buffer[ i + 0 ];
 				const g = buffer[ i + 1 ] > tolerance ? 255 : buffer[ i + 1 ] < threshold ? 0 : buffer[ i + 1 ];
